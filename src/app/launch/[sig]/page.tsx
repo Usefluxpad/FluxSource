@@ -49,14 +49,14 @@ export default async function LaunchStatusPage({
   return (
     <div className="animate-fade-up mx-auto max-w-2xl">
       <header className="mb-4">
-        <h1 className="text-lg font-semibold tracking-tight text-white">Launch status</h1>
+        <h1 className="font-display text-lg font-semibold tracking-tight text-ink">Launch status</h1>
         <p className="mt-0.5 text-2xs text-night-500">
           Status is reconciled against on-chain accounts — the database never decides graduation on its own.
         </p>
       </header>
       <section className="space-y-3 rounded-lg border border-night-700/80 bg-night-850 p-4 shadow-panel">
         <div className="flex flex-wrap items-center gap-2">
-          <span className="font-semibold text-white">
+          <span className="font-semibold text-ink">
             {launch.name} <span className="font-mono text-night-500">${launch.symbol}</span>
           </span>
           <RouteBadge route={launch.route} />
@@ -83,7 +83,7 @@ export default async function LaunchStatusPage({
           </ol>
         )}
         {launch.lastError && (
-          <p className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-300">
+          <p className="rounded-lg border border-danger/40 bg-danger/50/10 p-3 text-xs text-danger">
             {launch.lastError}
           </p>
         )}

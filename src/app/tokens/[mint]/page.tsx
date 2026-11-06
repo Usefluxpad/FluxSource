@@ -86,7 +86,7 @@ export default async function TokenDetailPage({
   const launch = await fetchLaunch(mint);
 
   // Social links come from the token's own off-chain metadata JSON — the
-  // registry record's metadataUri for DotPad launches, or the mint's
+  // registry record's metadataUri for FluxPad launches, or the mint's
   // on-chain Metaplex metadata for scanned external tokens. Unavailable
   // links stay null (never fabricated).
   let socials: TokenSocials = { website: null, twitter: null, telegram: null };
@@ -125,7 +125,7 @@ export default async function TokenDetailPage({
         <TokenImage imageUrl={launch.imageUrl} symbol={launch.symbol} size={48} />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-lg font-semibold tracking-tight text-white">{launch.name}</h1>
+            <h1 className="font-display text-lg font-semibold tracking-tight text-ink">{launch.name}</h1>
             <span className="font-mono text-sm text-night-400">${launch.symbol}</span>
             <RouteBadge route={launch.route} />
             <StatusBadge status={launch.status} />
@@ -152,7 +152,7 @@ export default async function TokenDetailPage({
                   <span
                     className={`flex h-6 w-6 items-center justify-center rounded-full border text-2xs ${
                       current
-                        ? "border-mint-500 bg-mint-500 text-night-950"
+                        ? "border-mint-500 bg-mint-500 text-snow"
                         : done
                           ? "border-mint-600/60 bg-night-800 text-mint-400"
                           : failed
@@ -188,7 +188,7 @@ export default async function TokenDetailPage({
       <div className="grid gap-3 lg:grid-cols-3">
         {/* Launch record */}
         <section className="rounded-lg border border-night-700/80 bg-night-850 p-4 shadow-panel lg:col-span-2">
-          <h2 className="text-[13px] font-semibold text-white">Launch record</h2>
+          <h2 className="text-[13px] font-semibold text-ink">Launch record</h2>
           <dl className="mt-3 grid gap-2.5 text-[13px]">
             <Row label="Mint">
               {launch.mintAddress ? (
@@ -246,7 +246,7 @@ export default async function TokenDetailPage({
             ) : (
               <p className="mt-2 text-xs text-night-500">
                 {launch.route === "PUMP_PUMPSWAP"
-                  ? "PumpSwap pool appears here once pump.fun's protocol completes migration and DotPad verifies it on-chain."
+                  ? "PumpSwap pool appears here once pump.fun's protocol completes migration and FluxPad verifies it on-chain."
                   : "Raydium CPMM pool address appears here once the LaunchLab migration completes and the pool is verified on-chain."}
               </p>
             )}
@@ -291,7 +291,7 @@ export default async function TokenDetailPage({
                 href={explorerUrl(cluster, "address", launch.mintAddress)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-night-600 px-3 py-1.5 text-night-500 hover:text-white"
+                className="rounded-lg border border-night-600 px-3 py-1.5 text-night-500 hover:text-ink"
               >
                 Explorer ↗
               </a>
@@ -299,7 +299,7 @@ export default async function TokenDetailPage({
                 href={solscanUrl(cluster, "account", launch.mintAddress)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-lg border border-night-600 px-3 py-1.5 text-night-500 hover:text-white"
+                className="rounded-lg border border-night-600 px-3 py-1.5 text-night-500 hover:text-ink"
               >
                 Solscan ↗
               </a>
@@ -309,7 +309,7 @@ export default async function TokenDetailPage({
 
         {/* Timeline */}
         <section className="rounded-lg border border-night-700/80 bg-night-850 p-4 shadow-panel">
-          <h2 className="text-[13px] font-semibold text-white">Launch events</h2>
+          <h2 className="text-[13px] font-semibold text-ink">Launch events</h2>
           <ol className="mt-3 space-y-3">
             {launch.timeline.length === 0 && (
               <li className="text-[13px] text-night-500">No recorded events yet.</li>
@@ -318,7 +318,7 @@ export default async function TokenDetailPage({
               <li key={i} className="flex gap-2.5 text-[13px]">
                 <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-mint-500" />
                 <div className="min-w-0">
-                  <p className="text-white">{t.kind.replace(/_/g, " ")}</p>
+                  <p className="text-ink">{t.kind.replace(/_/g, " ")}</p>
                   <p className="text-2xs text-night-500">
                     {new Date(t.createdAt).toLocaleString()} ({timeAgo(t.createdAt)})
                   </p>
@@ -333,7 +333,7 @@ export default async function TokenDetailPage({
       {others.length > 0 && (
         <section className="mt-4">
           <div className="mb-2 flex items-center gap-2">
-            <h2 className="text-[13px] font-semibold text-white">
+            <h2 className="text-[13px] font-semibold text-ink">
               More from {shortAddress(launch.creatorWallet, 4)}
             </h2>
             <Link
@@ -351,7 +351,7 @@ export default async function TokenDetailPage({
                 className="row-sep flex items-center gap-3 px-3 py-2 transition hover:bg-night-700/40"
               >
                 <TokenImage imageUrl={o.imageUrl} symbol={o.symbol} size={28} />
-                <span className="min-w-0 flex-1 truncate text-[13px] text-white">
+                <span className="min-w-0 flex-1 truncate text-[13px] text-ink">
                   {o.name} <span className="font-mono text-2xs text-night-400">${o.symbol}</span>
                 </span>
                 <RouteBadge route={o.route} />
@@ -369,7 +369,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-night-700/60 pb-2">
       <dt className="text-night-500">{label}</dt>
-      <dd className="min-w-0 text-white">{children}</dd>
+      <dd className="min-w-0 text-ink">{children}</dd>
     </div>
   );
 }

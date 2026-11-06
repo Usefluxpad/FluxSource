@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Official $DOT Token card.
+ * Official $FLUX Token card.
  *
  * Public, read-only display of the official token identity (name, symbol,
  * network, contract address). Fetches the sanitized view from the guarded
@@ -20,7 +20,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Badge, Button, Card } from "@/components/ui/primitives";
 import { Icon } from "@/components/ui/icons";
-import { RelayPadLogo } from "@/components/brand/logo";
+import { FluxSymbol } from "@/components/brand/logo";
 import { copyText, type CopyResult } from "@/components/official/copy-text";
 import type { OfficialTokenView } from "@/lib/relay-official/token-display";
 
@@ -67,7 +67,7 @@ export function OfficialTokenCard({
   useEffect(() => {
     // The server-rendered view paints instantly; the card still revalidates
     // against the API on mount so the CA always reflects the CURRENT
-    // DOTPAD_OFFICIAL_MINT configuration (env changes must reach the page
+    // FLUXPAD_OFFICIAL_MINT configuration (env changes must reach the page
     // without a rebuild or redeploy).
     void load({ silent: Boolean(initialView) });
     return () => {
@@ -135,18 +135,18 @@ function renderCard(
       {/* Header: identity + honest status badge */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-mint-700/20 text-mint-400">
-            <RelayPadLogo size={22} className="object-contain" />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-xl">
+            <FluxSymbol size={36} className="object-contain" />
           </span>
           <div className="min-w-0">
-            <h2 className="text-base font-semibold tracking-tight text-white">
-              Official $DOT Token
+            <h2 className="text-base font-semibold tracking-tight text-ink">
+              Official $FLUX Token
               <span className="ml-2 text-2xs font-normal uppercase tracking-wider text-night-500">
-                DotPad
+                FluxPad
               </span>
             </h2>
             <p className="text-2xs text-night-500">
-              DotPad&apos;s official token — {view.networkLabel}
+              FluxPad&apos;s official token — {view.networkLabel}
             </p>
           </div>
         </div>
@@ -170,7 +170,7 @@ function renderCard(
               href={view.explorerHref}
               target="_blank"
               rel="noopener noreferrer"
-              title="View the official $DOT token on Solana Explorer"
+              title="View the official $FLUX token on Solana Explorer"
               className={`min-w-0 flex-1 break-all font-mono text-xs underline decoration-night-600 underline-offset-2 hover:decoration-ice-400 sm:text-sm text-mint-300`}
             >
               {view.displayValue}
@@ -201,7 +201,7 @@ function renderCard(
             title={
               view.copyable
                 ? "Copy address"
-                : "Copying is disabled — the official $DOT token has not been announced yet"
+                : "Copying is disabled — the official $FLUX token has not been announced yet"
             }
           >
             <Button
@@ -212,7 +212,7 @@ function renderCard(
               aria-label={
                 view.copyable
                   ? "Copy official token address"
-                  : "Copying is disabled until the official $DOT token is announced"
+                  : "Copying is disabled until the official $FLUX token is announced"
               }
               className="shrink-0"
             >
@@ -236,16 +236,16 @@ function renderCard(
       <p
         className={`mt-2.5 text-xs ${
           view.status === "invalid"
-            ? "text-red-300"
+            ? "text-danger"
             : view.status === "placeholder"
-              ? "text-amber-300"
+              ? "text-warn"
               : "text-night-500"
         }`}
       >
         {view.message}
       </p>
       {showCopyError && (
-        <p role="alert" className="mt-1 text-xs text-red-300">
+        <p role="alert" className="mt-1 text-xs text-danger">
           Copy failed — please select the address text and copy it manually.
         </p>
       )}

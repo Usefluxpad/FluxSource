@@ -12,7 +12,7 @@ import { officialTokenView } from "@/lib/relay-official/token-display";
  * RelayPad dashboard home — a dense, live launch terminal. All panels render
  * real registry data with honest empty states; no fabricated market metrics.
  *
- * Force-dynamic: the Official $RELAY contract address must reflect the
+ * Force-dynamic: the Official $FLUX contract address must reflect the
  * CURRENT RELAY_OFFICIAL_MINT configuration on every request — a statically
  * prerendered CA would keep showing a stale (or placeholder) address after
  * the official mint is configured.
@@ -23,52 +23,53 @@ export default function DashboardHomePage() {
   const officialToken = officialTokenView(getRelayOfficialConfig());
   return (
     <div className="animate-fade-up">
-      {/* Cinematic banner hero */}
-      <section className="relative mb-5 overflow-hidden rounded-2xl border border-night-700/80 bg-night-900 shadow-panel">
+      {/* Electric Blue hero — the official Flux banner as texture inside a deep-blue stage */}
+      <section className="relative mb-5 overflow-hidden rounded-2xl border border-deep/40 shadow-panel">
         <div className="absolute inset-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/dotpad-banner.jpg"
+            src="/flux-banner.jpg"
             alt=""
             aria-hidden="true"
-            className="h-full w-full object-cover object-center opacity-70"
+            className="h-full w-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-night-950 via-night-950/75 to-night-950/10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-night-950 via-transparent to-night-950/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-deep via-deep/85 to-mint-500/25" />
+          <div className="absolute inset-0 bg-gradient-to-t from-deep/60 via-transparent to-transparent" />
         </div>
 
-        <div className="relative px-6 py-10 sm:px-10 sm:py-14">
-          <div className="max-w-xl">
-            <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-mint-700/40 bg-mint-700/10 px-3 py-1 text-2xs font-semibold uppercase tracking-widest text-mint-400">
-              <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-mint-500" />
-              Solana launchpad
+        <div className="relative px-6 py-12 sm:px-12 sm:py-16">
+          <div className="max-w-2xl">
+            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1 text-2xs font-semibold uppercase tracking-widest text-white backdrop-blur-sm">
+              <span className="h-1.5 w-1.5 animate-pulse-soft rounded-full bg-frost" />
+              Solana launch studio
             </p>
-            <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              One Launchpad. <span className="text-mint-400">Two Routes.</span>
+            <h1 className="font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl">
+              Two Ways to Launch.
+              <br />
+              <span className="text-frost">One Place to Build.</span>
             </h1>
-            <p className="mt-3 max-w-lg text-sm text-night-400">
-              Launch tokens on Solana through Pump.fun&apos;s bonding curve to PumpSwap, or
-              Raydium LaunchLab&apos;s curve to a CPMM pool — with vanity mints, verified
-              launches and honest, live data.
+            <p className="mt-4 max-w-lg text-sm leading-relaxed text-white/80 sm:text-base">
+              FluxPad brings two established Solana launch mechanisms into one seamless experience.
+              Choose your preferred launch path, configure your token, and launch directly on-chain.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/create"
-                className="inline-flex items-center gap-2 rounded-xl bg-mint-500 px-5 py-2.5 text-sm font-semibold text-night-950 shadow-glow-mint transition hover:bg-mint-400"
+                className="inline-flex items-center gap-2 rounded-lg bg-paper px-6 py-3 text-sm font-semibold text-ink shadow-glow-mint transition duration-200 hover:bg-sky-100"
               >
-                <Icon name="rocket" size={15} />
+                <Icon name="rocket" size={15} className="text-mint-600" />
                 Create Token
               </Link>
               <Link
                 href="/tokens"
-                className="inline-flex items-center gap-2 rounded-xl border border-mint-600/50 bg-mint-600/10 px-5 py-2.5 text-sm font-medium text-mint-300 transition hover:bg-mint-600/20"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/30 bg-white/10 px-6 py-3 text-sm font-semibold text-white backdrop-blur-sm transition duration-200 hover:bg-white/20"
               >
                 <Icon name="compass" size={15} />
                 Explore Tokens
               </Link>
               <Link
                 href="/vanity"
-                className="inline-flex items-center gap-2 rounded-xl border border-night-600 px-5 py-2.5 text-sm font-medium text-night-400 transition hover:border-night-500 hover:text-white"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-6 py-3 text-sm font-medium text-white/90 transition duration-200 hover:bg-white/10 hover:text-white"
               >
                 <Icon name="wand" size={15} />
                 Vanity Mint
@@ -78,51 +79,53 @@ export default function DashboardHomePage() {
         </div>
       </section>
 
-      {/* Launch-route cards — the core RelayPad concept */}
+      {/* Launch-route cards — the core FluxPad concept */}
       <section aria-label="Launch routes" className="mb-5 grid gap-3 sm:grid-cols-2">
         <Link
           href="/create"
-          className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-mint-700/30 bg-night-850 p-5 transition hover:border-mint-600/60 hover:shadow-glow-mint"
+          className="group relative flex flex-col gap-3 rounded-xl border border-night-700 bg-paper p-5 shadow-panel transition-all duration-200 hover:border-mint-500/50 hover:shadow-glow-mint"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-mint-700/20 text-mint-400">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-100 text-mint-700">
             <Icon name="zap" size={18} />
           </span>
           <span>
-            <span className="block text-base font-semibold text-white">
-              Pump Route{" "}
-              <span className="ml-1 text-2xs font-normal uppercase tracking-wider text-mint-400">
-                Route A
+            <span className="font-display block text-base font-semibold text-ink">
+              Start with a Bonding Curve{" "}
+              <span className="ml-1 text-2xs font-normal uppercase tracking-wider text-mint-500">
+                Pump.fun
               </span>
             </span>
-            <span className="mt-1 block text-xs text-night-500">
-              Pump.fun bonding curve → PumpSwap. Graduation handled by pump.fun&apos;s protocol.
+            <span className="mt-1 block text-xs text-night-400">
+              Launch through Pump.fun&apos;s bonding curve mechanism. Create your token and let
+              the market determine its progression.
             </span>
           </span>
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-mint-400">
-            Start on Pump
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-mint-600">
+            Launch on Pump.fun
             <Icon name="chevronRight" size={13} className="transition-transform group-hover:translate-x-0.5" />
           </span>
         </Link>
         <Link
           href="/create"
-          className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-ice-600/30 bg-night-850 p-5 transition hover:border-ice-500/60"
+          className="group relative flex flex-col gap-3 rounded-xl border border-night-700 bg-paper p-5 shadow-panel transition-all duration-200 hover:border-mint-500/50 hover:shadow-glow-mint"
         >
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-ice-600/20 text-ice-300">
+          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-50 text-mint-500">
             <Icon name="layers" size={18} />
           </span>
           <span>
-            <span className="block text-base font-semibold text-white">
-              LaunchLab Route{" "}
-              <span className="ml-1 text-2xs font-normal uppercase tracking-wider text-ice-300">
-                Route B
+            <span className="font-display block text-base font-semibold text-ink">
+              Launch Through LaunchLab{" "}
+              <span className="ml-1 text-2xs font-normal uppercase tracking-wider text-mint-500">
+                Raydium LaunchLab
               </span>
             </span>
-            <span className="mt-1 block text-xs text-night-500">
-              Raydium LaunchLab curve → Raydium CPMM. Migration executed by Raydium.
+            <span className="mt-1 block text-xs text-night-400">
+              Create your token through Raydium LaunchLab and use its launch and liquidity
+              infrastructure.
             </span>
           </span>
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-ice-300">
-            Start on LaunchLab
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-mint-600">
+            Launch on LaunchLab
             <Icon name="chevronRight" size={13} className="transition-transform group-hover:translate-x-0.5" />
           </span>
         </Link>
@@ -144,8 +147,8 @@ export default function DashboardHomePage() {
         </div>
       </div>
 
-      {/* Official $RELAY token — public CA display with honest status */}
-      <section aria-label="Official $DOT token" className="mt-3">
+      {/* Official $FLUX token — public CA display with honest status */}
+      <section aria-label="Official $FLUX token" className="mt-3">
         <OfficialTokenCard initialView={officialToken} />
       </section>
     </div>

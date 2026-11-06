@@ -6,7 +6,7 @@ import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/relay-offic
 /**
  * GET /api/relay-official/token — public, read-only official-token identity.
  *
- * Single source of truth for the public "Official $RELAY Token" section: the
+ * Single source of truth for the public "Official $FLUX Token" section: the
  * same RELAY_OFFICIAL_MINT configuration the treasury dashboard uses. The
  * response is sanitized (no raw invalid values, no secrets) and carries an
  * honest status: "placeholder" (not announced yet), "invalid" (misconfigured),

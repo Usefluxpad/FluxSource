@@ -74,7 +74,7 @@ export function TokenImage({
   }
   return (
     <span
-      className={`flex shrink-0 items-center justify-center rounded-md border border-night-600 bg-night-700 text-2xs font-bold text-night-400${normalized && failed ? " border-amber-900/60" : ""}`}
+      className={`flex shrink-0 items-center justify-center rounded-md border border-night-600 bg-night-800 text-2xs font-bold text-night-400${normalized && failed ? " border-warn/60" : ""}`}
       style={dims}
       aria-hidden
       title={normalized && failed ? "Token image unavailable" : undefined}
@@ -116,7 +116,7 @@ export function TokenRow({
         <TokenImage imageUrl={token.imageUrl} symbol={token.symbol} />
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-1.5">
-            <span className="truncate text-[13px] font-medium text-white group-hover:text-mint-300">
+            <span className="truncate text-[13px] font-medium text-ink group-hover:text-mint-300">
               {token.name}
             </span>
             <span className="shrink-0 font-mono text-2xs text-night-400">${token.symbol}</span>

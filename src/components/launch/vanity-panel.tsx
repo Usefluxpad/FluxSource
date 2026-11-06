@@ -50,7 +50,7 @@ export function VanityPanel({
           onChange={(e) => onToggle(e.target.checked)}
           className="h-4 w-4 accent-mint-400"
         />
-        <span className="text-sm font-medium text-white">
+        <span className="text-sm font-medium text-ink">
           Generate a vanity mint address
         </span>
       </label>
@@ -69,8 +69,8 @@ export function VanityPanel({
                   onClick={() => setKind(k)}
                   className={`rounded-md px-2 py-1 text-2xs font-medium transition-colors ${
                     kind === k
-                      ? "bg-night-600 text-white"
-                      : "text-night-400 hover:bg-night-700/60 hover:text-white"
+                      ? "bg-night-600 text-ink"
+                      : "text-night-400 hover:bg-night-700/60 hover:text-ink"
                   }`}
                 >
                   {label}
@@ -83,7 +83,7 @@ export function VanityPanel({
             label={`${kind.charAt(0).toUpperCase()}${kind.slice(1)} (Base58)`}
             value={pattern}
             onChange={(e) => onPattern(caseInsensitive ? e.target.value : e.target.value.toUpperCase())}
-            placeholder="DOT"
+            placeholder="FLUX"
             maxLength={8}
             hint="Base58 only (no 0, O, I, l). Each extra character multiplies the expected work by ~33."
             error={pattern.length > 0 && !valid ? "Invalid pattern: use 1–8 Base58 characters." : undefined}
@@ -140,7 +140,7 @@ export function VanityPanel({
             </div>
           )}
           {vanity.state === "found" && vanity.publicKey && vanity.keypair && (
-            <div className="rounded-lg border border-mint-600/40 bg-mint-700/10 p-3">
+            <div className="rounded-lg border border-mint-600/40 bg-sky-50 p-3">
               <p className="text-xs font-medium text-mint-300">
                 Custom mint ready — verified against the keypair ·{" "}
                 {vanity.attempts.toLocaleString()} attempts
@@ -159,19 +159,19 @@ export function VanityPanel({
               <p className="mt-2 rounded border border-down/40 bg-down/10 p-2 text-2xs text-down">
                 ⚠ The export file contains the SECRET KEY that fully controls this mint. It is
                 created only when you click and confirm — never sent to any server, never logged,
-                never stored by DotPad. Keep it offline if you keep it at all.
+                never stored by FluxPad. Keep it offline if you keep it at all.
               </p>
             </div>
           )}
           {vanity.state === "exhausted" && (
-            <p className="text-sm text-amber-300">
+            <p className="text-sm text-warn">
               Search budget exhausted without a match. Try a shorter pattern or search again.
             </p>
           )}
           {vanity.state === "cancelled" && (
             <p className="text-sm text-night-500">Search cancelled.</p>
           )}
-          {vanity.error && <p className="text-sm text-red-400">{vanity.error}</p>}
+          {vanity.error && <p className="text-sm text-danger">{vanity.error}</p>}
           {!running && vanity.state !== "found" && (
             <Button onClick={search} disabled={!valid} size="sm" variant="secondary">
               {paused ? "Resume search" : "Generate Custom CA"}
@@ -187,7 +187,7 @@ export function VanityPanel({
 
       {!enabled && (
         <p className="text-xs text-night-500">
-          Skipping is recommended for first launches: DotPad will use a standard
+          Skipping is recommended for first launches: FluxPad will use a standard
           randomly-generated mint address.
         </p>
       )}

@@ -10,7 +10,7 @@ import { logSafeDetail } from "@/lib/relay-official/sanitize";
  * GET /api/relay-official/wallets — public wallet directory.
  *
  * Lists the configured treasury wallets (role, public address, live SOL and
- * $RELAY balances, explorer link). Unconfigured roles render as explicit
+ * $FLUX balances, explorer link). Unconfigured roles render as explicit
  * "awaiting configuration" placeholders. Public data only.
  */
 

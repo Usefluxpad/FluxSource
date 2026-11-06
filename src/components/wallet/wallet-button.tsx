@@ -27,7 +27,7 @@ export function WalletButton() {
             clearError();
             setOpen(true);
           }}
-          className="rounded-lg bg-mint-500 px-3.5 py-1.5 text-sm font-medium text-night-950 shadow-glow-mint transition hover:bg-mint-400"
+          className="rounded-lg bg-mint-500 px-3.5 py-1.5 text-sm font-medium text-snow shadow-glow-mint transition hover:bg-mint-400"
         >
           Connect Wallet
         </button>
@@ -35,7 +35,7 @@ export function WalletButton() {
           <span
             role="alert"
             title={error}
-            className="max-w-[220px] truncate text-2xs text-red-400"
+            className="max-w-[220px] truncate text-2xs text-danger"
           >
             {error}
           </span>
@@ -51,20 +51,20 @@ export function WalletButton() {
   return (
     <div className="flex items-center gap-1">
       <span
-        className="rounded-lg bg-night-800 px-3 py-1.5 font-mono text-xs text-mint-300"
+        className="rounded-lg border border-night-700 bg-night-800 px-3 py-1.5 font-mono text-xs text-mint-700"
         title={publicKey.toBase58()}
       >
         {short}
       </span>
       <button
         onClick={() => setOpen(true)}
-        className="rounded-lg px-2 py-1.5 text-xs text-night-500 hover:text-white"
+        className="rounded-lg px-2 py-1.5 text-xs text-night-500 hover:text-ink"
       >
         Switch
       </button>
       <button
         onClick={() => void disconnect()}
-        className="rounded-lg px-2 py-1.5 text-xs text-night-500 hover:text-red-400"
+        className="rounded-lg px-2 py-1.5 text-xs text-night-500 hover:text-danger"
       >
         Exit
       </button>

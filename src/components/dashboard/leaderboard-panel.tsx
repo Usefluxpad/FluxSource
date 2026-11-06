@@ -84,7 +84,7 @@ export function LeaderboardPanel({ full = false }: { full?: boolean }) {
       ) : rows.length === 0 ? (
         <PanelEmpty
           message="No creator data yet."
-          hint="Rankings appear once creators record launches through DotPad."
+          hint="Rankings appear once creators record launches through FluxPad."
         />
       ) : (
         <ul>
@@ -101,14 +101,14 @@ export function LeaderboardPanel({ full = false }: { full?: boolean }) {
                 {i + 1}
               </span>
               <Icon name="user" size={14} className="shrink-0 text-night-500" />
-              <span className="min-w-0 flex-1 truncate font-mono text-[13px] text-white">
+              <span className="min-w-0 flex-1 truncate font-mono text-[13px] text-ink">
                 {abbreviateWallet(r.creatorWallet)}
               </span>
               <span className="shrink-0 text-2xs text-night-400" title="Recorded launches">
                 {r.launches} {r.launches === 1 ? "launch" : "launches"}
               </span>
               {r.graduated > 0 && (
-                <span className="shrink-0 rounded bg-mint-700/20 px-1.5 py-0.5 text-2xs text-mint-300">
+                <span className="shrink-0 rounded bg-sky-100/70 px-1.5 py-0.5 text-2xs text-mint-300">
                   {r.graduated} graduated
                 </span>
               )}

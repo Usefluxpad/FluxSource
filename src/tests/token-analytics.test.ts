@@ -245,7 +245,7 @@ describe("classifyTrade — buy/sell classification", () => {
     expect(t!.priceSol).toBeCloseTo(0.004145 / 0.5, 9);
   });
 
-  it("attributes creator only when the wallet matches the DotPad record", () => {
+  it("attributes creator only when the wallet matches the FluxPad record", () => {
     const withCreator = classifyTrade(
       tx({
         logs: ["Program log: Instruction: Buy"],

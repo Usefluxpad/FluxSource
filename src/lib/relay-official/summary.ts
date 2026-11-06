@@ -95,7 +95,7 @@ async function readRelayBalance(
     // Public payload gets a coarse reason only; full detail stays in the
     // server log (URLs stripped so no endpoint/credential is captured).
     console.error(
-      "[relay-official/summary] $DOT balance read failed:",
+      "[relay-official/summary] $FLUX balance read failed:",
       logSafeDetail(err),
     );
     return {
@@ -142,7 +142,7 @@ export async function buildTreasurySummary(opts: {
         const relay = await readRelayBalance(opts.balanceConnection, w.address, config.mint);
         base.relayBalance = relay.amount;
         base.relayDecimals = relay.decimals;
-        if (relay.error) errors.push(`${w.role}: $DOT balance unavailable`);
+        if (relay.error) errors.push(`${w.role}: $FLUX balance unavailable`);
       }
     }
     wallets.push(base);

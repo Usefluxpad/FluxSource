@@ -1,4 +1,4 @@
-/* RelayPad line-icon set — compact inline SVGs, no external deps. */
+/* FluxPad line-icon set — compact inline SVGs, no external deps. */
 import type { CSSProperties } from "react";
 
 const PATHS: Record<string, string[]> = {
@@ -34,6 +34,19 @@ const PATHS: Record<string, string[]> = {
   zap: ["M13 3 4 14h6l-1 7 9-11h-6l1-7Z"],
   info: ["M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z", "M12 11v5", "M12 8h.01"],
   alert: ["M12 3 2 20h20L12 3Z", "M12 10v4", "M12 17h.01"],
+  sun: [
+    "M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z",
+    "M12 2v2",
+    "M12 20v2",
+    "M4.9 4.9l1.4 1.4",
+    "M17.7 17.7l1.4 1.4",
+    "M2 12h2",
+    "M20 12h2",
+    "M6.3 17.7l-1.4 1.4",
+    "M19.1 4.9l-1.4 1.4",
+  ],
+  moon: ["M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"],
+  monitor: ["M3 5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5Z", "M8 21h8", "M12 17v4"],
 };
 
 /**

@@ -40,8 +40,8 @@ export function WatchButton({ mint }: { mint: string }) {
       title={watched ? "Remove from watchlist" : "Add to watchlist"}
       className={`flex h-8 w-8 items-center justify-center rounded-lg border transition ${
         watched
-          ? "border-mint-600/60 bg-mint-700/10 text-mint-400"
-          : "border-night-600 bg-night-850 text-night-400 hover:text-white"
+          ? "border-mint-600/60 bg-sky-50 text-mint-400"
+          : "border-night-600 bg-night-850 text-night-400 hover:text-ink"
       }`}
     >
       <svg

@@ -1,22 +1,23 @@
 /**
- * DotPad brand mark — the official white DotPad symbol on the dark-green tile
- * (supplied 2048×2142 asset, served as public/dotpad-logo.jpg), paired with
- * the DotPad wordmark.
+ * FluxPad brand marks — the official supplied Flux assets, preserved untouched
+ * in FLUX/Logo and served as optimized web copies:
+ *   - public/flux-symbol.jpg   standalone Flux symbol (square, 512×512)
+ *   - public/flux-wordmark.jpg horizontal FLUX wordmark (1200×403)
  *
- * The mark itself is a server-safe <img>: it renders identically everywhere
- * (navbar, sidebar, drawer) without client-side image optimization.
- * The rendered width is derived from the asset's true aspect ratio
- * (2048/2142 ≈ 0.956) so the mark is never stretched or cropped.
+ * The marks are server-safe <img> elements: they render identically everywhere
+ * (topbar, sidebar, drawer) without client-side image optimization. Rendered
+ * dimensions are derived from each asset's true aspect ratio so the artwork is
+ * never stretched or cropped.
  */
-const DOTPAD_LOGO_ASPECT = 2048 / 2142;
+const FLUX_WORDMARK_ASPECT = 1200 / 403;
 
-export function RelayPadLogo({ size = 32, className = "" }: { size?: number; className?: string }) {
+export function FluxSymbol({ size = 32, className = "" }: { size?: number; className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/dotpad-logo.jpg"
-      alt="DotPad logo"
-      width={Math.max(1, Math.round(size * DOTPAD_LOGO_ASPECT))}
+      src="/flux-symbol.jpg"
+      alt="FluxPad logo"
+      width={size}
       height={size}
       className={`shrink-0 rounded-md ${className}`}
       draggable={false}
@@ -24,12 +25,28 @@ export function RelayPadLogo({ size = 32, className = "" }: { size?: number; cla
   );
 }
 
-export function RelayPadWordmark({ size = 32 }: { size?: number }) {
+/** The supplied horizontal FLUX wordmark — desktop navigation and brand sections. */
+export function FluxWordmark({ height = 30, className = "" }: { height?: number; className?: string }) {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/flux-wordmark.jpg"
+      alt="FluxPad"
+      width={Math.max(1, Math.round(height * FLUX_WORDMARK_ASPECT))}
+      height={height}
+      className={`shrink-0 rounded-md ${className}`}
+      draggable={false}
+    />
+  );
+}
+
+/** Compact lockup: standalone symbol + FluxPad wordmark text (small UI). */
+export function FluxPadLockup({ size = 26 }: { size?: number }) {
   return (
     <span className="inline-flex items-center gap-2.5">
-      <RelayPadLogo size={size} />
-      <span className="text-lg font-semibold tracking-tight text-white">
-        Dot<span className="text-mint-400">Pad</span>
+      <FluxSymbol size={size} />
+      <span className="text-[15px] font-semibold tracking-tight text-ink">
+        Flux<span className="text-mint-400">Pad</span>
       </span>
     </span>
   );

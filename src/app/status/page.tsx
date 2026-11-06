@@ -9,11 +9,11 @@ import { Icon } from "@/components/ui/icons";
 import { copyText } from "@/components/official/copy-text";
 
 const PROGRAMS = [
-  { name: "Pump.fun bonding curve", type: "Launch · Route A", address: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P" },
-  { name: "PumpSwap AMM", type: "AMM · Route A", address: "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA" },
-  { name: "Raydium LaunchLab (devnet)", type: "Launch · Route B", address: "DRay6fNdQ5J82H7xV6uq2aV3mNrUZ1J4PgSKsWgptcm6" },
-  { name: "Raydium LaunchLab (mainnet)", type: "Launch · Route B", address: "LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj" },
-  { name: "Raydium CPMM", type: "AMM · Route B", address: "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C" },
+  { name: "Pump.fun bonding curve", type: "Launch · Bonding Curve", address: "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P" },
+  { name: "PumpSwap AMM", type: "AMM · Bonding Curve", address: "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA" },
+  { name: "Raydium LaunchLab (devnet)", type: "Launch · LaunchLab", address: "DRay6fNdQ5J82H7xV6uq2aV3mNrUZ1J4PgSKsWgptcm6" },
+  { name: "Raydium LaunchLab (mainnet)", type: "Launch · LaunchLab", address: "LanMV9sAd7wArD4vJFi2qDdfnVhFxYSUg6eADduJ3uj" },
+  { name: "Raydium CPMM", type: "AMM · LaunchLab", address: "CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C" },
 ];
 
 export default function StatusPage() {
@@ -45,8 +45,8 @@ export default function StatusPage() {
   return (
     <div className="animate-fade-up mx-auto w-full min-w-0 max-w-5xl">
       <header className="mb-4">
-        <h1 className="text-lg font-semibold tracking-tight text-white">Network Status</h1>
-        <p className="mt-0.5 text-2xs text-night-500">Live RPC health and the programs DotPad integrates with.</p>
+        <h1 className="font-display text-lg font-semibold tracking-tight text-ink">Network Status</h1>
+        <p className="mt-0.5 text-2xs text-night-500">Live RPC health and the programs FluxPad integrates with.</p>
       </header>
 
       {/* Two-column on desktop (RPC 1 : Programs 1.2); stacked below lg */}
@@ -69,13 +69,13 @@ export default function StatusPage() {
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="shrink-0 text-night-500">Slot</span>
-              <span className="min-w-0 truncate text-right font-mono text-xs text-white">
+              <span className="min-w-0 truncate text-right font-mono text-xs text-ink">
                 {slot?.toLocaleString() ?? "—"}
               </span>
             </div>
             <div className="flex items-center justify-between gap-3">
               <span className="shrink-0 text-night-500">Latency</span>
-              <span className="min-w-0 truncate text-right font-mono text-xs text-white">
+              <span className="min-w-0 truncate text-right font-mono text-xs text-ink">
                 {latencyMs != null ? `${latencyMs} ms` : "—"}
               </span>
             </div>
@@ -98,7 +98,7 @@ export default function StatusPage() {
       </div>
 
       <p className="text-2xs text-night-500">
-        DotPad derives every program interaction from these addresses at request time and fails
+        FluxPad derives every program interaction from these addresses at request time and fails
         honestly when a program or configuration is unavailable on the selected cluster.
       </p>
     </div>
@@ -133,7 +133,7 @@ function ProgramRow({ name, type, address }: { name: string; type: string; addre
       {/* First line: program name + type */}
       <div className="flex min-w-0 items-center gap-2">
         <Icon name="check" size={13} className="shrink-0 text-mint-500" />
-        <span className="min-w-0 flex-1 truncate text-xs font-medium text-white" title={name}>
+        <span className="min-w-0 flex-1 truncate text-xs font-medium text-ink" title={name}>
           {name}
         </span>
         <span className="shrink-0 text-2xs uppercase tracking-wider text-night-500">{type}</span>
@@ -170,7 +170,7 @@ function ProgramRow({ name, type, address }: { name: string; type: string; addre
         </button>
       </div>
       {copyState === "failed" && (
-        <p role="alert" className="mt-1 pl-[21px] text-2xs text-red-300">
+        <p role="alert" className="mt-1 pl-[21px] text-2xs text-danger">
           Copy failed — please select the address text and copy it manually.
         </p>
       )}

@@ -8,21 +8,22 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useConnection } from "@solana/wallet-adapter-react";
-import { RelayPadLogo } from "@/components/brand/logo";
+import { FluxSymbol, FluxWordmark } from "@/components/brand/logo";
 import { BrandIcon, Icon } from "@/components/ui/icons";
 import { WalletButton } from "@/components/wallet/wallet-button";
 import { RouteBadge } from "@/components/brand/route-badge";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { shortAddress } from "@/lib/format";
 
-/** Official DotPad social links — opened in a new tab, never routed in-app. */
+/** Official FluxPad social links — current project accounts, opened in a new tab, never routed in-app. */
 const SOCIAL_LINKS = [
-  { href: "https://x.com/DotPadHQ", label: "Official DotPad on X", brand: "x" as const, size: 13 },
-  { href: "https://github.com/DotPadTrade", label: "Official DotPad GitHub", brand: "github" as const, size: 15 },
+  { href: "https://x.com/DotPadHQ", label: "Official FluxPad on X", brand: "x" as const, size: 13 },
+  { href: "https://github.com/DotPadTrade", label: "Official FluxPad GitHub", brand: "github" as const, size: 15 },
 ];
 
 function SocialLinks() {
   return (
-    <div className="flex items-center gap-1" aria-label="DotPad social links">
+    <div className="flex items-center gap-1" aria-label="FluxPad social links">
       {SOCIAL_LINKS.map((s) => (
         <a
           key={s.href}
@@ -31,7 +32,7 @@ function SocialLinks() {
           rel="noopener noreferrer"
           aria-label={s.label}
           title={s.label}
-          className="flex h-8 w-8 items-center justify-center rounded-md text-night-400 transition hover:bg-night-800 hover:text-white active:bg-night-700/60"
+          className="flex h-8 w-8 items-center justify-center rounded-md text-night-400 transition hover:bg-night-800 hover:text-ink active:bg-night-700"
         >
           <BrandIcon name={s.brand} size={s.size} />
         </a>
@@ -68,7 +69,7 @@ function NetworkIndicator() {
     <Link
       href="/status"
       title="Network status"
-      className="hidden items-center gap-1.5 rounded-lg border border-night-600 bg-night-850 px-2.5 py-1.5 text-2xs text-night-400 transition hover:border-night-500 hover:text-white sm:flex"
+      className="hidden items-center gap-1.5 rounded-lg border border-night-700 bg-night-950 px-2.5 py-1.5 text-2xs text-night-400 transition hover:border-night-600 hover:text-ink sm:flex"
     >
       <span
         className={`h-1.5 w-1.5 rounded-full ${
@@ -134,7 +135,7 @@ function GlobalSearch() {
 
   return (
     <div ref={boxRef} className="relative w-full max-w-md flex-1">
-      <div className="flex items-center gap-2 rounded-lg border border-night-600 bg-night-850 px-3 py-1.5 focus-within:border-mint-600">
+      <div className="flex items-center gap-2 rounded-lg border border-night-700 bg-night-950 px-3 py-1.5 transition-colors duration-200 focus-within:border-mint-500/60 focus-within:bg-paper">
         <Icon name="search" size={15} className="shrink-0 text-night-400" />
         <input
           value={q}
@@ -142,12 +143,12 @@ function GlobalSearch() {
           onFocus={() => hits && setOpen(true)}
           placeholder="Search tokens, mint addresses, creators…"
           aria-label="Search tokens, mint addresses, creators"
-          className="w-full bg-transparent text-[13px] text-white placeholder:text-night-500 focus:outline-none"
+          className="w-full bg-transparent text-[13px] text-ink placeholder:text-night-500 focus:outline-none"
         />
-        {loading && <span className="h-3 w-3 animate-spin rounded-full border border-night-600 border-t-mint-400" />}
+        {loading && <span className="h-3 w-3 animate-spin rounded-full border border-night-600 border-t-mint-500" />}
       </div>
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-night-600 bg-night-850 shadow-xl">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-night-700 bg-paper shadow-panel">
           {!hits || hits.length === 0 ? (
             <p className="px-3 py-3 text-xs text-night-400">
               No launches match “{q.trim()}”. Try a name, ticker, mint or creator address.
@@ -158,10 +159,10 @@ function GlobalSearch() {
                 <li key={h.id} className="row-sep">
                   <button
                     onClick={() => go(h)}
-                    className="flex w-full items-center gap-3 px-3 py-2 text-left transition hover:bg-night-700/60"
+                    className="flex w-full items-center gap-3 px-3 py-2 text-left transition hover:bg-night-800"
                   >
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] text-white">
+                      <span className="block truncate text-[13px] text-ink">
                         {h.name} <span className="font-mono text-night-400">${h.symbol}</span>
                       </span>
                       <span className="block truncate font-mono text-2xs text-night-500">
@@ -182,19 +183,21 @@ function GlobalSearch() {
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {
   return (
-    <header className="sticky top-0 z-30 border-b border-night-700/70 bg-night-900/95 backdrop-blur">
+    <header className="sticky top-0 z-30 border-b border-night-700 bg-paper/90 backdrop-blur">
       <div className="flex items-center gap-3 px-4 py-2.5">
         <button
           onClick={onMenu}
           aria-label="Open navigation"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-night-400 hover:bg-night-800 hover:text-white md:hidden"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-night-400 hover:bg-night-800 hover:text-ink md:hidden"
         >
           <Icon name="menu" size={18} />
         </button>
-        <Link href="/" aria-label="DotPad home" className="flex shrink-0 items-center gap-2">
-          <RelayPadLogo size={26} />
-          <span className="hidden text-[15px] font-semibold tracking-tight text-white sm:inline">
-            Dot<span className="text-mint-400">Pad</span>
+        <Link href="/" aria-label="FluxPad home" className="flex shrink-0 items-center gap-2">
+          <span className="sm:hidden">
+            <FluxSymbol size={26} />
+          </span>
+          <span className="hidden sm:inline">
+            <FluxWordmark height={30} />
           </span>
         </Link>
         <GlobalSearch />
@@ -202,12 +205,13 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
           <NetworkIndicator />
           <Link
             href="/create"
-            className="hidden items-center gap-1.5 rounded-lg bg-mint-500 px-3 py-1.5 text-xs font-semibold text-night-950 transition hover:bg-mint-400 sm:flex"
+            className="hidden items-center gap-1.5 rounded-lg bg-mint-500 px-3 py-1.5 text-xs font-semibold text-snow shadow-glow-mint transition hover:bg-mint-400 sm:flex"
           >
             <Icon name="plus" size={13} />
             Create
           </Link>
           <SocialLinks />
+          <ThemeToggle />
           <WalletButton />
         </div>
       </div>

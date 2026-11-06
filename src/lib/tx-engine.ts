@@ -77,7 +77,7 @@ export async function simulateTransaction(
         // nothing was submitted — retryable via a rebuild + fresh approval.
         throw new RelaypadError(
           "BLOCKHASH_EXPIRED",
-          "The transaction's blockhash expired before it could be submitted — the approval took too long or the network moved on. Nothing was submitted. DotPad rebuilds the transaction with a fresh blockhash and asks for approval again.",
+          "The transaction's blockhash expired before it could be submitted — the approval took too long or the network moved on. Nothing was submitted. FluxPad rebuilds the transaction with a fresh blockhash and asks for approval again.",
         );
       }
       throw new RelaypadError(
@@ -301,7 +301,7 @@ export async function submitAndConfirm(
     // never a reason to resubmit.
     throw new RelaypadError(
       "UNRESOLVED",
-      `DotPad could not verify the launch result in time. The transaction (signature ${signature}) may still land. Do NOT launch again — check the signature on the Solana Explorer first.`,
+      `FluxPad could not verify the launch result in time. The transaction (signature ${signature}) may still land. Do NOT launch again — check the signature on the Solana Explorer first.`,
       lastError ?? lastPollError,
       signature,
     );
@@ -388,7 +388,7 @@ export function makeBlockhashAwareBuildTx(
       throw new RelaypadError(
         "BLOCKHASH_EXPIRED",
         opts.expiredMessage ??
-          "This launch was prepared more than about a minute ago and its blockhash has expired. Click Launch again — DotPad will rebuild it with a fresh blockhash before asking your wallet to sign. No transaction was submitted.",
+          "This launch was prepared more than about a minute ago and its blockhash has expired. Click Launch again — FluxPad will rebuild it with a fresh blockhash before asking your wallet to sign. No transaction was submitted.",
       );
     }
     opts.onRebuildStart?.();

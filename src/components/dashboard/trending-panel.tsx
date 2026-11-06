@@ -83,7 +83,7 @@ export function TrendingPanel({ full = false }: { full?: boolean }) {
       ) : tokens.length === 0 ? (
         <PanelEmpty
           message="No launches match this filter yet."
-          hint="Launches recorded through DotPad appear here with verified lifecycle data."
+          hint="Launches recorded through FluxPad appear here with verified lifecycle data."
         />
       ) : (
         <ul>

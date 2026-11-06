@@ -64,7 +64,7 @@ describe("mergeFeeds", () => {
     expect(merged[0].name).toBe("Real Name");
   });
 
-  it("applies DotPad attribution without duplicating the token", () => {
+  it("applies FluxPad attribution without duplicating the token", () => {
     const curve = token({ mint: "M2" });
     const relay = token({ mint: "M2", source: "relaypad", status: "verified-launch", relaypadLaunchId: "L1" });
     const merged = mergeFeeds([feed("pumpfun.curve", [curve]), feed("relaypad", [relay])], NOW);
@@ -72,7 +72,7 @@ describe("mergeFeeds", () => {
     expect(merged[0].relaypadLaunchId).toBe("L1");
   });
 
-  it("never attributes a token to DotPad without a verified record", () => {
+  it("never attributes a token to FluxPad without a verified record", () => {
     const curve = token({ mint: "M3" });
     const merged = mergeFeeds([feed("pumpfun.curve", [curve])], NOW);
     expect(merged[0].relaypadLaunchId).toBeNull();
@@ -106,7 +106,7 @@ describe("tabTokens", () => {
     expect(tabTokens(all, "launchlab").map((t) => t.mint)).toEqual(["D"]);
   });
 
-  it("DotPad tab requires a verified launch id", () => {
+  it("FluxPad tab requires a verified launch id", () => {
     expect(tabTokens(all, "relaypad").map((t) => t.mint)).toEqual(["E"]);
   });
 });

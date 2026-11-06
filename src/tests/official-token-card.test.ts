@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * Official $RELAY card + homepage/treasury freshness regression tests.
+ * Official $FLUX card + homepage/treasury freshness regression tests.
  *
  * The configured contract address must reach the page from the CURRENT
  * RELAY_OFFICIAL_MINT environment configuration:
@@ -31,7 +31,7 @@ const placeholderView: OfficialTokenView = {
   mint: null,
   copyable: false,
   badgeLabel: "CA NOT OFFICIAL YET",
-  message: "The official $DOT token has not been announced yet.",
+  message: "The official $FLUX token has not been announced yet.",
   explorerHref: null,
 };
 

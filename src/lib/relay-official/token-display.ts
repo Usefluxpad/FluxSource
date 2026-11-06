@@ -3,7 +3,7 @@ import { explorerUrl } from "../constants";
 import type { RelayOfficialConfig } from "./config";
 
 /**
- * View model for the public "Official $RELAY Token" section.
+ * View model for the public "Official $FLUX Token" section.
  *
  * Pure and server/client-safe: derived entirely from the official-token
  * configuration (the single source of truth used by the treasury dashboard).
@@ -16,20 +16,20 @@ import type { RelayOfficialConfig } from "./config";
  *   error state with copying disabled; the raw invalid value is never exposed.
  * - A configured VALID Solana public address enables copying, but the badge
  *   stays "NOT YET VERIFIED": a syntactically valid address does not prove
- *   the token is the official $DOT. Official status requires explicit
+ *   the token is the official $FLUX. Official status requires explicit
  *   verification (future on-chain verification step).
  */
 
-export const OFFICIAL_TOKEN_NAME = "DotPad";
-export const OFFICIAL_TOKEN_SYMBOL = "$DOT";
+export const OFFICIAL_TOKEN_NAME = "FluxPad";
+export const OFFICIAL_TOKEN_SYMBOL = "$FLUX";
 
-/** CA-row text while the official $DOT mint is unconfigured — never an address. */
+/** CA-row text while the official $FLUX mint is unconfigured — never an address. */
 export const OFFICIAL_MINT_UNCONFIGURED_TEXT =
-  "Official $DOT mint has not been configured yet.";
+  "Official $FLUX mint has not been configured yet.";
 
 /** CA-row text when the configured mint is not a valid Solana address (raw value never exposed). */
 export const OFFICIAL_MINT_INVALID_TEXT =
-  "Official $DOT mint configuration is invalid.";
+  "Official $FLUX mint configuration is invalid.";
 
 export type OfficialTokenStatus = "placeholder" | "invalid" | "configured";
 
@@ -84,7 +84,7 @@ export function officialTokenView(
       copyable: false,
       badgeLabel: "INVALID CONFIGURATION",
       message:
-        "DOTPAD_OFFICIAL_MINT is set but is not a valid Solana address. Fix the configuration to enable the official address display.",
+        "FLUXPAD_OFFICIAL_MINT is set but is not a valid Solana address. Fix the configuration to enable the official address display.",
       explorerHref: null,
     };
   }
@@ -100,7 +100,7 @@ export function officialTokenView(
     mint: null,
     copyable: false,
     badgeLabel: "CA NOT OFFICIAL YET",
-    message: "The official $DOT token has not been announced yet.",
+    message: "The official $FLUX token has not been announced yet.",
     explorerHref: null,
   };
 }

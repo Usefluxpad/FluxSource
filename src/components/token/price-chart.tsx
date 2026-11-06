@@ -7,8 +7,42 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { Candle, TokenTrade } from "@/lib/token/trades";
+import { useIsDarkMode } from "@/components/theme/theme-provider";
 
 const INTERVALS = ["1m", "5m", "15m", "1h", "4h", "1d"] as const;
+
+/** Theme-aware canvas palette (CSS vars can't paint inside a canvas). */
+function chartPalette(isDark: boolean) {
+  return isDark
+    ? {
+        bg: "#0E1C32",
+        grid: "#253A57",
+        label: "#A6B5CA",
+        up: "#4ADE80",
+        down: "#F87171",
+        line: "#5B9BFF",
+        volUp: "rgba(74,222,128,0.25)",
+        volDown: "rgba(248,113,113,0.25)",
+        lastPrice: "#5B9BFF",
+        lastLabel: "#9FC2FF",
+        crosshair: "#31486B",
+        readout: "#A6B5CA",
+      }
+    : {
+        bg: "#FFFFFF",
+        grid: "#E8EEF7",
+        label: "#718096",
+        up: "#16A34A",
+        down: "#E05252",
+        line: "#155EEF",
+        volUp: "rgba(22,163,74,0.30)",
+        volDown: "rgba(224,82,82,0.30)",
+        lastPrice: "#155EEF",
+        lastLabel: "#1746B8",
+        crosshair: "#C9D8EC",
+        readout: "#718096",
+      };
+}
 
 export function PriceChart({
   candles,
@@ -32,6 +66,8 @@ export function PriceChart({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [mode, setMode] = useState<"candles" | "line">("candles");
   const [hover, setHover] = useState<{ x: number; index: number } | null>(null);
+  const isDark = useIsDarkMode();
+  const P = chartPalette(isDark);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -45,7 +81,7 @@ export function PriceChart({
     canvas.height = h * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = "#0D1911";
+    ctx.fillStyle = P.bg;
     ctx.fillRect(0, 0, w, h);
     if (candles.length === 0) return;
 
@@ -69,8 +105,8 @@ export function PriceChart({
     const bw = Math.max(2, Math.min(14, (chartW / candles.length) * 0.7));
 
     // Grid + y labels
-    ctx.strokeStyle = "#1C3525";
-    ctx.fillStyle = "#74877B";
+    ctx.strokeStyle = P.grid;
+    ctx.fillStyle = P.label;
     ctx.font = "10px monospace";
     ctx.lineWidth = 1;
     for (let i = 0; i <= 4; i++) {
@@ -82,7 +118,7 @@ export function PriceChart({
       ctx.stroke();
       ctx.fillText(p < 1 ? p.toPrecision(3) : p.toLocaleString(undefined, { maximumFractionDigits: 2 }), w - padR + 4, yy + 3);
     }
-    ctx.fillStyle = "#74877B";
+    ctx.fillStyle = P.label;
     ctx.fillText(new Date(t0 * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), padL, h - 8);
     ctx.fillText(new Date(t1 * 1000).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), w - padR - 46, h - 8);
 
@@ -90,8 +126,8 @@ export function PriceChart({
       candles.forEach((c) => {
         const cx = x(c.time) + (chartW / candles.length) / 2 - bw / 2;
         const up = c.close >= c.open;
-        ctx.strokeStyle = up ? "#22c55e" : "#E05252";
-        ctx.fillStyle = up ? "#22c55e" : "#E05252";
+        ctx.strokeStyle = up ? P.up : P.down;
+        ctx.fillStyle = up ? P.up : P.down;
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(cx + bw / 2, y(c.high));
@@ -102,7 +138,7 @@ export function PriceChart({
         ctx.fillRect(cx, Math.min(yo, yc), bw, Math.max(1, Math.abs(yc - yo)));
       });
     } else {
-      ctx.strokeStyle = "#22C55E";
+      ctx.strokeStyle = P.line;
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       candles.forEach((c, i) => {
@@ -119,20 +155,20 @@ export function PriceChart({
     candles.forEach((c) => {
       const cx = x(c.time) + (chartW / candles.length) / 2 - bw / 2;
       const vh = (c.volume / maxVol) * volH;
-      ctx.fillStyle = c.close >= c.open ? "rgba(34,197,94,0.45)" : "rgba(224,82,82,0.45)";
+      ctx.fillStyle = c.close >= c.open ? P.volUp : P.volDown;
       ctx.fillRect(cx, h - 26 - vh, bw, vh);
     });
 
     // Last price dashed line
     const last = candles[candles.length - 1].close;
-    ctx.strokeStyle = "#34D399";
+    ctx.strokeStyle = P.lastPrice;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
     ctx.moveTo(padL, y(last));
     ctx.lineTo(w - padR, y(last));
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = "#86EFAC";
+    ctx.fillStyle = P.lastLabel;
     ctx.fillText(last < 1 ? last.toPrecision(3) : last.toLocaleString(undefined, { maximumFractionDigits: 2 }), w - padR + 4, y(last) - 3);
 
     // Trade markers (on-page trades with a known time and price)
@@ -141,7 +177,7 @@ export function PriceChart({
       if (t.blockTime < t0 || t.blockTime > t1) return;
       const px = x(t.blockTime);
       const py = y(t.priceSol);
-      ctx.fillStyle = t.kind === "buy" ? "#22c55e" : "#E05252";
+      ctx.fillStyle = t.kind === "buy" ? P.up : P.down;
       ctx.beginPath();
       ctx.arc(px, py, 2.2, 0, Math.PI * 2);
       ctx.fill();
@@ -152,12 +188,12 @@ export function PriceChart({
       const c = candles[Math.min(hover.index, candles.length - 1)];
       if (c) {
         const cx = x(c.time) + (chartW / candles.length) / 2;
-        ctx.strokeStyle = "#2E7045";
+        ctx.strokeStyle = P.crosshair;
         ctx.beginPath();
         ctx.moveTo(cx, padT);
         ctx.lineTo(cx, h - 26);
         ctx.stroke();
-        ctx.fillStyle = "#F5F7F5";
+        ctx.fillStyle = P.readout;
         ctx.font = "10px monospace";
         const f = (v: number) => (v < 1 ? v.toPrecision(3) : v.toFixed(4));
         ctx.fillText(
@@ -167,7 +203,7 @@ export function PriceChart({
         );
       }
     }
-  }, [candles, mode, hover, interval]);
+  }, [candles, mode, hover, interval, P]);
 
   const onMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -198,7 +234,7 @@ export function PriceChart({
               key={i}
               onClick={() => onIntervalChange(i)}
               className={`rounded px-2 py-1 text-2xs font-medium transition ${
-                interval === i ? "bg-night-700 text-white" : "text-night-400 hover:text-white"
+                interval === i ? "bg-night-700 text-ink" : "text-night-400 hover:text-ink"
               }`}
             >
               {i}
@@ -211,7 +247,7 @@ export function PriceChart({
               key={m}
               onClick={() => setMode(m)}
               className={`rounded px-2 py-1 text-2xs font-medium capitalize transition ${
-                mode === m ? "bg-night-700 text-white" : "text-night-400 hover:text-white"
+                mode === m ? "bg-night-700 text-ink" : "text-night-400 hover:text-ink"
               }`}
             >
               {m}

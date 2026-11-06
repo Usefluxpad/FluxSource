@@ -1,4 +1,17 @@
-# DotPad Naming Migration Plan
+# FluxPad Naming Migration (current) + historical DotPad plan
+
+> **Current phase (FluxPad):** all official-token variables now live under the
+> `FLUXPAD_OFFICIAL_*` names, with priority `FLUXPAD_*` -> `DOTPAD_*` -> legacy
+> `RELAY_*`. The network variable is `NEXT_PUBLIC_FLUXPAD_NETWORK` with the
+> same fallback chain. See `.env.example` for the full map. The $FLUX mint is
+> read ONLY from `FLUXPAD_OFFICIAL_MINT` and is intentionally left empty until
+> a verified $FLUX mint is provided by the owner - old DOT/RELAY mints are
+> never reused. Legacy fallbacks remain active so existing deployments keep
+> working unchanged.
+
+---
+
+## Historical: DotPad Naming Migration Plan
 
 Status: **proposed — not applied to runtime configuration yet.** The deployed
 website keeps reading the existing (RelayPad-era) variable names so the current

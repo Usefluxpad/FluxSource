@@ -30,7 +30,7 @@ export function LaunchProgressPanel({
   return (
     <Card className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-white">{progress.message}</p>
+        <p className="text-sm text-ink">{progress.message}</p>
         <Badge tone={TONE[progress.phase] ?? "neutral"}>{progress.phase}</Badge>
       </div>
 
@@ -56,25 +56,25 @@ export function LaunchProgressPanel({
         </p>
       )}
       {progress.phase === "unresolved" && (
-        <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-200">
-          DotPad could not verify this transaction&apos;s final status yet — it may still
+        <p className="rounded-lg border border-warn/40 bg-warn/100/10 p-3 text-xs text-warn">
+          FluxPad could not verify this transaction&apos;s final status yet — it may still
           land. Do NOT launch again until the signature above has been checked on the
           Solana Explorer: submitting the same launch twice spends SOL twice.
         </p>
       )}
       {progress.phase === "failed" && (
-        <p className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-200">
+        <p className="rounded-lg border border-danger/40 bg-danger/50/10 p-3 text-xs text-danger">
           The transaction failed on-chain. The reason above comes from the blockchain — a
           retry is a new, separate transaction.
         </p>
       )}
       {progress.error && (
-        <p className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-300">
+        <p className="rounded-lg border border-danger/40 bg-danger/50/10 p-3 text-xs text-danger">
           {progress.error}
         </p>
       )}
       <p className="text-xs text-night-500">
-        DotPad reports on-chain reality only. If the transaction failed, check
+        FluxPad reports on-chain reality only. If the transaction failed, check
         the signature on the explorer before retrying — a retry after a landed
         failure is a new, separate transaction.
       </p>

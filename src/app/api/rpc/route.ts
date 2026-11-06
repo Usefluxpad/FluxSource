@@ -5,6 +5,7 @@ import {
   payloadMethodsAllowed,
   PerIpRateLimiter,
 } from "@/lib/rpc-proxy-policy";
+import { gatewayForward } from "@/lib/rpc/rpc-gateway";
 
 /**
  * POST /api/rpc — server-side Solana RPC proxy for the browser.
@@ -17,12 +18,13 @@ import {
  *
  * Guards: POST only, JSON-RPC shape, strict method allowlist (blocks
  * expensive indexing calls), bounded body size, per-IP rate limiting
- * (60 req/min; 429 + Retry-After when exceeded), upstream timeout, no-store.
- * The provider is never exposed in errors; failures degrade to honest 502s.
+ * (60 req/min; 429 + Retry-After when exceeded), no-store. Upstream calls go
+ * through the shared RPC gateway (coalescing, read caching, throttle, 429
+ * backoff, circuit breaker). The provider is never exposed in errors;
+ * failures degrade to honest 429/502 responses.
  */
 export const dynamic = "force-dynamic";
 
-const UPSTREAM_TIMEOUT_MS = 15_000;
 /** Per-IP fixed-window limit: generous for the launch flow, tight enough to
  * stop a single client from draining the shared provider quota. */
 const RATE_LIMIT = 60;
@@ -104,35 +106,17 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // 4) Forward to the configured provider (server-side; key never echoed).
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), UPSTREAM_TIMEOUT_MS);
-  try {
-    const upstreamHeaders: Record<string, string> = { "content-type": "application/json" };
-    const authHeader = req.headers.get("authorization");
-    if (authHeader) upstreamHeaders.authorization = authHeader;
-    const upstreamRes = await fetch(upstream, {
-      method: "POST",
-      headers: upstreamHeaders,
-      body: JSON.stringify(body),
-      cache: "no-store",
-      signal: controller.signal,
-    });
-    const text = await upstreamRes.text();
-    return new NextResponse(text, {
-      status: upstreamRes.status,
-      headers: {
-        "content-type": upstreamRes.headers.get("content-type") ?? "application/json",
-        "cache-control": "no-store",
-      },
-    });
-  } catch {
-    // Never include the upstream URL/credentials in the error.
-    return NextResponse.json(
-      { error: "rpc_upstream_unreachable", message: "RPC provider did not respond in time." },
-      { status: 502 },
-    );
-  } finally {
-    clearTimeout(timer);
-  }
+  // 4) Forward through the shared RPC gateway (server-side; key never echoed).
+  // The gateway adds coalescing (identical concurrent browser reads share one
+  // upstream call), short-TTL caching for immutable reads, token-bucket
+  // throttling, 429 backoff honoring Retry-After with jitter, and a circuit
+  // breaker. Honest failures: 429 + Retry-After when still limited, 502 for
+  // other upstream failures. The provider is never exposed.
+  const fwd = await gatewayForward(body);
+  const headers: Record<string, string> = {
+    "content-type": "application/json",
+    "cache-control": "no-store",
+  };
+  if (fwd.status === 429) headers["retry-after"] = String(fwd.retryAfterSeconds ?? 1);
+  return new NextResponse(fwd.body, { status: fwd.status, headers });
 }

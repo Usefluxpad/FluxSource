@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       {
         error: "upload_not_configured",
         message:
-          "Artwork uploads require PINATA_JWT in the server environment (see .env.example). DotPad does not accept uploads it cannot store.",
+          "Artwork uploads require PINATA_JWT in the server environment (see .env.example). FluxPad does not accept uploads it cannot store.",
       },
       { status: 503 },
     );

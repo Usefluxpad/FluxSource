@@ -2,9 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * FluxPad theme variables — RGB channel triplets consumed by Tailwind tokens
+ * (see tailwind.config.ts). :root = Light (default), .dark = Dark.
+ * The `.dark` class is applied pre-paint by the inline bootstrap script in
+ * layout.tsx, so the correct theme renders without flashing.
+ */
 :root {
-  --background: #050b07;
-  --foreground: #f5f7f5;
+  color-scheme: light;
+  /* Surfaces & neutrals */
+  --fp-n950: 244 247 252; /* #F4F7FC page background */
+  --fp-n900: 255 255 255; /* #FFFFFF chrome surfaces */
+  --fp-n850: 255 255 255; /* #FFFFFF cards */
+  --fp-n800: 237 243 251; /* #EDF3FB recessed tint */
+  --fp-n700: 223 231 242; /* #DFE7F2 borders */
+  --fp-n600: 201 216 236; /* #C9D8EC hover borders */
+  --fp-n500: 150 165 184; /* #96A5B8 faint text */
+  --fp-n400: 113 128 150; /* #718096 secondary text */
+  /* Cobalt accents */
+  --fp-m300: 23 70 184; /* #1746B8 */
+  --fp-m400: 52 120 246; /* #3478F6 */
+  --fp-m500: 21 94 239; /* #155EEF */
+  --fp-m600: 18 70 214; /* #1246D6 */
+  --fp-m700: 23 70 184; /* #1746B8 */
+  /* Highlights */
+  --fp-i300: 23 70 184;
+  --fp-i400: 21 94 239;
+  --fp-i500: 21 94 239;
+  --fp-i600: 52 120 246;
+  /* Typography & surfaces */
+  --fp-ink: 19 33 58; /* #13213A */
+  --fp-paper: 255 255 255;
+  --fp-pale: 244 247 252;
+  /* Light-blue tints */
+  --fp-s50: 240 246 255; /* #F0F6FF */
+  --fp-s100: 220 234 255; /* #DCEAFF */
+  --fp-s200: 187 215 255; /* #BBD7FF */
+  /* Deep sections & status */
+  --fp-deep: 23 70 184; /* #1746B8 */
+  --fp-danger: 220 38 38; /* #DC2626 */
+  --fp-warn: 180 83 9; /* #B45309 */
+  --fp-up: 22 163 74; /* #16A34A */
+  --fp-down: 224 82 82; /* #E05252 */
+  /* Elevation */
+  --fp-shadow-panel: 0 1px 2px rgba(19, 33, 58, 0.05), 0 12px 32px -16px rgba(19, 33, 58, 0.1);
+  --fp-shadow-glow: 0 1px 2px rgba(21, 94, 239, 0.06), 0 6px 16px -6px rgba(21, 94, 239, 0.28);
+  --fp-shadow-glow-strong: 0 8px 20px -8px rgba(21, 94, 239, 0.3);
+  /* Detail */
+  --fp-row: 19 33 58; /* table separators */
+  --fp-sb: 212 221 236; /* scrollbar thumb */
+  --fp-sb-hover: 185 200 222;
+  --fp-focus: 21 94 239;
+  --background: rgb(var(--fp-pale));
+  --foreground: rgb(var(--fp-ink));
+}
+
+.dark {
+  color-scheme: dark;
+  /* Surfaces & neutrals — deep navy, never a simple inversion */
+  --fp-n950: 8 20 38; /* #081426 page background */
+  --fp-n900: 14 28 50; /* #0E1C32 chrome surfaces */
+  --fp-n850: 14 28 50; /* #0E1C32 cards */
+  --fp-n800: 20 38 64; /* #142640 elevated/hover */
+  --fp-n700: 37 58 87; /* #253A57 borders */
+  --fp-n600: 49 72 107; /* #31486B hover borders */
+  --fp-n500: 126 143 166; /* #7E8FA6 faint text */
+  --fp-n400: 166 181 202; /* #A6B5CA secondary text */
+  /* Cobalt accents — brighter for dark-surface contrast */
+  --fp-m300: 143 184 255; /* #8FB8FF */
+  --fp-m400: 91 155 255; /* #5B9BFF */
+  --fp-m500: 52 120 246; /* #3478F6 */
+  --fp-m600: 42 95 230; /* #2A5FE6 */
+  --fp-m700: 159 194 255; /* #9FC2FF accent text on tints */
+  /* Highlights */
+  --fp-i300: 159 194 255;
+  --fp-i400: 52 120 246;
+  --fp-i500: 91 155 255;
+  --fp-i600: 52 120 246;
+  /* Typography & surfaces */
+  --fp-ink: 245 248 255; /* #F5F8FF */
+  --fp-paper: 14 28 50;
+  --fp-pale: 8 20 38;
+  /* Light-blue tints — deep cobalt washes on dark */
+  --fp-s50: 22 41 74; /* #16294A */
+  --fp-s100: 27 52 104; /* #1B3468 */
+  --fp-s200: 42 74 138; /* #2A4A8A */
+  /* Deep sections & status — brighter for dark-surface contrast */
+  --fp-deep: 22 51 122; /* #16337A */
+  --fp-danger: 248 113 113; /* #F87171 */
+  --fp-warn: 251 191 36; /* #FBBF24 */
+  --fp-up: 74 222 128; /* #4ADE80 */
+  --fp-down: 248 113 113; /* #F87171 */
+  /* Elevation — dark uses hairline rings + deeper drop */
+  --fp-shadow-panel: 0 0 0 1px rgba(255, 255, 255, 0.04), 0 16px 40px -20px rgba(0, 0, 0, 0.7);
+  --fp-shadow-glow: 0 1px 2px rgba(52, 120, 246, 0.2), 0 8px 24px -8px rgba(52, 120, 246, 0.35);
+  --fp-shadow-glow-strong: 0 10px 28px -10px rgba(52, 120, 246, 0.4);
+  /* Detail */
+  --fp-row: 255 255 255;
+  --fp-sb: 37 58 87;
+  --fp-sb-hover: 49 72 107;
+  --fp-focus: 91 155 255;
+  --background: rgb(var(--fp-pale));
+  --foreground: rgb(var(--fp-ink));
 }
 
 html,
@@ -14,36 +113,40 @@ body {
   min-height: 100%;
 }
 
-/* DotPad ambience — deep forest base with subtle emerald radial lighting */
+body {
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+/* FluxPad ambience — a whisper of cobalt light in the upper corners
+   (banner-inspired); reads correctly on both pale and deep backgrounds. */
 body {
   background-image:
-    radial-gradient(1100px 520px at 85% -8%, rgba(34, 197, 94, 0.07), transparent 60%),
-    radial-gradient(900px 480px at -12% 12%, rgba(22, 163, 74, 0.05), transparent 60%),
-    linear-gradient(180deg, #071009 0%, #050b07 320px);
+    radial-gradient(1200px 500px at 85% -10%, rgba(21, 94, 239, 0.06), transparent 60%),
+    radial-gradient(900px 420px at -10% -4%, rgba(52, 120, 246, 0.05), transparent 55%);
   background-repeat: no-repeat;
 }
 
 ::selection {
-  background: rgba(34, 197, 94, 0.35);
+  background: rgba(21, 94, 239, 0.22);
 }
 
 /* Accessible focus outline for keyboard users */
 :focus-visible {
-  outline: 2px solid #22c55e;
+  outline: 2px solid rgb(var(--fp-focus));
   outline-offset: 1px;
 }
 
-/* Forest scrollbars */
+/* Theme-aware scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1c3525;
+  background: rgb(var(--fp-sb));
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2e7045;
+  background: rgb(var(--fp-sb-hover));
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -54,13 +157,13 @@ body {
 
 /* Thin data-table separators */
 .row-sep {
-  border-bottom: 1px solid rgba(28, 53, 37, 0.7);
+  border-bottom: 1px solid rgb(var(--fp-row) / 0.08);
 }
 .row-sep:last-child {
   border-bottom: none;
 }
 
-/* Respect reduced-motion preferences across all new transitions/animations */
+/* Respect reduced-motion preferences across all transitions/animations */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

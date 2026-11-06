@@ -23,7 +23,7 @@ import { Icon } from "@/components/ui/icons";
 
 const EMPTY_FORM: LaunchFormState = {
   name: "",
-  symbol: "DOT",
+  symbol: "FLUX",
   description: "",
   website: "",
   twitter: "",
@@ -35,8 +35,8 @@ const EMPTY_FORM: LaunchFormState = {
   vanityPattern: "",
 };
 
-/** Five-step guided flow: details → route → configure → review → launch. */
-const STEP_LABELS = ["Token Details", "Launch Route", "Configure", "Review & Sign", "Launch"] as const;
+/** Five-step guided flow: details → launch method → set up → review → sign. */
+const STEP_LABELS = ["Token Details", "Launch Method", "Set Up", "Review & Sign", "Launch"] as const;
 type Step = 0 | 1 | 2 | 3 | 4;
 
 function Stepper({ step }: { step: Step }) {
@@ -50,7 +50,7 @@ function Stepper({ step }: { step: Step }) {
               aria-current={state === "current" ? "step" : undefined}
               className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
                 state === "current"
-                  ? "bg-mint-500/15 text-mint-300"
+                  ? "bg-sky-100 text-mint-700"
                   : state === "done"
                     ? "text-night-400"
                     : "text-night-500"
@@ -59,10 +59,10 @@ function Stepper({ step }: { step: Step }) {
               <span
                 className={`flex h-5 w-5 items-center justify-center rounded-full border text-2xs ${
                   state === "current"
-                    ? "border-mint-500 bg-mint-500 text-night-950"
+                    ? "border-mint-500 bg-mint-500 text-snow"
                     : state === "done"
-                      ? "border-mint-600/60 bg-night-800 text-mint-400"
-                      : "border-night-600 bg-night-850 text-night-500"
+                      ? "border-mint-500/50 bg-sky-50 text-mint-600"
+                      : "border-night-600 bg-paper text-night-500"
                 }`}
               >
                 {state === "done" ? <Icon name="check" size={11} /> : i + 1}
@@ -106,9 +106,9 @@ export default function CreateTokenPage() {
       <div className="animate-fade-up mx-auto max-w-xl">
         <Stepper step={0} />
         <Card>
-          <h1 className="text-lg font-semibold tracking-tight text-white">Create token</h1>
+          <h1 className="font-display text-lg font-semibold tracking-tight text-ink">Create Your Token</h1>
           <p className="mt-2 text-sm text-night-500">
-            Connect a Solana wallet to start. DotPad never requests seed
+            Connect a Solana wallet to start. FluxPad never requests seed
             phrases or private keys — you approve every transaction yourself.
           </p>
         </Card>
@@ -161,9 +161,9 @@ export default function CreateTokenPage() {
   return (
     <div className="animate-fade-up mx-auto max-w-2xl">
       <header className="mb-4">
-        <h1 className="text-lg font-semibold tracking-tight text-white">Launch a token</h1>
+        <h1 className="font-display text-lg font-semibold tracking-tight text-ink">Create Your Token</h1>
         <p className="mt-0.5 text-2xs text-night-500">
-          One guided flow, two routes. Protocol-specific settings appear after you choose a route.
+          One guided flow, two launch paths. Protocol-specific settings appear once you choose.
         </p>
       </header>
 
@@ -189,14 +189,14 @@ export default function CreateTokenPage() {
             label="Token name"
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
-            placeholder="Dot Test Token"
+            placeholder="Flux Test Token"
             maxLength={64}
           />
           <Input
             label="Symbol"
             value={form.symbol}
             onChange={(e) => set("symbol", e.target.value.toUpperCase())}
-            placeholder="DOT"
+            placeholder="FLUX"
             maxLength={10}
             hint="Max 10 characters, alphanumeric."
           />
@@ -228,13 +228,13 @@ export default function CreateTokenPage() {
             />
           </div>
           <div>
-            <span className="mb-1.5 block text-sm font-medium text-white">Artwork</span>
+            <span className="mb-1.5 block text-sm font-medium text-ink">Artwork</span>
             <input
               ref={fileInputRef}
               type="file"
               accept="image/png,image/jpeg,image/webp,image/gif"
               onChange={(e) => setArtwork(e.target.files?.[0] ?? null)}
-              className="block w-full text-sm text-night-500 file:mr-4 file:rounded-lg file:border-0 file:bg-night-700 file:px-4 file:py-2 file:text-sm file:text-white hover:file:bg-night-600"
+              className="block w-full text-sm text-night-500 file:mr-4 file:rounded-lg file:border-0 file:bg-night-700 file:px-4 file:py-2 file:text-sm file:text-ink hover:file:bg-night-600"
             />
             <p className="mt-1 text-xs text-night-500">
               PNG/JPEG/WebP/GIF up to 10 MB. Uploaded server-side to IPFS; a
@@ -267,7 +267,7 @@ export default function CreateTokenPage() {
       {step === 2 && (
         <div className="space-y-5">
           <Card>
-            <h3 className="mb-3 text-sm font-semibold text-white">Optional initial buy</h3>
+            <h3 className="mb-3 text-sm font-semibold text-ink">Optional initial buy</h3>
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
                 label="Initial buy (SOL)"
@@ -344,7 +344,7 @@ export default function CreateTokenPage() {
               {flow.progress.mintAddress && (
                 <a
                   href={`/tokens/${flow.progress.mintAddress}`}
-                  className="rounded-xl bg-mint-500 px-4 py-2 text-sm font-medium text-night-950 hover:bg-mint-400"
+                  className="rounded-lg bg-mint-500 px-4 py-2 text-sm font-medium text-snow shadow-glow-mint hover:bg-mint-400"
                 >
                   View token →
                 </a>

@@ -1,11 +1,11 @@
-# RelayPad — One Launchpad. Two Routes.
+# FluxPad — One Launchpad. Two Routes.
 
-RelayPad is a standalone Solana token launchpad with **two launch routes**:
+FluxPad is a standalone Solana token launchpad with **two launch routes**:
 
 - **Route A — Pump.fun bonding curve → PumpSwap** (official `@pump-fun/pump-sdk`, `create_v2`)
 - **Route B — Raydium LaunchLab bonding curve → Raydium CPMM** (official `@raydium-io/raydium-sdk-v2`, `launchpad.createLaunchpad`)
 
-Users choose the ecosystem; RelayPad builds the correct route-specific
+Users choose the ecosystem; FluxPad builds the correct route-specific
 transaction, shows fees and details **before signing**, submits with safe
 retries, and tracks the token lifecycle (curve trading → graduation → verified
 destination pool) using **on-chain state as the sole source of truth**.
@@ -15,7 +15,7 @@ destination pool) using **on-chain state as the sole source of truth**.
 | Layer | Choice |
 | --- | --- |
 | App | Next.js 15 (App Router), React 19, TypeScript (strict) |
-| Styling | Tailwind CSS (dark, electric-mint/icy-blue brand system) |
+| Styling | Tailwind CSS (light-first "Electric Blue" system, dark mode) |
 | Wallet | `@solana/wallet-adapter-react` (Phantom, Solflare) — user-signed only |
 | Solana | `@solana/web3.js` 1.98.x, `@solana/spl-token` |
 | Pump route | `@pump-fun/pump-sdk` **4.0.0** (pinned) |
@@ -56,6 +56,9 @@ npm test             # vitest unit suite
 | PostgreSQL/Prisma launch registry, idempotent events, on-chain reconciliation | Implemented (requires `DATABASE_URL`) |
 | Dashboard, token pages, launch status, settings, error/loading/empty states | Implemented |
 | Automated unit tests (vanity, metadata, tx engine, adapters, PDA fixtures) | Implemented — run `npm test` |
+| Live token market data on token pages (DexScreener/GeckoTerminal venue resolution, provider OHLCV charts, honest unavailable states) | Implemented |
+| PumpPortal-powered live trending feed (keyless tier via on-chain RPC poller) | Implemented |
+| Light / Dark / System theming (persisted preference) | Implemented |
 | End-to-end devnet transaction execution for both routes | **Requires a funded devnet wallet + RPC; see docs/VERIFICATION.md** |
 
 ## Architecture
@@ -99,7 +102,7 @@ docs/                     # verification, smoke-test guide, architecture notes
 - **Honest status:** a launch is "confirmed" only when the mint account exists
   on-chain; graduation/pool status come from protocol accounts, never from the
   database's own judgment.
-- Test networks are the default (`NEXT_PUBLIC_RELAYPAD_NETWORK=devnet`);
+- Test networks are the default (`NEXT_PUBLIC_FLUXPAD_NETWORK=devnet`);
   mainnet requires an explicit config change.
 
 ## What is *not* verified automatically

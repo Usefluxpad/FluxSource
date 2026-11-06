@@ -62,7 +62,7 @@ export default function WatchlistPage() {
   return (
     <div className="animate-fade-up">
       <header className="mb-4">
-        <h1 className="text-lg font-semibold tracking-tight text-white">Watchlist</h1>
+        <h1 className="font-display text-lg font-semibold tracking-tight text-ink">Watchlist</h1>
         <p className="mt-0.5 text-2xs text-night-500">
           Tokens you starred on their detail pages. Stored in this browser only — never on a server.
         </p>

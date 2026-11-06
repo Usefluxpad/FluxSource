@@ -34,7 +34,7 @@ const KIND_META: Record<string, { label: string; icon: string; color: string }> 
   graduation_detected: { label: "Graduation detected", icon: "zap", color: "text-ice-300" },
   pool_verified: { label: "Pool verified", icon: "check", color: "text-up" },
   failed: { label: "Failed", icon: "alert", color: "text-down" },
-  unresolved: { label: "Unresolved", icon: "alert", color: "text-amber-300" },
+  unresolved: { label: "Unresolved", icon: "alert", color: "text-warn" },
 };
 
 const POLL_MS = 20_000;
@@ -84,7 +84,7 @@ export function ActivityPanel({ full = false }: { full?: boolean }) {
       bodyClassName={full ? "" : "lg:max-h-[420px] lg:overflow-y-auto"}
       actions={
         <>
-          {offline && <span className="text-2xs text-amber-300">reconnecting…</span>}
+          {offline && <span className="text-2xs text-warn">reconnecting…</span>}
           <RefreshButton onClick={() => void load()} updatedAt={updatedAt} />
         </>
       }
@@ -96,7 +96,7 @@ export function ActivityPanel({ full = false }: { full?: boolean }) {
       ) : events.length === 0 ? (
         <PanelEmpty
           message="No launch activity recorded yet."
-          hint="Events appear when creators prepare, submit, and confirm launches through DotPad."
+          hint="Events appear when creators prepare, submit, and confirm launches through FluxPad."
         />
       ) : (
         <ul>
@@ -109,7 +109,7 @@ export function ActivityPanel({ full = false }: { full?: boolean }) {
                     <Icon name={meta.icon} size={14} className={`shrink-0 ${meta.color}`} />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-baseline gap-1.5">
-                        <span className="truncate text-[13px] text-white">
+                        <span className="truncate text-[13px] text-ink">
                           {meta.label}
                           {": "}
                           <span className="text-mint-300">{ev.launch.name}</span>

@@ -1,14 +1,16 @@
 "use client";
 /**
- * RelayPad persistent sidebar — premium auto-collapsing rail.
+ * FluxPad persistent sidebar — premium auto-collapsing rail.
  * Collapsed by default (68px icon rail); expands to 240px while hovered,
  * pinned, or keyboard-focused; collapses smoothly when the pointer leaves.
- * Renders as a drawer on mobile.
+ * Renders as a drawer on mobile. Light "Launch Studio" styling: white surface,
+ * cobalt active indicators, spacious nav items.
  */
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { RelayPadLogo } from "@/components/brand/logo";
+import { FluxSymbol } from "@/components/brand/logo";
 import { Icon } from "@/components/ui/icons";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 export interface NavItem {
   href: string;
@@ -79,12 +81,19 @@ function NavSection({
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
                 title={compact ? item.label : undefined}
-                className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors ${
+                className={`relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] transition-colors duration-200 ${
                   active
-                    ? "bg-night-700/80 text-mint-400"
-                    : "text-night-400 hover:bg-night-800 hover:text-white"
+                    ? "bg-sky-100/80 font-medium text-mint-700"
+                    : "text-night-400 hover:bg-night-800 hover:text-ink"
                 } ${compact ? "justify-center px-0" : ""}`}
               >
+                {/* Animated active indicator — cobalt rail bar */}
+                {active && !compact && (
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-mint-500"
+                  />
+                )}
                 <Icon name={item.icon} size={16} className="shrink-0" />
                 <span className={compact ? "sr-only" : "truncate"}>{item.label}</span>
               </Link>
@@ -113,7 +122,7 @@ export function SidebarNav({
             <Link
               href="/create"
               onClick={onNavigate}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-mint-500 py-2 text-[13px] font-semibold text-night-950 transition hover:bg-mint-400"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-mint-500 py-2 text-[13px] font-semibold text-snow shadow-glow-mint transition hover:bg-mint-400"
             >
               <Icon name="plus" size={15} />
               Create Token
@@ -126,7 +135,7 @@ export function SidebarNav({
               onClick={onNavigate}
               title="Create Token"
               aria-label="Create Token"
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-mint-500 text-night-950 transition hover:bg-mint-400"
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-mint-500 text-snow transition hover:bg-mint-400"
             >
               <Icon name="plus" size={16} />
             </Link>
@@ -168,26 +177,26 @@ export function Sidebar({
       }`}
     >
       <div className={`flex items-center gap-2.5 py-4 ${compact ? "justify-center px-0" : "px-4"}`}>
-        <Link href="/" aria-label="DotPad home" className="shrink-0">
-          <RelayPadLogo size={26} />
+        <Link href="/" aria-label="FluxPad home" className="shrink-0">
+          <FluxSymbol size={26} />
         </Link>
         {!compact && (
-          <Link href="/" className="truncate text-[15px] font-semibold tracking-tight text-white">
-            Dot<span className="text-mint-400">Pad</span>
+          <Link href="/" className="truncate font-display text-[15px] font-semibold tracking-tight text-ink">
+            Flux<span className="text-mint-500">Pad</span>
           </Link>
         )}
       </div>
       <SidebarNav collapsed={compact} />
       <div className={`flex items-center py-2 ${compact ? "justify-center px-0" : "justify-between px-3"}`}>
         {!compact && (
-          <span className="truncate text-2xs text-night-500">One Launchpad. Two Routes.</span>
+          <span className="truncate text-2xs text-night-500">Two Ways to Launch. One Place to Build.</span>
         )}
         <button
           onClick={onTogglePin}
           aria-label={pinned ? "Collapse sidebar" : "Expand and pin sidebar"}
           aria-pressed={pinned}
           title={pinned ? "Collapse sidebar" : "Expand and pin sidebar"}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-night-400 transition hover:bg-night-800 hover:text-white"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-night-400 transition hover:bg-night-800 hover:text-ink"
         >
           <Icon name="chevronsLeft" size={15} className={compact ? "rotate-180" : ""} />
         </button>
@@ -208,23 +217,29 @@ export function MobileDrawer({
   return (
     <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
       <button aria-label="Close navigation" onClick={onClose} className="absolute inset-0 bg-black/70" />
-      <div className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-night-700 bg-night-900">
+      <div className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-night-700 bg-paper shadow-panel">
         <div className="flex items-center justify-between px-4 py-4">
           <span className="flex items-center gap-2.5">
-            <RelayPadLogo size={24} />
-            <span className="text-[15px] font-semibold text-white">
-              Dot<span className="text-mint-400">Pad</span>
+            <FluxSymbol size={24} />
+            <span className="font-display text-[15px] font-semibold text-ink">
+              Flux<span className="text-mint-500">Pad</span>
             </span>
           </span>
           <button
             onClick={onClose}
             aria-label="Close"
-            className="flex h-8 w-8 items-center justify-center rounded-md text-night-400 hover:bg-night-800 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-night-400 hover:bg-night-800 hover:text-ink"
           >
             <Icon name="x" size={16} />
           </button>
         </div>
-        <SidebarNav collapsed={false} onNavigate={onClose} />
+        <div className="flex min-h-0 flex-1 flex-col">
+          <SidebarNav collapsed={false} onNavigate={onClose} />
+        </div>
+        <div className="border-t border-night-700 px-4 py-3">
+          <p className="mb-2 text-2xs font-semibold uppercase tracking-wider text-night-400">Appearance</p>
+          <ThemeToggle />
+        </div>
       </div>
     </div>
   );

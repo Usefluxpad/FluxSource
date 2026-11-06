@@ -136,7 +136,7 @@ function MetricCard({
         <Icon name={icon} size={12} className="text-mint-400" />
         {label}
       </div>
-      <div className="mt-1 font-mono text-sm text-white" title={value === "—" ? undefined : value}>
+      <div className="mt-1 font-mono text-sm text-ink" title={value === "—" ? undefined : value}>
         {value}
       </div>
       {sub && <div className="mt-0.5 text-2xs text-night-500">{sub}</div>}
@@ -235,13 +235,13 @@ export default function TreasuryDashboard() {
         icon: "wallet",
       },
       {
-        label: "$DOT purchased",
+        label: "$FLUX purchased",
         value: t?.relayPurchased != null ? formatToken(t.relayPurchased, null) : "—",
         sub: "verified swap output",
         icon: "trending",
       },
       {
-        label: "$DOT burned",
+        label: "$FLUX burned",
         value: t?.relayBurned != null ? formatToken(t.relayBurned, null) : "—",
         sub: "verified SPL burns",
         icon: "zap",
@@ -252,20 +252,20 @@ export default function TreasuryDashboard() {
   return (
     <div className="space-y-3">
       {!loading && !configured && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-2xs text-amber-200/90">
-          <div className="flex items-center gap-1.5 font-medium text-amber-200">
+        <div className="rounded-lg border border-warn/40 bg-warn/100/10 p-3 text-2xs text-warn/90">
+          <div className="flex items-center gap-1.5 font-medium text-warn">
             <Icon name="info" size={13} />
             Treasury configuration pending
           </div>
           <p className="mt-1">
-            The official $DOT token has not been launched yet and no treasury wallet
+            The official $FLUX token has not been launched yet and no treasury wallet
             addresses are configured. All metrics below display explicit unavailable
             states until real, verified addresses exist — no data is invented.
           </p>
         </div>
       )}
       {summary?.invalid && summary.invalid.length > 0 && (
-        <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-2xs text-red-300">
+        <div className="rounded-lg border border-danger/40 bg-danger/50/10 p-3 text-2xs text-danger">
           <div className="flex items-center gap-1.5 font-medium">
             <Icon name="alert" size={13} />
             Invalid configuration detected
@@ -280,7 +280,7 @@ export default function TreasuryDashboard() {
         </div>
       )}
       {summaryError && (
-        <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-2xs text-red-300">
+        <div className="rounded-lg border border-danger/40 bg-danger/50/10 p-3 text-2xs text-danger">
           <Icon name="alert" size={13} className="mr-1 inline" />
           Overview unavailable: {summaryError}
         </div>
@@ -289,7 +289,7 @@ export default function TreasuryDashboard() {
       {/* Section 1 — Treasury overview */}
       <section>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-[13px] font-semibold text-white">Treasury overview</h2>
+          <h2 className="text-[13px] font-semibold text-ink">Treasury overview</h2>
           <div className="flex items-center gap-2 text-2xs text-night-500">
             <Badge tone={network === "mainnet-beta" ? "ice" : "warn"}>{network}</Badge>
             {summary?.lastReconciledAt && (
@@ -301,7 +301,7 @@ export default function TreasuryDashboard() {
             <button
               onClick={() => void refresh()}
               aria-label="Refresh"
-              className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-700 hover:text-white"
+              className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-700 hover:text-ink"
             >
               {refreshing ? <Spinner /> : <Icon name="refresh" size={13} />}
             </button>
@@ -313,7 +313,7 @@ export default function TreasuryDashboard() {
           ))}
         </div>
         {summary && summary.errors.length > 0 && (
-          <p className="mt-1.5 text-2xs text-amber-300/80">
+          <p className="mt-1.5 text-2xs text-warn/80">
             {summary.errors.length} data source(s) unavailable — shown as “—” above.
           </p>
         )}
@@ -337,7 +337,7 @@ export default function TreasuryDashboard() {
                   <th className="px-3 py-2 font-medium">Role</th>
                   <th className="px-3 py-2 font-medium">Public address</th>
                   <th className="px-3 py-2 text-right font-medium">SOL</th>
-                  <th className="px-3 py-2 text-right font-medium">$DOT</th>
+                  <th className="px-3 py-2 text-right font-medium">$FLUX</th>
                   <th className="px-3 py-2 font-medium">Explorer</th>
                 </tr>
               </thead>
@@ -357,10 +357,10 @@ export default function TreasuryDashboard() {
                         <span className="text-night-500">awaiting configuration</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-right font-mono text-night-300">
+                    <td className="px-3 py-2 text-right font-mono text-night-400">
                       {w.lamports != null ? formatToken(String(w.lamports), 9) : "—"}
                     </td>
-                    <td className="px-3 py-2 text-right font-mono text-night-300">
+                    <td className="px-3 py-2 text-right font-mono text-night-400">
                       {w.relayBalance != null ? formatToken(w.relayBalance, w.relayDecimals) : "—"}
                     </td>
                     <td className="px-3 py-2">
@@ -421,7 +421,7 @@ export default function TreasuryDashboard() {
               }}
               placeholder="Search signature…"
               aria-label="Search by transaction signature"
-              className="w-44 rounded-md border border-night-600 bg-night-850 px-2 py-1 text-2xs text-white placeholder:text-night-500 focus:border-mint-500 focus:outline-none"
+              className="w-44 rounded-md border border-night-600 bg-night-850 px-2 py-1 text-2xs text-ink placeholder:text-night-500 focus:border-mint-500 focus:outline-none"
             />
             <input
               type="date"
@@ -431,7 +431,7 @@ export default function TreasuryDashboard() {
                 setPage(1);
               }}
               aria-label="From date"
-              className="rounded-md border border-night-600 bg-night-850 px-2 py-1 text-2xs text-night-300"
+              className="rounded-md border border-night-600 bg-night-850 px-2 py-1 text-2xs text-night-400"
             />
             <input
               type="date"
@@ -441,7 +441,7 @@ export default function TreasuryDashboard() {
                 setPage(1);
               }}
               aria-label="To date"
-              className="rounded-md border border-night-600 bg-night-850 px-2 py-1 text-2xs text-night-300"
+              className="rounded-md border border-night-600 bg-night-850 px-2 py-1 text-2xs text-night-400"
             />
           </div>
         </div>
@@ -463,7 +463,7 @@ export default function TreasuryDashboard() {
       <p className="text-2xs text-night-500">
         Read-only dashboard. Every metric is derived from verified on-chain transactions or live
         RPC balance reads; unconfigured wallets and tokens display placeholder states until the
-        official $DOT launch. No transfers can be initiated from this page.
+        official $FLUX launch. No transfers can be initiated from this page.
       </p>
     </div>
   );
@@ -540,11 +540,11 @@ function ActivityTable({
               </td>
               <td className="px-3 py-2 font-mono text-night-400">{shortAddr(a.sender)}</td>
               <td className="px-3 py-2 font-mono text-night-400">{shortAddr(a.recipient)}</td>
-              <td className="px-3 py-2 text-right font-mono text-night-300">
+              <td className="px-3 py-2 text-right font-mono text-night-400">
                 {formatToken(a.inputAmount, a.inputDecimals)}{" "}
                 <span className="text-night-500">{assetLabel(a.inputAsset)}</span>
               </td>
-              <td className="px-3 py-2 text-right font-mono text-night-300">
+              <td className="px-3 py-2 text-right font-mono text-night-400">
                 {a.outputAmount != null
                   ? `${formatToken(a.outputAmount, a.outputDecimals)} ${assetLabel(a.outputAsset)}`
                   : "—"}
@@ -568,7 +568,7 @@ function ActivityTable({
             disabled={activity.page <= 1}
             onClick={() => onPage(Math.max(1, activity.page - 1))}
             aria-label="Previous page"
-            className="rounded-md border border-night-600 px-2 py-1 text-night-300 hover:border-night-500 hover:text-white disabled:opacity-40"
+            className="rounded-md border border-night-600 px-2 py-1 text-night-400 hover:border-night-500 hover:text-ink disabled:opacity-40"
           >
             <Icon name="chevronLeft" size={11} />
           </button>
@@ -576,7 +576,7 @@ function ActivityTable({
             disabled={activity.page >= activity.totalPages}
             onClick={() => onPage(activity.page + 1)}
             aria-label="Next page"
-            className="rounded-md border border-night-600 px-2 py-1 text-night-300 hover:border-night-500 hover:text-white disabled:opacity-40"
+            className="rounded-md border border-night-600 px-2 py-1 text-night-400 hover:border-night-500 hover:text-ink disabled:opacity-40"
           >
             <Icon name="chevronRight" size={11} />
           </button>

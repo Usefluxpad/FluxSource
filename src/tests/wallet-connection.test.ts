@@ -332,7 +332,7 @@ describe("wallet connection lifecycle: page refresh auto-connect", () => {
 });
 
 describe("Solana-only runtime", () => {
-  it("contains no EVM wallet integration in DotPad code or runtime", () => {
+  it("contains no EVM wallet integration in FluxPad code or runtime", () => {
     const collect = (dir: string, out: string[] = []): string[] => {
       for (const entry of readdirSync(dir)) {
         const full = join(dir, entry);

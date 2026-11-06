@@ -28,7 +28,7 @@ const KIND_OPTIONS: { kind: VanityPattern["kind"]; label: string }[] = [
 
 export default function VanityPage() {
   const vanity = useVanityMint();
-  const [pattern, setPattern] = useState("DOT");
+  const [pattern, setPattern] = useState("FLUX");
   const [kind, setKind] = useState<VanityPattern["kind"]>("suffix");
   const [caseInsensitive, setCaseInsensitive] = useState(false);
 
@@ -40,7 +40,7 @@ export default function VanityPage() {
   return (
     <div className="animate-fade-up mx-auto max-w-2xl">
       <header className="mb-4">
-        <h1 className="text-xl font-semibold tracking-tight text-white">Vanity Mint Generator</h1>
+        <h1 className="font-display text-xl font-semibold tracking-tight text-ink">Vanity Mint Generator</h1>
         <p className="mt-0.5 text-2xs text-night-500">
           Generate a mint address with your chosen prefix, suffix, or substring. Compatible with
           both the Pump and LaunchLab launch flows.
@@ -60,8 +60,8 @@ export default function VanityPage() {
                 onClick={() => setKind(o.kind)}
                 className={`rounded-md px-2 py-1 text-2xs font-medium transition-colors ${
                   kind === o.kind
-                    ? "bg-night-600 text-white"
-                    : "text-night-400 hover:bg-night-700/60 hover:text-white"
+                    ? "bg-night-600 text-ink"
+                    : "text-night-400 hover:bg-night-700/60 hover:text-ink"
                 }`}
               >
                 {o.label}
@@ -73,7 +73,7 @@ export default function VanityPage() {
             label={`${kind.charAt(0).toUpperCase()}${kind.slice(1)} (Base58)`}
             value={pattern}
             onChange={(e) => setPattern(caseInsensitive ? e.target.value : e.target.value.toUpperCase())}
-            placeholder="DOT"
+            placeholder="FLUX"
             maxLength={8}
             hint="1–8 characters, Base58 only (no 0, O, I, l). Each extra character multiplies expected work by ~33."
             error={pattern.length > 0 && !valid ? "Invalid pattern: use 1–8 Base58 characters." : undefined}
@@ -138,7 +138,7 @@ export default function VanityPage() {
 
           {/* Result */}
           {vanity.state === "found" && vanity.publicKey && vanity.keypair && (
-            <div className="rounded-lg border border-mint-600/40 bg-mint-700/10 p-3">
+            <div className="rounded-lg border border-mint-600/40 bg-sky-50 p-3">
               <p className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-mint-300">
                 <Icon name="check" size={13} />
                 Vanity mint generated — verified against the generated keypair ·{" "}
@@ -166,12 +166,12 @@ export default function VanityPage() {
               <p className="mt-2 rounded border border-down/40 bg-down/10 p-2 text-2xs text-down">
                 ⚠ The export file contains the SECRET KEY that fully controls this mint. It is
                 created only when you click and confirm — never sent to any server, never logged,
-                never stored by DotPad. Keep it offline if you keep it at all.
+                never stored by FluxPad. Keep it offline if you keep it at all.
               </p>
             </div>
           )}
           {vanity.state === "exhausted" && (
-            <p className="text-xs text-amber-300">
+            <p className="text-xs text-warn">
               Search budget exhausted without a match. Try a shorter pattern or search again.
             </p>
           )}
@@ -185,16 +185,16 @@ export default function VanityPage() {
             </Button>
           )}
 
-          <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-2xs text-amber-300">
+          <p className="rounded-lg border border-warn/30 bg-warn/100/10 p-2.5 text-2xs text-warn">
             <strong>Security:</strong> the generated secret key is created and kept only in this
-            browser tab&apos;s memory. DotPad never receives, stores, or logs it. Export is manual
+            browser tab&apos;s memory. FluxPad never receives, stores, or logs it. Export is manual
             and explicit — download only if you understand the risk, and keep the file offline.
           </p>
 
           <div className="rounded-lg border border-night-700 bg-night-800/60 p-3 text-2xs text-night-500">
             <p className="mb-1 font-medium text-night-400">How to use it in a launch</p>
-            The create flow&apos;s “Configure Launch” step includes the same generator. A vanity
-            keypair generated here can be verified there — DotPad always checks that the final
+            The create flow&apos;s “Set Up Your Launch” step includes the same generator. A vanity
+            keypair generated here can be verified there — FluxPad always checks that the final
             on-chain mint matches the vanity address before review.
             <Link href="/create" className="ml-1 text-mint-400 hover:underline">
               Open the create flow →

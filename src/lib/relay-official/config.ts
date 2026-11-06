@@ -12,7 +12,7 @@ export const RELAY_OFFICIAL_MINT_PLACEHOLDER = "REPLACE_WITH_OFFICIAL_RELAY_MINT
 
 
 /**
- * Server-only configuration for the official $RELAY treasury dashboard.
+ * Server-only configuration for the official $FLUX treasury dashboard.
  *
  * Contains PUBLIC addresses and non-secret policy values only. There are no
  * private keys, seed phrases, or signing credentials here — signing stays in
@@ -34,7 +34,7 @@ export const RELAY_OFFICIAL_ROLE_META: Record<
   W1: {
     label: "Creator-fee receiver",
     description:
-      "Official $DOT creator-fee recipient (recorded at token launch). Receives verified creator-fee collections.",
+      "Official $FLUX creator-fee recipient (recorded at token launch). Receives verified creator-fee collections.",
   },
   W2: {
     label: "Buyback treasury",
@@ -78,7 +78,7 @@ function readAddress(
 export interface RelayOfficialConfig {
   network: ClusterId;
   wallets: RelayOfficialWalletConfig[];
-  /** Official $DOT mint, or null until the new verified mint is provided. */
+  /** Official $FLUX mint, or null until the new verified mint is provided. */
   mint: string | null;
   /** True when at least one treasury wallet is configured. */
   anyWalletConfigured: boolean;
@@ -92,15 +92,15 @@ export interface RelayOfficialConfig {
 }
 
 /**
- * Phase 1 dual-read: resolve a value from the new DotPad variable first and
- * fall back to the legacy RelayPad variable. Empty strings count as unset
- * (env files write VAR= for "configured but empty").
+ * Phased dual-read: resolve a value from the newest FluxPad variable first
+ * and fall back through the DotPad and legacy RelayPad variables. Empty
+ * strings count as unset (env files write VAR= for "configured but empty").
  */
-function dualEnv(dotpad: string | undefined, legacy: string | undefined): string | undefined {
-  const a = dotpad?.trim();
-  if (a) return a;
-  const b = legacy?.trim();
-  if (b) return b;
+function envChain(...values: (string | undefined)[]): string | undefined {
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (trimmed) return trimmed;
+  }
   return undefined;
 }
 
@@ -109,6 +109,14 @@ export function getRelayOfficialConfig(
   env: Partial<
     Pick<
       NodeJS.ProcessEnv,
+      | "FLUXPAD_OFFICIAL_CREATOR_WALLET"
+      | "FLUXPAD_OFFICIAL_BUYBACK_TREASURY"
+      | "FLUXPAD_OFFICIAL_OPS_TREASURY"
+      | "FLUXPAD_OFFICIAL_DEV_WALLET"
+      | "FLUXPAD_OFFICIAL_MINT"
+      | "FLUXPAD_OFFICIAL_NETWORK"
+      | "FLUXPAD_OFFICIAL_ENABLED"
+      | "NEXT_PUBLIC_FLUXPAD_NETWORK"
       | "DOTPAD_OFFICIAL_CREATOR_WALLET"
       | "DOTPAD_OFFICIAL_BUYBACK_TREASURY"
       | "DOTPAD_OFFICIAL_OPS_TREASURY"
@@ -129,6 +137,14 @@ export function getRelayOfficialConfig(
   > = process.env as Partial<
     Pick<
       NodeJS.ProcessEnv,
+      | "FLUXPAD_OFFICIAL_CREATOR_WALLET"
+      | "FLUXPAD_OFFICIAL_BUYBACK_TREASURY"
+      | "FLUXPAD_OFFICIAL_OPS_TREASURY"
+      | "FLUXPAD_OFFICIAL_DEV_WALLET"
+      | "FLUXPAD_OFFICIAL_MINT"
+      | "FLUXPAD_OFFICIAL_NETWORK"
+      | "FLUXPAD_OFFICIAL_ENABLED"
+      | "NEXT_PUBLIC_FLUXPAD_NETWORK"
       | "DOTPAD_OFFICIAL_CREATOR_WALLET"
       | "DOTPAD_OFFICIAL_BUYBACK_TREASURY"
       | "DOTPAD_OFFICIAL_OPS_TREASURY"
@@ -149,10 +165,10 @@ export function getRelayOfficialConfig(
   >,
 ): RelayOfficialConfig {
   const sources: Record<RelayOfficialRole, string | undefined> = {
-    W1: dualEnv(env.DOTPAD_OFFICIAL_CREATOR_WALLET, env.RELAY_OFFICIAL_CREATOR_WALLET),
-    W2: dualEnv(env.DOTPAD_OFFICIAL_BUYBACK_TREASURY, env.RELAY_OFFICIAL_BUYBACK_TREASURY),
-    W3: dualEnv(env.DOTPAD_OFFICIAL_OPS_TREASURY, env.RELAY_OFFICIAL_OPS_TREASURY),
-    W4: dualEnv(env.DOTPAD_OFFICIAL_DEV_WALLET, env.RELAY_OFFICIAL_DEV_WALLET),
+    W1: envChain(env.FLUXPAD_OFFICIAL_CREATOR_WALLET, env.DOTPAD_OFFICIAL_CREATOR_WALLET, env.RELAY_OFFICIAL_CREATOR_WALLET),
+    W2: envChain(env.FLUXPAD_OFFICIAL_BUYBACK_TREASURY, env.DOTPAD_OFFICIAL_BUYBACK_TREASURY, env.RELAY_OFFICIAL_BUYBACK_TREASURY),
+    W3: envChain(env.FLUXPAD_OFFICIAL_OPS_TREASURY, env.DOTPAD_OFFICIAL_OPS_TREASURY, env.RELAY_OFFICIAL_OPS_TREASURY),
+    W4: envChain(env.FLUXPAD_OFFICIAL_DEV_WALLET, env.DOTPAD_OFFICIAL_DEV_WALLET, env.RELAY_OFFICIAL_DEV_WALLET),
   };
   const invalid: RelayOfficialConfig["invalid"] = [];
   const wallets = RELAY_OFFICIAL_ROLES.map((role) => {
@@ -165,11 +181,13 @@ export function getRelayOfficialConfig(
       address: read.address,
     };
   });
-  // DotPad rebrand: the displayed official-token identity comes from the NEW
-  // DOTPAD_OFFICIAL_MINT variable. The legacy RELAY_OFFICIAL_MINT value is
-  // intentionally NOT reused as the $DOT mint — the official $DOT dashboard
-  // stays in its "not announced yet" state until the new verified mint is set.
-  const mintReadRaw = env.DOTPAD_OFFICIAL_MINT?.trim() ?? "";
+  // FluxPad rebrand: the official $FLUX mint comes ONLY from the new
+  // FLUXPAD_OFFICIAL_MINT variable. The DotPad-era DOTPAD_OFFICIAL_MINT and
+  // legacy RELAY_OFFICIAL_MINT values are intentionally NOT reused as the
+  // $FLUX mint — a new official token must never silently inherit an old
+  // token's mint. The dashboard stays in its "not configured yet" state until
+  // a verified $FLUX mint is explicitly configured.
+  const mintReadRaw = env.FLUXPAD_OFFICIAL_MINT?.trim() ?? "";
   // The explicit placeholder is an intentional "not announced yet" marker —
   // treated exactly like an unset value so the treasury dashboard and the
   // public token section stay consistent (never a misconfiguration).
@@ -178,14 +196,14 @@ export function getRelayOfficialConfig(
       ? readAddress(mintReadRaw)
       : { address: null, invalid: null };
   if (mintRead.invalid) invalid.push({ role: "MINT", value: mintRead.invalid });
+  const enabledRaw = envChain(env.FLUXPAD_OFFICIAL_ENABLED, env.DOTPAD_OFFICIAL_ENABLED, env.RELAY_OFFICIAL_ENABLED);
   return {
     network: relayOfficialNetworkFrom(env),
     wallets,
     mint: mintRead.address,
     anyWalletConfigured: wallets.some((w) => w.address !== null),
     invalid,
-    enabled: dualEnv(env.DOTPAD_OFFICIAL_ENABLED, env.RELAY_OFFICIAL_ENABLED) === "true" ||
-      dualEnv(env.DOTPAD_OFFICIAL_ENABLED, env.RELAY_OFFICIAL_ENABLED) === "1",
+    enabled: enabledRaw === "true" || enabledRaw === "1",
   };
 }
 
@@ -193,6 +211,8 @@ function relayOfficialNetworkFrom(
   env: Partial<
     Pick<
       NodeJS.ProcessEnv,
+      | "FLUXPAD_OFFICIAL_NETWORK"
+      | "NEXT_PUBLIC_FLUXPAD_NETWORK"
       | "DOTPAD_OFFICIAL_NETWORK"
       | "RELAY_OFFICIAL_NETWORK"
       | "NEXT_PUBLIC_DOTPAD_NETWORK"
@@ -200,10 +220,14 @@ function relayOfficialNetworkFrom(
     >
   >,
 ): ClusterId {
-  // Phase 1 dual-read: DotPad names first, legacy RelayPad names as fallback.
-  const override = dualEnv(env.DOTPAD_OFFICIAL_NETWORK, env.RELAY_OFFICIAL_NETWORK);
+  // Phased dual-read: FluxPad names first, then DotPad, then legacy RelayPad.
+  const override = envChain(env.FLUXPAD_OFFICIAL_NETWORK, env.DOTPAD_OFFICIAL_NETWORK, env.RELAY_OFFICIAL_NETWORK);
   if (override === "mainnet-beta") return "mainnet-beta";
-  if (!override && dualEnv(env.NEXT_PUBLIC_DOTPAD_NETWORK, env.NEXT_PUBLIC_RELAYPAD_NETWORK) === "mainnet-beta") {
+  if (
+    !override &&
+    envChain(env.NEXT_PUBLIC_FLUXPAD_NETWORK, env.NEXT_PUBLIC_DOTPAD_NETWORK, env.NEXT_PUBLIC_RELAYPAD_NETWORK) ===
+      "mainnet-beta"
+  ) {
     return "mainnet-beta";
   }
   return "devnet";

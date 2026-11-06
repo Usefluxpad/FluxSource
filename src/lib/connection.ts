@@ -1,5 +1,6 @@
 import { Connection, Cluster, Commitment } from "@solana/web3.js";
 import { ClusterId, clusterApiEndpoint } from "./constants";
+import { rpcFetchMiddleware } from "./rpc/rpc-gateway";
 
 export interface RelaypadNetworkConfig {
   cluster: ClusterId;
@@ -128,6 +129,12 @@ export function getConnection(cfg: RelaypadNetworkConfig): Connection {
     conn = new Connection(cfg.rpcUrl, {
       commitment: cfg.commitment,
       confirmTransactionInitialTimeout: 90_000,
+      // Admission control for every HTTP JSON-RPC this Connection makes:
+      // requests pass the shared gateway's token bucket and concurrency cap
+      // before reaching the provider, and fail fast while the circuit breaker
+      // is open (web3.js's own 429 retry loop handles transient limits).
+      // WS subscriptions bypass fetch entirely.
+      fetchMiddleware: rpcFetchMiddleware(),
     });
     connections.set(key, conn);
   }

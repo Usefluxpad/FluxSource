@@ -209,7 +209,7 @@ export class LaunchLabAdapter implements RouteAdapter {
       "createLaunchpad with migrateType=cpmm — all new LaunchLab launches are CPMM-only.",
     );
     protocolNotes.push(
-      "Graduation is executed by LaunchLab's migration wallet (MigrateToCpswap) — DotPad detects and verifies it, never executes it.",
+      "Graduation is executed by LaunchLab's migration wallet (MigrateToCpswap) — FluxPad detects and verifies it, never executes it.",
     );
 
     // The SDK builds V0 transactions with extraSigners; make sure the mint

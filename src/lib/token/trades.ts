@@ -26,7 +26,14 @@ import { NATIVE_MINT } from "@solana/spl-token";
 import { WSOL_MINT } from "@/lib/discovery/pump-constants";
 import { getDb } from "@/lib/db";
 
-export type VenueKind = "pump-curve" | "pumpswap-pool" | "launchlab-curve" | "cpmm-pool" | "unknown";
+export type VenueKind =
+  | "pump-curve"
+  | "pumpswap-pool"
+  | "launchlab-curve"
+  | "cpmm-pool"
+  /** Any other supported AMM pool (Orca, Meteora, …) resolved by providers. */
+  | "external-pool"
+  | "unknown";
 
 export interface TokenVenue {
   kind: VenueKind;
@@ -314,14 +321,17 @@ export function classifyTrade(
   };
 }
 
-/** Bounded live market fetch for one token: trades + wallets + candles. */
+/** Bounded live market fetch for one token: trades + wallets + candles.
+ * `venueOverride` lets the caller supply a provider-resolved venue (DexScreener
+ * / GeckoTerminal), so tokens outside the local registry and without a
+ * derivable PDA still decode real on-chain swaps. */
 export async function fetchTokenMarket(
   connection: Connection,
   mint: string,
-  opts: { interval?: string; maxTx?: number; now?: number } = {},
+  opts: { interval?: string; maxTx?: number; now?: number; venueOverride?: TokenVenue } = {},
 ): Promise<TokenMarketSnapshot> {
   const warnings: string[] = [];
-  const venue = await resolveTokenVenue(connection, mint);
+  const venue = opts.venueOverride ?? (await resolveTokenVenue(connection, mint));
   const interval = CANDLE_SECONDS[opts.interval ?? "5m"] != null ? (opts.interval ?? "5m") : "5m";
   const empty: TokenMarketSnapshot = {
     mint,

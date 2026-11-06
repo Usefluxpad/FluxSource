@@ -9,7 +9,7 @@ import { officialTokenView } from "@/lib/relay-official/token-display";
  * RelayPad's official $RELAY token. Renders only verified on-chain data;
  * missing configuration renders as explicit placeholder states.
  *
- * Force-dynamic: the Official $RELAY contract address must reflect the
+ * Force-dynamic: the Official $FLUX contract address must reflect the
  * CURRENT RELAY_OFFICIAL_MINT configuration on every request.
  */
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Treasury",
   description:
-    "Public, verifiable treasury overview for DotPad's official $DOT token: creator fees collected, allocations, buybacks, burns, and on-chain activity.",
+    "Public, verifiable treasury overview for the official $FLUX token: creator fees collected, allocations, buybacks, burns, and on-chain activity.",
 };
 
 export default function TreasuryPage() {
@@ -25,9 +25,9 @@ export default function TreasuryPage() {
   return (
     <div className="animate-fade-up mx-auto max-w-5xl">
       <header className="mb-4">
-        <h1 className="text-lg font-semibold tracking-tight text-white">Treasury</h1>
+        <h1 className="font-display text-lg font-semibold tracking-tight text-ink">Treasury</h1>
         <p className="mt-0.5 text-2xs text-night-500">
-          Public, read-only overview of the official $DOT treasury — verified on-chain
+          Public, read-only overview of the official $FLUX treasury — verified on-chain
           activity only. Nothing on this page can initiate transfers.
         </p>
       </header>

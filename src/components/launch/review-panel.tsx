@@ -24,7 +24,7 @@ export function ReviewPanel({
   return (
     <Card className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold text-white">Review before signing</h3>
+        <h3 className="text-lg font-semibold text-ink">Review before signing</h3>
         <p className="mt-1 text-sm text-night-500">
           Everything below comes from the built transaction and the live protocol
           configuration — nothing is invented.
@@ -72,7 +72,7 @@ export function ReviewPanel({
       )}
       <p className="text-xs text-night-500">
         Only the transactions shown above are submitted, and only after you
-        approve them in your wallet. DotPad holds no keys and cannot move
+        approve them in your wallet. FluxPad holds no keys and cannot move
         funds without your signature.
       </p>
     </Card>
@@ -83,7 +83,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-night-800 pb-2">
       <dt className="text-night-500">{label}</dt>
-      <dd className="text-white">{children}</dd>
+      <dd className="text-ink">{children}</dd>
     </div>
   );
 }

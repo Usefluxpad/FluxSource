@@ -16,8 +16,8 @@ export function FilterPill({
     <button
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-md px-2 py-1 text-2xs font-medium transition-colors ${
-        active ? "bg-night-600 text-white" : "text-night-400 hover:bg-night-700/60 hover:text-white"
+      className={`rounded-md px-2 py-1 text-2xs font-medium transition-colors duration-200 ${
+        active ? "bg-sky-100 text-mint-700" : "text-night-400 hover:bg-night-800 hover:text-ink"
       }`}
     >
       {children}
@@ -49,7 +49,7 @@ export function Panel({
     >
       <header className="flex flex-wrap items-center gap-2 border-b border-night-700/70 px-3 py-2">
         <Icon name={icon} size={14} className="text-mint-400" />
-        <h2 className="text-[13px] font-semibold text-white">{title}</h2>
+        <h2 className="text-[13px] font-semibold text-ink">{title}</h2>
         {subtitle && <span className="text-2xs text-night-500">{subtitle}</span>}
         <div className="ml-auto flex items-center gap-1.5">{actions}</div>
       </header>
@@ -69,7 +69,7 @@ export function RefreshButton({ onClick, updatedAt }: { onClick: () => void; upd
       <button
         onClick={onClick}
         aria-label="Refresh"
-        className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-700 hover:text-white"
+        className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-700 hover:text-ink"
       >
         <Icon name="refresh" size={13} />
       </button>
@@ -109,7 +109,7 @@ export function PanelError({ message, onRetry }: { message: string; onRetry: () 
       <p className="text-[13px] text-down">{message}</p>
       <button
         onClick={onRetry}
-        className="rounded-md border border-night-600 px-2.5 py-1 text-2xs text-night-400 hover:border-night-500 hover:text-white"
+        className="rounded-md border border-night-600 px-2.5 py-1 text-2xs text-night-400 hover:border-night-500 hover:text-ink"
       >
         Retry
       </button>

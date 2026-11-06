@@ -36,6 +36,7 @@ const SOURCE_LABEL: Record<string, string> = {
 
 export function DiscoveredTokenHeader({ mint, socials }: { mint: string; socials?: TokenSocials | null }) {
   const [found, setFound] = useState<Discovered | null>(null);
+  const [provider, setProvider] = useState<{ name: string | null; symbol: string | null; imageUrl: string | null } | null>(null);
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
@@ -46,7 +47,19 @@ export function DiscoveredTokenHeader({ mint, socials }: { mint: string; socials
         if (!res.ok) return;
         const data = (await res.json()) as { tokens: Discovered[] };
         const match = data.tokens.find((t) => t.mint === mint);
-        if (live && match) setFound(match);
+        if (live && match) {
+          setFound(match);
+          return;
+        }
+        // Not in the discovery snapshot — resolve identity from the live
+        // market providers (DexScreener/GeckoTerminal) before giving up.
+        const mres = await fetch(`/api/tokens/${encodeURIComponent(mint)}/market`, { cache: "no-store" });
+        if (mres.ok) {
+          const m = (await mres.json()) as {
+            live?: { available?: boolean; identity?: { name: string | null; symbol: string | null; imageUrl: string | null } | null };
+          };
+          if (live && m.live?.available && m.live.identity) setProvider(m.live.identity);
+        }
       } catch {
         // Header falls back to the raw mint display.
       } finally {
@@ -58,16 +71,16 @@ export function DiscoveredTokenHeader({ mint, socials }: { mint: string; socials
     };
   }, [mint]);
 
-  const name = found?.name ?? `Mint ${shortAddress(mint, 6)}`;
-  const symbol = found?.symbol ?? "???";
+  const name = found?.name ?? provider?.name ?? `Mint ${shortAddress(mint, 6)}`;
+  const symbol = found?.symbol ?? provider?.symbol ?? "???";
 
   return (
     <Card className="mb-4">
       <div className="flex flex-wrap items-center gap-3">
-        <TokenImage imageUrl={found?.imageUrl ?? null} symbol={symbol} size={48} />
+        <TokenImage imageUrl={found?.imageUrl ?? provider?.imageUrl ?? null} symbol={symbol} size={48} />
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-lg font-semibold tracking-tight text-white">{name}</h1>
+            <h1 className="text-lg font-semibold tracking-tight text-ink">{name}</h1>
             <span className="font-mono text-sm text-night-400">${symbol}</span>
             {found && found.source in SOURCE_LABEL && (
               <Badge tone="ice">{SOURCE_LABEL[found.source] ?? found.source}</Badge>
@@ -86,10 +99,10 @@ export function DiscoveredTokenHeader({ mint, socials }: { mint: string; socials
               Solscan
             </a>
           </p>
-          {checked && !found && (
+          {checked && !found && !provider && (
             <p className="mt-1 text-2xs text-night-500">
-              This token is not in the current discovery snapshot — market analytics below are derived directly from
-              on-chain data when a venue exists.
+              This token is not in the current discovery snapshot and no DEX venue was resolved — market analytics
+              below stay unavailable until a pool or bonding curve exists.
             </p>
           )}
           {found?.creatorWallet && (

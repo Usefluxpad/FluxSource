@@ -19,9 +19,9 @@ const RELAY_MINT = "Re1ayMintAddressAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 /* ------------------------------------------- config: dual-read precedence */
 
 describe("getRelayOfficialConfig — Phase 1 dual-read precedence", () => {
-  it("reads the new DOTPAD_OFFICIAL_ENABLED switch alone", () => {
-    expect(getRelayOfficialConfig({ DOTPAD_OFFICIAL_ENABLED: "true" }).enabled).toBe(true);
-    expect(getRelayOfficialConfig({ DOTPAD_OFFICIAL_ENABLED: "false" }).enabled).toBe(false);
+  it("reads the new FLUXPAD_OFFICIAL_ENABLED switch alone", () => {
+    expect(getRelayOfficialConfig({ FLUXPAD_OFFICIAL_ENABLED: "true" }).enabled).toBe(true);
+    expect(getRelayOfficialConfig({ FLUXPAD_OFFICIAL_ENABLED: "false" }).enabled).toBe(false);
   });
 
   it("falls back to the legacy RELAY_OFFICIAL_ENABLED switch", () => {
@@ -30,7 +30,7 @@ describe("getRelayOfficialConfig — Phase 1 dual-read precedence", () => {
 
   it("the new DOTPAD_* switch wins when both are set", () => {
     expect(
-      getRelayOfficialConfig({ DOTPAD_OFFICIAL_ENABLED: "false", RELAY_OFFICIAL_ENABLED: "true" }).enabled,
+      getRelayOfficialConfig({ FLUXPAD_OFFICIAL_ENABLED: "false", RELAY_OFFICIAL_ENABLED: "true" }).enabled,
     ).toBe(false);
   });
 
@@ -38,22 +38,22 @@ describe("getRelayOfficialConfig — Phase 1 dual-read precedence", () => {
     expect(getRelayOfficialConfig({}).enabled).toBe(false);
   });
 
-  it("reads the new DOTPAD_OFFICIAL_NETWORK override alone", () => {
-    expect(getRelayOfficialConfig({ DOTPAD_OFFICIAL_NETWORK: "mainnet-beta" }).network).toBe("mainnet-beta");
+  it("reads the new FLUXPAD_OFFICIAL_NETWORK override alone", () => {
+    expect(getRelayOfficialConfig({ FLUXPAD_OFFICIAL_NETWORK: "mainnet-beta" }).network).toBe("mainnet-beta");
   });
 
   it("falls back to the legacy RELAY_OFFICIAL_NETWORK override", () => {
     expect(getRelayOfficialConfig({ RELAY_OFFICIAL_NETWORK: "mainnet-beta" }).network).toBe("mainnet-beta");
   });
 
-  it("the new DOTPAD_OFFICIAL_NETWORK override wins when both are set", () => {
+  it("the new FLUXPAD_OFFICIAL_NETWORK override wins when both are set", () => {
     expect(
-      getRelayOfficialConfig({ DOTPAD_OFFICIAL_NETWORK: "devnet", RELAY_OFFICIAL_NETWORK: "mainnet-beta" }).network,
+      getRelayOfficialConfig({ FLUXPAD_OFFICIAL_NETWORK: "devnet", RELAY_OFFICIAL_NETWORK: "mainnet-beta" }).network,
     ).toBe("devnet");
   });
 
   it("reads wallets from the new DOTPAD_* names alone", () => {
-    const config = getRelayOfficialConfig({ DOTPAD_OFFICIAL_CREATOR_WALLET: W1 });
+    const config = getRelayOfficialConfig({ FLUXPAD_OFFICIAL_CREATOR_WALLET: W1 });
     expect(config.wallets.find((w) => w.role === "W1")?.address).toBe(W1);
   });
 
@@ -62,27 +62,67 @@ describe("getRelayOfficialConfig — Phase 1 dual-read precedence", () => {
     expect(config.wallets.find((w) => w.role === "W1")?.address).toBe(W1);
   });
 
-  it("the new DOTPAD_* wallet name wins when both are set", () => {
+  it("the new FLUXPAD_* wallet name wins when both are set", () => {
     const config = getRelayOfficialConfig({
-      DOTPAD_OFFICIAL_CREATOR_WALLET: W1,
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: W1,
       RELAY_OFFICIAL_CREATOR_WALLET: RELAY_MINT,
     });
     expect(config.wallets.find((w) => w.role === "W1")?.address).toBe(W1);
   });
 
-  it("never falls back to RELAY_OFFICIAL_MINT for the $DOT mint", () => {
+  it("the FLUXPAD wallet name wins over the DotPad fallback", () => {
+    const config = getRelayOfficialConfig({
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: W1,
+      DOTPAD_OFFICIAL_CREATOR_WALLET: RELAY_MINT,
+    });
+    expect(config.wallets.find((w) => w.role === "W1")?.address).toBe(W1);
+  });
+
+  it("falls back to the DotPad wallet name when FLUXPAD is unset", () => {
+    const config = getRelayOfficialConfig({ DOTPAD_OFFICIAL_CREATOR_WALLET: W1 });
+    expect(config.wallets.find((w) => w.role === "W1")?.address).toBe(W1);
+  });
+
+  it("reads the FLUXPAD network override alone", () => {
+    expect(getRelayOfficialConfig({ FLUXPAD_OFFICIAL_NETWORK: "mainnet-beta" }).network).toBe("mainnet-beta");
+  });
+
+  it("falls back to the DotPad network override when FLUXPAD is unset", () => {
+    expect(getRelayOfficialConfig({ DOTPAD_OFFICIAL_NETWORK: "mainnet-beta" }).network).toBe("mainnet-beta");
+  });
+
+  it("the FLUXPAD network override wins over the DotPad fallback", () => {
+    expect(
+      getRelayOfficialConfig({ FLUXPAD_OFFICIAL_NETWORK: "devnet", DOTPAD_OFFICIAL_NETWORK: "mainnet-beta" }).network,
+    ).toBe("devnet");
+  });
+
+  it("reads the FLUXPAD_OFFICIAL_ENABLED switch alone", () => {
+    expect(getRelayOfficialConfig({ FLUXPAD_OFFICIAL_ENABLED: "true" }).enabled).toBe(true);
+    expect(getRelayOfficialConfig({ FLUXPAD_OFFICIAL_ENABLED: "false" }).enabled).toBe(false);
+  });
+
+  it("never falls back to DOTPAD_OFFICIAL_MINT for the $FLUX mint", () => {
+    const config = getRelayOfficialConfig({ DOTPAD_OFFICIAL_MINT: RELAY_MINT });
+    expect(config.mint).toBeNull();
+    expect(officialTokenView(config).message).toBe(
+      "The official $FLUX token has not been announced yet.",
+    );
+  });
+
+  it("never falls back to RELAY_OFFICIAL_MINT for the $FLUX mint", () => {
     const config = getRelayOfficialConfig({ RELAY_OFFICIAL_MINT: RELAY_MINT });
     expect(config.mint).toBeNull();
     expect(officialTokenView(config).message).toBe(
-      "The official $DOT token has not been announced yet.",
+      "The official $FLUX token has not been announced yet.",
     );
   });
 
   it("empty strings count as unset for the dual-read variables", () => {
     const config = getRelayOfficialConfig({
-      DOTPAD_OFFICIAL_CREATOR_WALLET: "",
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: "",
       RELAY_OFFICIAL_CREATOR_WALLET: W1,
-      DOTPAD_OFFICIAL_ENABLED: "",
+      FLUXPAD_OFFICIAL_ENABLED: "",
       RELAY_OFFICIAL_ENABLED: "true",
     });
     expect(config.wallets.find((w) => w.role === "W1")?.address).toBe(W1);
@@ -102,7 +142,7 @@ function viewFromConfig(
 describe("getRelayOfficialConfig — mint placeholder handling", () => {
   it("treats the exact placeholder value exactly like an unset mint", () => {
     const config = getRelayOfficialConfig({
-      DOTPAD_OFFICIAL_MINT: RELAY_OFFICIAL_MINT_PLACEHOLDER,
+      FLUXPAD_OFFICIAL_MINT: RELAY_OFFICIAL_MINT_PLACEHOLDER,
     });
     expect(config.mint).toBeNull();
     expect(config.invalid.some((i) => i.role === "MINT")).toBe(false);
@@ -116,7 +156,7 @@ describe("getRelayOfficialConfig — mint placeholder handling", () => {
 
   it("still flags a genuinely invalid mint value as a misconfiguration", () => {
     const config = getRelayOfficialConfig({
-      DOTPAD_OFFICIAL_MINT: "not-a-valid-base58-address!!!",
+      FLUXPAD_OFFICIAL_MINT: "not-a-valid-base58-address!!!",
     });
     expect(config.mint).toBeNull();
     expect(config.invalid).toEqual([
@@ -125,7 +165,7 @@ describe("getRelayOfficialConfig — mint placeholder handling", () => {
   });
 
   it("accepts a valid configured mint", () => {
-    const config = getRelayOfficialConfig({ DOTPAD_OFFICIAL_MINT: RELAY_MINT });
+    const config = getRelayOfficialConfig({ FLUXPAD_OFFICIAL_MINT: RELAY_MINT });
     expect(config.mint).toBe(RELAY_MINT);
     expect(config.invalid.some((i) => i.role === "MINT")).toBe(false);
   });
@@ -142,7 +182,7 @@ describe("officialTokenView — placeholder state", () => {
     expect(view.displayValue).not.toContain("REPLACE_WITH_OFFICIAL_RELAY_MINT");
     expect(view.badgeLabel).toBe("CA NOT OFFICIAL YET");
     expect(view.message).toBe(
-      "The official $DOT token has not been announced yet.",
+      "The official $FLUX token has not been announced yet.",
     );
     expect(view.copyable).toBe(false);
     expect(view.mint).toBeNull();
@@ -152,7 +192,7 @@ describe("officialTokenView — placeholder state", () => {
 
   it("renders the identical honest state when the placeholder is explicitly configured", () => {
     const explicit = viewFromConfig({
-      DOTPAD_OFFICIAL_MINT: RELAY_OFFICIAL_MINT_PLACEHOLDER,
+      FLUXPAD_OFFICIAL_MINT: RELAY_OFFICIAL_MINT_PLACEHOLDER,
       RELAY_OFFICIAL_NETWORK: "mainnet-beta",
     });
     const unset = viewFromConfig({ RELAY_OFFICIAL_NETWORK: "mainnet-beta" });
@@ -168,13 +208,13 @@ describe("officialTokenView — placeholder state", () => {
 describe("officialTokenView — invalid configuration state", () => {
   it("disables copy and shows a clear error without exposing the raw value", () => {
     const view = viewFromConfig({
-      DOTPAD_OFFICIAL_MINT: "%%definitely-not-valid%%",
+      FLUXPAD_OFFICIAL_MINT: "%%definitely-not-valid%%",
       RELAY_OFFICIAL_NETWORK: "mainnet-beta",
     });
     expect(view.status).toBe("invalid");
     expect(view.badgeLabel).toBe("INVALID CONFIGURATION");
     expect(view.copyable).toBe(false);
-    expect(view.message).toContain("DOTPAD_OFFICIAL_MINT");
+    expect(view.message).toContain("FLUXPAD_OFFICIAL_MINT");
     expect(view.message).toContain("not a valid Solana address");
     // The raw invalid value must never be rendered publicly.
     expect(JSON.stringify(view)).not.toContain("definitely-not-valid");
@@ -185,7 +225,7 @@ describe("officialTokenView — invalid configuration state", () => {
 describe("officialTokenView — configured (valid) state", () => {
   it("displays the complete address and enables copying", () => {
     const view = viewFromConfig({
-      DOTPAD_OFFICIAL_MINT: RELAY_MINT,
+      FLUXPAD_OFFICIAL_MINT: RELAY_MINT,
       RELAY_OFFICIAL_NETWORK: "mainnet-beta",
     });
     expect(view.status).toBe("configured");
@@ -199,14 +239,14 @@ describe("officialTokenView — configured (valid) state", () => {
 
   it("links the network-aware explorer only for a configured mint", () => {
     const mainnet = viewFromConfig({
-      DOTPAD_OFFICIAL_MINT: RELAY_MINT,
+      FLUXPAD_OFFICIAL_MINT: RELAY_MINT,
       RELAY_OFFICIAL_NETWORK: "mainnet-beta",
     });
     expect(mainnet.explorerHref).toBe(
       `https://explorer.solana.com/address/${RELAY_MINT}`,
     );
     const devnet = viewFromConfig({
-      DOTPAD_OFFICIAL_MINT: RELAY_MINT,
+      FLUXPAD_OFFICIAL_MINT: RELAY_MINT,
       RELAY_OFFICIAL_NETWORK: "devnet",
     });
     expect(devnet.explorerHref).toBe(

@@ -243,7 +243,7 @@ describe("launch event → provenance binding → on-chain reconciliation", () =
   });
 });
 
-describe("relayRouteOf (DotPad-tab route filters)", () => {
+describe("relayRouteOf (FluxPad-tab route filters)", () => {
   it("parses the registry provenance route prefix", () => {
     expect(
       relayRouteOf({ source: "relaypad", provenance: "relaypad-registry(pump_pumpswap)" } as never),

@@ -193,7 +193,7 @@ export class PumpAdapter implements RouteAdapter {
     }
 
     protocolNotes.push(
-      "Graduation and the PumpSwap migration are performed by pump.fun's protocol — DotPad detects and verifies them, never executes them.",
+      "Graduation and the PumpSwap migration are performed by pump.fun's protocol — FluxPad detects and verifies them, never executes them.",
     );
 
     const estimatedTotalLamports = breakdown.reduce((acc, b) => acc + b.lamports, 0n);

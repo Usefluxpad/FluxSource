@@ -3,26 +3,29 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { resolveServerNetworkConfig, getConnection } from "@/lib/connection";
 import { fetchTokenMarket, aggregateCandles, activityWindows, candleSecondsFor } from "@/lib/token/trades";
+import { resolveLiveMarket } from "@/lib/token/live-market";
 
 export const dynamic = "force-dynamic";
 
 /**
- * GET /api/tokens/[mint]/market — live token analytics (bounded, on-chain).
+ * GET /api/tokens/[mint]/market — live token analytics.
  *
- * Decodes recent real swaps over the token's venue (bonding curve or pool),
- * classifies buy/sell, aggregates REAL-trade candles for the requested
- * interval, and derives wallet intelligence. Every metric comes from on-chain
- * data; unavailable metrics are reported as unavailable — never fabricated.
+ * Two cooperating sources, both real:
+ * 1. Providers (DexScreener/GeckoTerminal) resolve the CURRENT venue for ANY
+ *    mint (Pump.fun curve, PumpSwap pool, LaunchLab, Raydium CPMM, Orca,
+ *    Meteora, …) and supply price/volume/liquidity/FDV metrics.
+ * 2. The bounded on-chain swap scanner decodes real trades over the resolved
+ *    venue account (works for any AMM — classification is venue-agnostic).
  *
- * A short module cache (15s) bounds RPC usage per mint so page polling stays
- * gentle on the provider while remaining genuinely live.
+ * Unavailable metrics stay unavailable — never fabricated. A short module
+ * cache (15s on-chain, 30s providers) bounds request rates per mint.
  */
 
 const querySchema = z.object({
   interval: z.enum(["1m", "5m", "15m", "1h", "4h", "1d"]).default("5m"),
   maxTx: z.coerce.number().int().min(5).max(20).default(20),
 });
-// rev 5 — activity windows (5m/1h/6h/24h) from decoded swaps
+// rev 6 — provider venue resolution + live market metrics
 
 const CACHE_TTL_MS = 15_000;
 const cache = new Map<string, { expiresAt: number; payload: unknown }>();
@@ -45,9 +48,14 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ mint: strin
     return NextResponse.json({ error: "invalid_interval" }, { status: 400 });
   }
 
+  // Providers resolve the venue + market metrics for ANY mint. Failures
+  // degrade gracefully (live.available = false) and the on-chain resolver
+  // below still runs.
+  const live = await resolveLiveMarket(mint);
+
   // Trades payload is interval-independent — cache it; candles derive per
   // interval from the same bounded trade set.
-  const cacheKey = `${mint}:${parsed.data.maxTx}`;
+  const cacheKey = `${mint}:${parsed.data.maxTx}:${live.venue.address ?? "none"}`;
   const cached = cache.get(cacheKey);
   const now = Date.now();
   let tradesPayload: unknown;
@@ -59,6 +67,11 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ mint: strin
     tradesPayload = await fetchTokenMarket(connection, mint, {
       maxTx: parsed.data.maxTx,
       interval: "5m",
+      // Provider-resolved venue wins: it reflects the CURRENT trading venue
+      // (e.g. the PumpSwap pool after graduation, an Orca/Raydium pool for
+      // external tokens) even when no PDA is derivable from the mint.
+      venueOverride:
+        live.venue.address != null ? { kind: live.venue.kind, address: live.venue.address } : undefined,
     });
     cache.set(cacheKey, { expiresAt: now + CACHE_TTL_MS, payload: tradesPayload });
     if (cache.size > 50) {
@@ -99,6 +112,20 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ mint: strin
       mint,
       interval,
       venue: snapshot.venue,
+      venueResolved: {
+        kind: live.venue.kind,
+        address: live.venue.address,
+        dexId: live.venue.dexId,
+        dexLabel: live.venue.dexLabel,
+        quoteSymbol: live.venue.quoteSymbol,
+        source: live.venue.source,
+      },
+      live: {
+        available: live.available,
+        identity: live.identity,
+        metrics: live.metrics,
+        notes: live.notes,
+      },
       candles,
       activity,
       trades: snapshot.trades,

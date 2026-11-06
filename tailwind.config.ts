@@ -1,50 +1,78 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * Theme tokens are CSS variables (RGB channel triplets) so the entire palette
+ * can switch between Light and Dark by toggling a `.dark` class on <html>.
+ * `rgb(var(--fp-*) / <alpha-value>)` keeps Tailwind opacity modifiers working.
+ * Variable values live in src/app/globals.css (:root = light, .dark = dark).
+ */
+const v = (name: string) => `rgb(var(--fp-${name}) / <alpha-value>)`;
+
 const config: Config = {
+  darkMode: "class",
   content: ["./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // DotPad forest identity — deep forest-green surfaces, emerald accents,
-        // inspired by the official logo (dark green + white mark).
+        // FluxPad "Electric Blue Launch Studio" — theme-aware tokens.
+        // Legacy scale names (night/mint/ice) are preserved deliberately so the
+        // existing call sites keep compiling. night-* = surfaces/neutrals,
+        // mint-* = cobalt accents, ice-* = highlight blues.
         night: {
-          950: "#050B07", // primary background
-          900: "#09130D", // secondary background (sidebar, topbar, modals)
-          850: "#0D1911", // card background
-          800: "#12251A", // elevated surface / hover surface
-          700: "#1C3525", // borders
-          600: "#2E7045", // hover borders / accent borders
-          500: "#74877B", // faint text (hints, footnotes)
-          400: "#9CAFA1", // secondary text
+          950: v("n950"), // page background
+          900: v("n900"), // topbar / sidebar / modals
+          850: v("n850"), // cards
+          800: v("n800"), // recessed tint / hover fills
+          700: v("n700"), // resting borders
+          600: v("n600"), // hover borders
+          500: v("n500"), // faint text / strong hover borders
+          400: v("n400"), // secondary text
         },
         mint: {
-          300: "#86EFAC", // soft green
-          400: "#22C55E", // bright accent
-          500: "#16A34A", // primary emerald
-          600: "#15803D",
-          700: "#166534", // deep forest border/tint
+          300: v("m300"), // accent text
+          400: v("m400"), // secondary accent
+          500: v("m500"), // primary cobalt
+          600: v("m600"), // pressed / darker accent
+          700: v("m700"), // accent text on tinted chips
         },
         ice: {
-          300: "#A7F3D0", // soft mint text
-          400: "#6EE7B7",
-          500: "#34D399",
-          600: "#10B981",
+          300: v("i300"),
+          400: v("i400"),
+          500: v("i500"), // highlight
+          600: v("i600"),
         },
-        // Performance colors (verified positive/negative only)
-        up: "#22C55E",
-        down: "#E05252", // restrained red for negative movement
+        ink: v("ink"), // main typography
+        paper: v("paper"), // card/chrome surface
+        pale: v("pale"), // page background
+        sky: {
+          50: v("s50"), // faintest cobalt tint
+          100: v("s100"), // light blue chip fill
+          200: v("s200"),
+        },
+        deep: v("deep"), // deep-blue sections (hero/footer overlays)
+        // Static brand constants — identical in both themes.
+        snow: "#FFFFFF", // text on cobalt/deep fills
+        frost: "#DCEAFF", // light-blue accent text on cobalt/deep fills
+        // Status colors (theme-aware for contrast)
+        danger: v("danger"),
+        warn: v("warn"),
+        // Performance colors (verified positive/negative only — data, not brand)
+        up: v("up"),
+        down: v("down"),
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "var(--font-sans)", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       fontSize: {
         "2xs": ["0.6875rem", "1rem"],
       },
       boxShadow: {
-        panel: "0 1px 2px rgba(0,0,0,0.5), 0 12px 32px -16px rgba(0,0,0,0.55)",
-        "glow-mint": "0 0 18px -6px rgba(34, 197, 94, 0.4)",
-        "glow-emerald": "0 6px 20px -8px rgba(34, 197, 94, 0.5)",
+        // Theme-aware elevation (values in globals.css).
+        panel: "var(--fp-shadow-panel)",
+        "glow-mint": "var(--fp-shadow-glow)",
+        "glow-emerald": "var(--fp-shadow-glow-strong)",
       },
       keyframes: {
         "pulse-soft": {

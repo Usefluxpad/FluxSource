@@ -889,7 +889,7 @@ describe("buildTreasurySummary — asset/mint scoping", () => {
     expect(summary.totals.transfers).toBe("10");
   });
 
-  it("never mixes other mints into $DOT purchase/burn totals", async () => {
+  it("never mixes other mints into $FLUX purchase/burn totals", async () => {
     const store = new MemoryRelayOfficialStore();
     await store.upsertActivities([
       row("s1", "swap", WSOL_MINT, RELAY_MINT),
@@ -900,7 +900,7 @@ describe("buildTreasurySummary — asset/mint scoping", () => {
     await store.markOnChainVerified(["s1", "s2", "b1", "b2"], new Date());
     const mintedConfig = getRelayOfficialConfig({
       RELAY_OFFICIAL_CREATOR_WALLET: W1,
-      DOTPAD_OFFICIAL_MINT: RELAY_MINT,
+      FLUXPAD_OFFICIAL_MINT: RELAY_MINT,
       RELAY_OFFICIAL_ENABLED: "true",
     });
     const summary = await buildTreasurySummary({
@@ -912,7 +912,7 @@ describe("buildTreasurySummary — asset/mint scoping", () => {
     expect(summary.totals.relayBurned).toBe("10"); // b1 only
   });
 
-  it("renders $DOT totals as unavailable while the mint is unconfigured", async () => {
+  it("renders $FLUX totals as unavailable while the mint is unconfigured", async () => {
     const store = new MemoryRelayOfficialStore();
     await store.upsertActivities([row("s1", "swap", WSOL_MINT, RELAY_MINT)]);
     await store.markOnChainVerified(["s1"], new Date());
@@ -1003,7 +1003,7 @@ describe("getRelayOfficialConfig — placeholders and validation", () => {
       RELAY_OFFICIAL_BUYBACK_TREASURY: W2,
       RELAY_OFFICIAL_OPS_TREASURY: W1,
       RELAY_OFFICIAL_DEV_WALLET: W2,
-      DOTPAD_OFFICIAL_MINT: RELAY_MINT,
+      FLUXPAD_OFFICIAL_MINT: RELAY_MINT,
     });
     expect(config.anyWalletConfigured).toBe(true);
     expect(config.wallets.filter((w) => w.address !== null)).toHaveLength(4);
@@ -1042,7 +1042,7 @@ describe("public error sanitization", () => {
   it("publicInvalidRoles exposes roles only, never the raw env values", () => {
     const config = getRelayOfficialConfig({
       RELAY_OFFICIAL_CREATOR_WALLET: "not-a-valid-base58-address!!!",
-      DOTPAD_OFFICIAL_MINT: "also-bad!!!",
+      FLUXPAD_OFFICIAL_MINT: "also-bad!!!",
     });
     // Server-side diagnostics keep the raw values internally.
     expect(config.invalid.map((i) => i.value)).toEqual([

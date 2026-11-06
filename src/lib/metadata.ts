@@ -178,7 +178,7 @@ export interface TokenSocials {
 /**
  * Normalize social links from an arbitrary metadata JSON. Accepts the field
  * conventions seen in the wild without trusting them:
- * - top-level `website` / `twitter` / `telegram` (Pump.fun, LaunchLab, DotPad)
+ * - top-level `website` / `twitter` / `telegram` (Pump.fun, LaunchLab, FluxPad)
  * - `x` as a Twitter alias, `external_url` as a website fallback
  * - legacy DotPad shape: a `social: { website, twitter, telegram }` object
  * - `extensions: { website, twitter, telegram }` (Metaplex convention)

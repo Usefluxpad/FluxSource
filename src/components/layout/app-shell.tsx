@@ -55,9 +55,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <Topbar onMenu={() => setDrawerOpen(true)} />
         <main className="mx-auto w-full max-w-[1560px] flex-1 px-3 py-4 sm:px-5">{children}</main>
-        <footer className="border-t border-night-700/60 px-4 py-4 text-center text-2xs text-night-500">
-          DotPad — One Launchpad. Two Routes. Launches involve risk; verify
-          every transaction before signing.
+        <footer className="mt-2 bg-gradient-to-r from-deep to-mint-500 px-4 py-5 text-center">
+          <p className="font-display text-sm font-semibold text-white">
+            FluxPad — Two Ways to Launch. One Place to Build.
+          </p>
+          <p className="mt-1 text-2xs text-white/70">
+            Launches involve risk; verify every transaction before signing.
+          </p>
         </footer>
       </div>
     </div>

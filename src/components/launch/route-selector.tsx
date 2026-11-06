@@ -72,7 +72,7 @@ export function RouteSelector({
               selected
                 ? route.id === "pump"
                   ? "border-mint-500 shadow-glow-mint"
-                  : "border-ice-500 shadow-glow-ice"
+                  : "border-ice-500 shadow-glow-mint"
                 : "hover:border-night-500"
             }`}
           >
@@ -86,7 +86,7 @@ export function RouteSelector({
                   onChange={() => onChange(route.id)}
                 />
                 <Badge tone={route.id === "pump" ? "mint" : "ice"}>
-                  {route.id === "pump" ? "Route A" : "Route B"}
+                  {route.id === "pump" ? "Bonding Curve" : "LaunchLab"}
                 </Badge>
                 {checking ? (
                   <Spinner />
@@ -96,7 +96,7 @@ export function RouteSelector({
                   <Badge tone="warn">unavailable</Badge>
                 )}
               </div>
-              <h3 className="mt-3 font-semibold text-white">{route.label}</h3>
+              <h3 className="mt-3 font-semibold text-ink">{route.label}</h3>
               <ul className="mt-2 space-y-1 text-xs text-night-500">
                 {(cfg?.details ?? ["checking live protocol configuration…"]).map((d, i) => (
                   <li key={i} className="break-all">

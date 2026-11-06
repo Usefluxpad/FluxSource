@@ -29,7 +29,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "trending", label: "Trending" },
   { key: "graduating", label: "Graduating" },
   { key: "graduated", label: "Graduated" },
-  { key: "relaypad", label: "DotPad Launches" },
+  { key: "relaypad", label: "FluxPad Launches" },
 ];
 
 const FILTERS = [
@@ -68,7 +68,7 @@ function SourceBadge({ source, relaypadLaunchId }: { source: string; relaypadLau
     "pumpfun.pool": { label: "PumpSwap", tone: "mint" },
     "launchlab.curve": { label: "LaunchLab", tone: "ice" },
     "raydium.cpmm": { label: "Raydium CPMM", tone: "ice" },
-    relaypad: { label: "DotPad", tone: "mint" },
+    relaypad: { label: "FluxPad", tone: "mint" },
   };
   const m = meta[source] ?? { label: source, tone: "neutral" as const };
   return (
@@ -76,16 +76,16 @@ function SourceBadge({ source, relaypadLaunchId }: { source: string; relaypadLau
       <span
         className={`rounded border px-1.5 py-0.5 text-2xs font-medium ${
           m.tone === "mint"
-            ? "border-mint-700/50 bg-mint-700/10 text-mint-300"
+            ? "border-mint-500/25 bg-sky-50 text-mint-700"
             : m.tone === "ice"
-              ? "border-ice-600/50 bg-ice-600/10 text-ice-300"
-              : "border-night-600 bg-night-800 text-night-500"
+              ? "border-sky-200 bg-sky-100/70 text-mint-600"
+              : "border-night-700 bg-night-800 text-night-400"
         }`}
       >
         {m.label}
       </span>
       {relaypadLaunchId && (
-        <span className="rounded border border-mint-500/40 bg-mint-500/10 px-1 py-0.5 text-2xs text-mint-300" title="Launched via DotPad">
+        <span className="rounded border border-mint-500/30 bg-sky-50 px-1 py-0.5 text-2xs font-semibold text-mint-700" title="Launched via FluxPad">
           R
         </span>
       )}
@@ -167,7 +167,7 @@ function Metric({
       <span className="text-night-500">{label}</span>
       <span
         className={`font-mono ${
-          tone === "up" ? "text-up" : tone === "down" ? "text-down" : unavailable ? "text-night-600" : "text-night-300"
+          tone === "up" ? "text-up" : tone === "down" ? "text-down" : unavailable ? "text-night-500" : "text-night-400"
         }`}
       >
         {value}
@@ -194,7 +194,7 @@ function DiscoveryRow({ token: t }: { token: DiscoveredToken }) {
           <div className="flex items-baseline gap-1.5">
             <Link
               href={`/tokens/${t.mint}`}
-              className="truncate text-[13px] font-medium text-white transition hover:text-mint-300"
+              className="truncate text-[13px] font-medium text-ink transition hover:text-mint-300"
             >
               {t.name}
             </Link>
@@ -395,7 +395,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
 
       {/* Tabs */}
       <div className="flex flex-wrap items-center gap-2 px-3 pt-2">
-        <div className="flex flex-wrap items-center gap-0.5 rounded-md bg-night-800 p-0.5">
+        <div className="flex flex-wrap items-center gap-0.5 rounded-lg bg-night-800/70 p-1">
           {TABS.map((tb) => (
             <FilterPill key={tb.key} active={tab === tb.key} onClick={() => setTab(tb.key)}>
               {tb.label}
@@ -413,14 +413,14 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search name, ticker or mint address…"
             aria-label="Search discovery results"
-            className="w-full rounded-md border border-night-700 bg-night-850 py-1.5 pl-8 pr-2 text-2xs text-white placeholder:text-night-500 focus:border-mint-500 focus:outline-none"
+            className="w-full rounded-md border border-night-700 bg-paper py-1.5 pl-8 pr-2 text-2xs text-ink placeholder:text-night-500 transition-colors focus:border-mint-500 focus:outline-none"
           />
         </div>
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as DiscoverySort)}
           aria-label="Sort results"
-          className="rounded-md border border-night-700 bg-night-850 px-2 py-1.5 text-2xs text-night-300 focus:border-mint-500 focus:outline-none"
+          className="rounded-md border border-night-700 bg-paper px-2 py-1.5 text-2xs text-ink transition-colors focus:border-mint-500 focus:outline-none"
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.key} value={o.key}>
@@ -433,8 +433,8 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
           aria-expanded={showScanner}
           className={`rounded-md border px-2 py-1.5 text-2xs font-medium transition ${
             scannerActive
-              ? "border-mint-500/60 bg-mint-600/10 text-mint-300"
-              : "border-night-700 bg-night-850 text-night-300 hover:text-white"
+              ? "border-mint-500/50 bg-sky-50 text-mint-700"
+              : "border-night-700 bg-paper text-night-400 hover:text-ink"
           }`}
         >
           Scanner filters{scannerActive ? " ●" : ""}
@@ -461,7 +461,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
                 onChange={(e) => f.set(e.target.value.replace(/[^0-9.]/g, ""))}
                 inputMode="decimal"
                 placeholder={f.hint}
-                className="rounded-md border border-night-700 bg-night-850 px-2 py-1 font-mono text-2xs text-white placeholder:text-night-600 focus:border-mint-500 focus:outline-none"
+                className="rounded-md border border-night-700 bg-paper px-2 py-1 font-mono text-2xs text-ink placeholder:text-night-500 transition-colors focus:border-mint-500 focus:outline-none"
               />
             </label>
           ))}
@@ -470,7 +470,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
 
       {/* Sub-filters */}
       <div className="flex flex-wrap items-center gap-2 px-3 pb-2">
-        <div className="flex items-center gap-0.5 rounded-md bg-night-800 p-0.5">
+        <div className="flex items-center gap-0.5 rounded-lg bg-night-800/70 p-1">
           {FILTERS.map((f) => (
             <FilterPill
               key={f.key}
@@ -485,14 +485,14 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
         </div>
         {tab === "relaypad" && (
           <>
-            <div className="flex items-center gap-0.5 rounded-md bg-night-800 p-0.5">
+            <div className="flex items-center gap-0.5 rounded-lg bg-night-800/70 p-1">
               {([["all", "All routes"], ["pump", "Pump"], ["launchlab", "LaunchLab"]] as const).map(([k, l]) => (
                 <FilterPill key={k} active={relayRoute === k} onClick={() => setRelayRoute(k)}>
                   {l}
                 </FilterPill>
               ))}
             </div>
-            <div className="flex items-center gap-0.5 rounded-md bg-night-800 p-0.5">
+            <div className="flex items-center gap-0.5 rounded-lg bg-night-800/70 p-1">
               {([["all", "All lifecycle"], ["pending", "Pending"], ["graduated", "Graduated"]] as const).map(([k, l]) => (
                 <FilterPill key={k} active={relayStatus === k} onClick={() => setRelayStatus(k)}>
                   {l}
@@ -511,14 +511,14 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
       ) : tokens.length === 0 ? (
         tab === "relaypad" ? (
           <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-            <p className="text-[13px] text-night-400">No verified DotPad launches yet.</p>
+            <p className="text-[13px] text-night-400">No verified FluxPad launches yet.</p>
             <p className="max-w-sm text-2xs text-night-500">
-              Only tokens whose launch transaction and mint were verified through DotPad appear here — tokens
-              discovered on Pump.fun or LaunchLab are never attributed to DotPad.
+              Only tokens whose launch transaction and mint were verified through FluxPad appear here — tokens
+              discovered on Pump.fun or LaunchLab are never attributed to FluxPad.
             </p>
             <Link
               href="/create"
-              className="mt-1 rounded-md bg-mint-500 px-3 py-1.5 text-2xs font-semibold text-night-950 transition hover:bg-mint-400"
+              className="mt-1 rounded-md bg-mint-500 px-3 py-1.5 text-2xs font-semibold text-snow shadow-glow-mint transition hover:bg-mint-400"
             >
               Create Token →
             </Link>
@@ -545,7 +545,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={data.page <= 1}
               aria-label="Previous page"
-              className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-700 hover:text-white disabled:opacity-30"
+              className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-800 hover:text-ink disabled:opacity-30"
             >
               <Icon name="chevronLeft" size={13} />
             </button>
@@ -553,7 +553,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={data.page >= totalPages}
               aria-label="Next page"
-              className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-700 hover:text-white disabled:opacity-30"
+              className="flex h-6 w-6 items-center justify-center rounded-md text-night-400 transition hover:bg-night-800 hover:text-ink disabled:opacity-30"
             >
               <Icon name="chevronRight" size={13} />
             </button>
