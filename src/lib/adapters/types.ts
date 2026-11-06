@@ -67,7 +67,7 @@ export interface PreparedLaunch {
 export interface CurveState {
   /** True while the bonding curve still exists and trades on it are possible. */
   onCurve: boolean;
-  /** Raw observed values — RelayPad never derives prices it cannot verify. */
+  /** Raw observed values — FluxPad never derives prices it cannot verify. */
   quoteReserves: bigint | null;
   virtualQuoteReserves: bigint | null;
   baseSold: bigint | null;
@@ -93,7 +93,7 @@ export interface RouteAdapter {
   describePrograms(cluster: ClusterId): { name: string; address: string }[];
   /**
    * Load and validate the live protocol configuration for this cluster.
-   * Throws a typed RelaypadError when the route is unusable (program missing,
+   * Throws a typed FluxpadError when the route is unusable (program missing,
    * config account not found, etc.).
    */
   loadConfig(connection: import("@solana/web3.js").Connection, cluster: ClusterId): Promise<RouteConfigInfo>;

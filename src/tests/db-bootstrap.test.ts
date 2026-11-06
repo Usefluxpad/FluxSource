@@ -21,7 +21,7 @@ afterEach(() => {
 });
 
 function tmpRoot(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "relaypad-dbtest-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "fluxpad-dbtest-"));
   tmpDirs.push(dir);
   return dir;
 }

@@ -40,7 +40,7 @@ function token(over: Partial<DiscoveredToken> & { mint: string }): DiscoveredTok
     poolAddress: null,
     signature: null,
     creatorWallet: null,
-    relaypadLaunchId: null,
+    fluxpadLaunchId: null,
     provenance: "test",
     ...over,
   };
@@ -66,16 +66,16 @@ describe("mergeFeeds", () => {
 
   it("applies FluxPad attribution without duplicating the token", () => {
     const curve = token({ mint: "M2" });
-    const relay = token({ mint: "M2", source: "relaypad", status: "verified-launch", relaypadLaunchId: "L1" });
-    const merged = mergeFeeds([feed("pumpfun.curve", [curve]), feed("relaypad", [relay])], NOW);
+    const relay = token({ mint: "M2", source: "fluxpad", status: "verified-launch", fluxpadLaunchId: "L1" });
+    const merged = mergeFeeds([feed("pumpfun.curve", [curve]), feed("fluxpad", [relay])], NOW);
     expect(merged).toHaveLength(1);
-    expect(merged[0].relaypadLaunchId).toBe("L1");
+    expect(merged[0].fluxpadLaunchId).toBe("L1");
   });
 
   it("never attributes a token to FluxPad without a verified record", () => {
     const curve = token({ mint: "M3" });
     const merged = mergeFeeds([feed("pumpfun.curve", [curve])], NOW);
-    expect(merged[0].relaypadLaunchId).toBeNull();
+    expect(merged[0].fluxpadLaunchId).toBeNull();
   });
 });
 
@@ -84,7 +84,7 @@ describe("tabTokens", () => {
   const pool = token({ mint: "B", status: "pool", source: "pumpfun.pool" });
   const cpmm = token({ mint: "C", status: "pool", source: "raydium.cpmm" });
   const lab = token({ mint: "D", source: "launchlab.curve" });
-  const relay = token({ mint: "E", source: "relaypad", status: "verified-launch", relaypadLaunchId: "L9" });
+  const relay = token({ mint: "E", source: "fluxpad", status: "verified-launch", fluxpadLaunchId: "L9" });
   const all = [curve, pool, cpmm, lab, relay];
 
   it("classifies new launches vs new pools", () => {
@@ -107,7 +107,7 @@ describe("tabTokens", () => {
   });
 
   it("FluxPad tab requires a verified launch id", () => {
-    expect(tabTokens(all, "relaypad").map((t) => t.mint)).toEqual(["E"]);
+    expect(tabTokens(all, "fluxpad").map((t) => t.mint)).toEqual(["E"]);
   });
 });
 

@@ -75,7 +75,7 @@ describe("ensureMintSignature (LaunchLab mint-keypair signature preservation)", 
     expect(ed25519.verify(sig, msgBefore, mint.publicKey.toBytes())).toBe(true);
     // Replacing the blockhash — the essence of a blockhash refresh — changes
     // the signed message bytes, so every previously-produced signature is
-    // invalid against the new message. This is why RelayPad's rebuild flow
+    // invalid against the new message. This is why FluxPad's rebuild flow
     // rebuilds and re-signs (mint locally, wallet via a fresh approval)
     // instead of mutating a signed transaction.
     tx.message.recentBlockhash = Keypair.generate().publicKey.toBase58();

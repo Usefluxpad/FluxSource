@@ -16,7 +16,7 @@ import type {
   PreparedLaunch,
   TokenLaunchInput,
 } from "@/lib/adapters/types";
-import { RelaypadError, type RelaypadNetworkConfig } from "@/lib/connection";
+import { FluxpadError, type FluxpadNetworkConfig } from "@/lib/connection";
 import { submitAndConfirm, makeBlockhashAwareBuildTx, type WalletSigner } from "@/lib/tx-engine";
 import { buildOffchainMetadata, tokenMetadataSchema } from "@/lib/metadata";
 
@@ -73,14 +73,14 @@ export interface UseLaunchFlowResult {
     artwork: File | null;
     wallet: { publicKey: PublicKey; signTransaction: WalletSigner["signTransaction"] };
     connection: Connection;
-    network: RelaypadNetworkConfig;
+    network: FluxpadNetworkConfig;
     vanityKeypair: Keypair | null;
   }): Promise<{ ok: true } | { ok: false; error: string }>;
   execute(params: {
     prepared: PreparedLaunch;
     wallet: { publicKey: PublicKey; signTransaction: WalletSigner["signTransaction"] };
     connection: Connection;
-    network: RelaypadNetworkConfig;
+    network: FluxpadNetworkConfig;
   }): Promise<
     { ok: true; signature: string; mintAddress: string } | { ok: false; error: string; code?: string }
   >;
@@ -279,19 +279,19 @@ export function useLaunchFlow(): UseLaunchFlowResult {
             connection,
             getTx: () => {
               const step = working.transactions[i];
-              if (!step) throw new RelaypadError("PROTOCOL", `Launch step ${i + 1} disappeared.`);
+              if (!step) throw new FluxpadError("PROTOCOL", `Launch step ${i + 1} disappeared.`);
               return step.tx;
             },
             rebuild: working.rebuild
               ? async () => {
                   const rebuildFn = working.rebuild;
                   if (!rebuildFn) {
-                    throw new RelaypadError("PROTOCOL", "Rebuild capability disappeared.");
+                    throw new FluxpadError("PROTOCOL", "Rebuild capability disappeared.");
                   }
                   working = { ...working, ...(await rebuildFn({ connection, signer })) };
                   const freshStep = working.transactions[i];
                   if (!freshStep) {
-                    throw new RelaypadError(
+                    throw new FluxpadError(
                       "PROTOCOL",
                       `Rebuilt launch is missing transaction ${i + 1}.`,
                     );
@@ -405,10 +405,10 @@ export function useLaunchFlow(): UseLaunchFlowResult {
   return { progress, prepared, busy, validate, prepare, execute, reset };
 }
 
-function toRelay(err: unknown): RelaypadError {
-  if (err instanceof RelaypadError) return err;
+function toRelay(err: unknown): FluxpadError {
+  if (err instanceof FluxpadError) return err;
   const message = err instanceof Error ? err.message : String(err);
-  return new RelaypadError("UNKNOWN", message, err);
+  return new FluxpadError("UNKNOWN", message, err);
 }
 
 async function recordEvents(

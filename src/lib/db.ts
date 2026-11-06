@@ -31,8 +31,8 @@ import path from "path";
  */
 
 const globalForPrisma = globalThis as unknown as {
-  relaypadPrisma?: PrismaClient;
-  relaypadSchemaBootstrap?: Promise<SqliteBootstrapResult | null>;
+  fluxpadPrisma?: PrismaClient;
+  fluxpadSchemaBootstrap?: Promise<SqliteBootstrapResult | null>;
 };
 
 /** True when the configured DATABASE_URL targets a local SQLite file. */
@@ -129,7 +129,7 @@ export function getDb(): PrismaClient | null {
     }
     return null;
   }
-  if (!globalForPrisma.relaypadPrisma) {
+  if (!globalForPrisma.fluxpadPrisma) {
     // SQLite file URLs are resolved to an absolute, existing-writable
     // location before the client is constructed (see resolveSqliteUrl) —
     // this removes the schema-relative path ambiguity that caused
@@ -140,7 +140,7 @@ export function getDb(): PrismaClient | null {
         process.env.DATABASE_URL = resolved.fileUrl;
       }
     }
-    globalForPrisma.relaypadPrisma = new PrismaClient({
+    globalForPrisma.fluxpadPrisma = new PrismaClient({
       log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
     });
     if (isSqliteFileUrl(process.env.DATABASE_URL)) {
@@ -149,7 +149,7 @@ export function getDb(): PrismaClient | null {
       void ensureSqliteSchema();
     }
   }
-  return globalForPrisma.relaypadPrisma;
+  return globalForPrisma.fluxpadPrisma;
 }
 
 async function runSqliteBootstrap(client: PrismaClient, databaseFile: string): Promise<SqliteBootstrapResult> {
@@ -195,7 +195,7 @@ async function runSqliteBootstrap(client: PrismaClient, databaseFile: string): P
   const nowIso = new Date().toISOString();
   await client.$executeRawUnsafe(
     `INSERT INTO "_prisma_migrations" ("id", "checksum", "finished_at", "migration_name", "logs", "rolled_back_at", "started_at", "applied_steps_count")
-     SELECT ${JSON.stringify(crypto.randomUUID())}, ${JSON.stringify(checksum)}, ${JSON.stringify(nowIso)}, ${JSON.stringify(INIT_MIGRATION_NAME)}, 'bootstrapped by RelayPad runtime (schema was missing)', NULL, ${JSON.stringify(nowIso)}, 1
+     SELECT ${JSON.stringify(crypto.randomUUID())}, ${JSON.stringify(checksum)}, ${JSON.stringify(nowIso)}, ${JSON.stringify(INIT_MIGRATION_NAME)}, 'bootstrapped by FluxPad runtime (schema was missing)', NULL, ${JSON.stringify(nowIso)}, 1
      WHERE NOT EXISTS (SELECT 1 FROM "_prisma_migrations" WHERE "migration_name" = ${JSON.stringify(INIT_MIGRATION_NAME)})`,
   );
 
@@ -212,14 +212,14 @@ async function runSqliteBootstrap(client: PrismaClient, databaseFile: string): P
  */
 export async function ensureSqliteSchema(): Promise<SqliteBootstrapResult | null> {
   if (!isSqliteFileUrl(process.env.DATABASE_URL)) return null;
-  if (!globalForPrisma.relaypadSchemaBootstrap) {
+  if (!globalForPrisma.fluxpadSchemaBootstrap) {
     const bootstrap = (async () => {
       const client = getDb();
       if (!client) return null;
       const fileUrl = process.env.DATABASE_URL ?? "";
       return runSqliteBootstrap(client, fileUrl.replace(/^file:/, ""));
     })();
-    globalForPrisma.relaypadSchemaBootstrap = bootstrap;
+    globalForPrisma.fluxpadSchemaBootstrap = bootstrap;
     bootstrap.catch((err) => {
       console.error(
         "[db] SQLite schema bootstrap FAILED — registry routes will report the error until this is resolved:",
@@ -227,5 +227,5 @@ export async function ensureSqliteSchema(): Promise<SqliteBootstrapResult | null
       );
     });
   }
-  return globalForPrisma.relaypadSchemaBootstrap ?? null;
+  return globalForPrisma.fluxpadSchemaBootstrap ?? null;
 }

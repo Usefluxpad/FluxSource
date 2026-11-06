@@ -57,9 +57,9 @@ vi.mock("@/lib/discovery/raydium", () => ({
   })),
   fetchSolPriceUsd: vi.fn(async () => null),
 }));
-vi.mock("@/lib/discovery/relaypad", () => ({
-  fetchRelaypadLaunches: vi.fn(async () => ({
-    source: "relaypad",
+vi.mock("@/lib/discovery/fluxpad", () => ({
+  fetchFluxpadLaunches: vi.fn(async () => ({
+    source: "fluxpad",
     tokens: providers.relayTokens,
     fetchedAt: Date.now(),
     ok: true,
@@ -103,7 +103,7 @@ function token(mint: string, source: string, status: string, extra: Record<strin
     poolAddress: null,
     signature: null,
     creatorWallet: null,
-    relaypadLaunchId: null,
+    fluxpadLaunchId: null,
     provenance: source,
     ...extra,
   };
@@ -116,8 +116,8 @@ const baseQuery = {
   q: "",
   page: 1,
   pageSize: 25,
-  relayRoute: "all" as const,
-  relayStatus: "all" as const,
+  launchRoute: "all" as const,
+  launchStatus: "all" as const,
 };
 
 const srcMeta = (
@@ -141,29 +141,29 @@ describe("discovery runtime — provider health honesty + last-good preservation
     const pool1 = token("mintPool1", "pumpfun.pool", "pool", { poolAddress: "pool1" });
     const pool2 = token("mintPool2", "pumpfun.pool", "pool", { poolAddress: "pool2" });
     providers.pool.tokens = [pool1, pool2];
-    // A verified RelayPad record for the same mint as pool1 — attribution
+    // A verified FluxPad record for the same mint as pool1 — attribution
     // must survive a pumpfun.pool outage.
     providers.relayTokens = [
-      token("mintPool1", "relaypad", "verified-launch", {
-        relaypadLaunchId: "launch-1",
-        provenance: "relaypad-registry(pump_pumpswap)",
+      token("mintPool1", "fluxpad", "verified-launch", {
+        fluxpadLaunchId: "launch-1",
+        provenance: "fluxpad-registry(pump_pumpswap)",
         signature: "sig",
       }),
     ];
 
-    // t0 — healthy: pools listed, provider ok, RelayPad attribution applied.
+    // t0 — healthy: pools listed, provider ok, FluxPad attribution applied.
     const r1 = await getDiscovery(baseQuery);
     const m1 = srcMeta(r1, "pumpfun.pool");
     expect(m1.ok).toBe(true);
     expect(m1.error).toBeNull();
     // The aggregator dedupes by mint: the attributed mint merges into its
-    // RelayPad identity (rank wins) — attribution must be present either way.
+    // FluxPad identity (rank wins) — attribution must be present either way.
     const attributed = r1.tokens.find((t) => t.mint === "mintPool1");
-    expect(attributed?.relaypadLaunchId).toBe("launch-1");
+    expect(attributed?.fluxpadLaunchId).toBe("launch-1");
     expect(r1.tokens.some((t) => t.mint === "mintPool2" && t.source === "pumpfun.pool")).toBe(true);
-    const relayTab = await getDiscovery({ ...baseQuery, tab: "relaypad" });
+    const relayTab = await getDiscovery({ ...baseQuery, tab: "fluxpad" });
     expect(relayTab.tokens).toHaveLength(1);
-    expect(relayTab.tokens[0].relaypadLaunchId).toBe("launch-1");
+    expect(relayTab.tokens[0].fluxpadLaunchId).toBe("launch-1");
     const callsAfterHealthy = vi.mocked(fetchPumpswapPools).mock.calls.length;
 
     // Past the feed TTL the provider genuinely fails: health goes red, the
@@ -182,8 +182,8 @@ describe("discovery runtime — provider health honesty + last-good preservation
     expect(m2.error).toContain("429");
     const pools2 = await getDiscovery({ ...baseQuery, tab: "new-pools" });
     expect(pools2.tokens.some((t) => t.mint === "mintPool2" && t.source === "pumpfun.pool")).toBe(true);
-    const relayAfterFailure = await getDiscovery({ ...baseQuery, tab: "relaypad" });
-    expect(relayAfterFailure.tokens.some((t) => t.mint === "mintPool1" && t.relaypadLaunchId === "launch-1")).toBe(true);
+    const relayAfterFailure = await getDiscovery({ ...baseQuery, tab: "fluxpad" });
+    expect(relayAfterFailure.tokens.some((t) => t.mint === "mintPool1" && t.fluxpadLaunchId === "launch-1")).toBe(true);
     const callsAfterFailure = vi.mocked(fetchPumpswapPools).mock.calls.length;
     expect(callsAfterFailure).toBeGreaterThan(callsAfterHealthy);
 
@@ -237,13 +237,13 @@ describe("discovery runtime — provider health honesty + last-good preservation
     const pool1 = token("mintPool1", "pumpfun.pool", "pool", { poolAddress: "pool1" });
     providers.pool.tokens = [pool1, pool1]; // provider itself returns a duplicate
     providers.relayTokens = [
-      token("mintPool1", "relaypad", "verified-launch", { relaypadLaunchId: "launch-1" }),
+      token("mintPool1", "fluxpad", "verified-launch", { fluxpadLaunchId: "launch-1" }),
     ];
     const r = await getDiscovery(baseQuery);
     const pool1Records = r.tokens.filter((t) => t.mint === "mintPool1");
     expect(pool1Records).toHaveLength(1); // deduped by mint
-    expect(pool1Records[0].relaypadLaunchId).toBe("launch-1");
-    const relayOnly = await getDiscovery({ ...baseQuery, tab: "relaypad" });
+    expect(pool1Records[0].fluxpadLaunchId).toBe("launch-1");
+    const relayOnly = await getDiscovery({ ...baseQuery, tab: "fluxpad" });
     expect(relayOnly.tokens).toHaveLength(1);
   });
 });

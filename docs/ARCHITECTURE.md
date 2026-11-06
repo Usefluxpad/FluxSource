@@ -1,4 +1,4 @@
-# RelayPad architecture notes
+# FluxPad architecture notes
 
 ## Route separation
 

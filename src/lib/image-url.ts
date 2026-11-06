@@ -12,7 +12,7 @@
  * 1. The public `ipfs.io` gateway now answers browser requests with
  *    HTTP 429 ("switching to a service worker gateway only"), so even valid
  *    `ipfs.io` URLs fail. Rewriting the host to Pinata's public gateway
- *    (`gateway.pinata.cloud` — the same provider RelayPad already uses for
+ *    (`gateway.pinata.cloud` — the same provider FluxPad already uses for
  *    uploads, verified serving our CIDs) keeps existing records renderable.
  * 2. `ipfs://…` is not browser-fetchable at all and must be converted.
  *
@@ -23,7 +23,7 @@
 /**
  * Gateway used for `ipfs://` conversion and for rewriting `ipfs.io` URLs.
  * `gateway.pinata.cloud` is Pinata's public gateway — the same provider the
- * upload pipeline already uses — and was verified serving RelayPad's CIDs
+ * upload pipeline already uses — and was verified serving FluxPad's CIDs
  * while `ipfs.io` returned HTTP 429.
  */
 export const DEFAULT_IPFS_GATEWAY = "gateway.pinata.cloud";

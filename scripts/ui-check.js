@@ -15,7 +15,7 @@ function get(path) {
   const paths = process.argv.slice(2);
   for (const p of paths) {
     const r = await get(p);
-    console.log(p, "status=" + r.s, "brand=" + r.b.includes("RelayPad"), "len=" + r.b.length);
+    console.log(p, "status=" + r.s, "brand=" + r.b.includes("FluxPad"), "len=" + r.b.length);
   }
   process.exit(0);
 })();

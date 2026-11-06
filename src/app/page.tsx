@@ -5,22 +5,22 @@ import { ActivityPanel } from "@/components/dashboard/activity-panel";
 import { LeaderboardPanel } from "@/components/dashboard/leaderboard-panel";
 import { LatestPanel } from "@/components/dashboard/latest-panel";
 import { OfficialTokenCard } from "@/components/official/official-token-card";
-import { getRelayOfficialConfig } from "@/lib/relay-official/config";
-import { officialTokenView } from "@/lib/relay-official/token-display";
+import { getOfficialTokenConfig } from "@/lib/official-token/config";
+import { officialTokenView } from "@/lib/official-token/token-display";
 
 /**
- * RelayPad dashboard home — a dense, live launch terminal. All panels render
+ * FluxPad dashboard home — a dense, live launch terminal. All panels render
  * real registry data with honest empty states; no fabricated market metrics.
  *
  * Force-dynamic: the Official $FLUX contract address must reflect the
- * CURRENT RELAY_OFFICIAL_MINT configuration on every request — a statically
+ * CURRENT FLUXPAD_OFFICIAL_MINT configuration on every request — a statically
  * prerendered CA would keep showing a stale (or placeholder) address after
  * the official mint is configured.
  */
 export const dynamic = "force-dynamic";
 
 export default function DashboardHomePage() {
-  const officialToken = officialTokenView(getRelayOfficialConfig());
+  const officialToken = officialTokenView(getOfficialTokenConfig());
   return (
     <div className="animate-fade-up">
       {/* Electric Blue hero — the official Flux banner as texture inside a deep-blue stage */}

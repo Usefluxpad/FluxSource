@@ -1,9 +1,9 @@
 "use client";
 /**
  * Panel A — Trending tokens. Ranked by most recent registry activity from
- * RelayPad's real records. Filters: All / Pump / LaunchLab / New / Graduating.
+ * FluxPad's real records. Filters: All / Pump / LaunchLab / New / Graduating.
  * Verified curve progress is shown when on-chain snapshots exist; market
- * metrics that RelayPad cannot verify are never fabricated.
+ * metrics that FluxPad cannot verify are never fabricated.
  */
 import { useCallback, useEffect, useState } from "react";
 import { Panel, FilterPill, RefreshButton, PanelSkeleton, PanelEmpty, PanelError } from "./panel";

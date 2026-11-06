@@ -1,5 +1,5 @@
 /**
- * RelayPad vanity mint engine — pure functions, safe for Web Worker execution.
+ * FluxPad vanity mint engine — pure functions, safe for Web Worker execution.
  *
  * Security invariants:
  * - Keypairs are generated with `Keypair.generate()` (ed25519 via noble-hashes

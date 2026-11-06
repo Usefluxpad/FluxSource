@@ -1,7 +1,7 @@
 import type { PrismaClient, Prisma } from "@prisma/client";
 import { PublicKey } from "@solana/web3.js";
 import { getAdapter } from "./adapters";
-import { RelaypadError, resolveServerNetworkConfig, getConnection } from "./connection";
+import { FluxpadError, resolveServerNetworkConfig, getConnection } from "./connection";
 import type { LaunchRoute } from "./adapters/types";
 
 /**
@@ -139,7 +139,7 @@ export async function resolveLaunch(
       });
     }
   } catch (err) {
-    if (err instanceof RelaypadError && err.code === "PROTOCOL") {
+    if (err instanceof FluxpadError && err.code === "PROTOCOL") {
       // Curve account may have been closed post-migration on some routes —
       // don't roll back a verified state; note it and continue to pool check.
       updates.lastError = `reconcile: ${err.message.slice(0, 200)}${

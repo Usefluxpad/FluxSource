@@ -2,7 +2,7 @@
 
 import { Badge, Card, CopyChip } from "@/components/ui/primitives";
 import type { LaunchProgress } from "@/hooks/use-launch-flow";
-import type { RelaypadNetworkConfig } from "@/lib/connection";
+import type { FluxpadNetworkConfig } from "@/lib/connection";
 import { explorerUrl } from "@/lib/constants";
 import type { ClusterId } from "@/lib/constants";
 
@@ -24,7 +24,7 @@ export function LaunchProgressPanel({
   network,
 }: {
   progress: LaunchProgress;
-  network: RelaypadNetworkConfig;
+  network: FluxpadNetworkConfig;
 }) {
   const cluster: ClusterId = network.cluster;
   return (

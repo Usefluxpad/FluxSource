@@ -64,11 +64,11 @@ describe("browser RPC method allowlist", () => {
 describe("browser RPC endpoint resolution", () => {
   it("absolutizes a relative proxy path against the page origin", () => {
     expect(
-      resolveBrowserRpcEndpoint("/api/rpc", "mainnet-beta", "https://relaypad.example"),
-    ).toBe("https://relaypad.example/api/rpc");
+      resolveBrowserRpcEndpoint("/api/rpc", "mainnet-beta", "https://fluxpad.example"),
+    ).toBe("https://fluxpad.example/api/rpc");
     expect(
-      resolveBrowserRpcEndpoint("/api/rpc", "mainnet-beta", "https://relaypad.example/"),
-    ).toBe("https://relaypad.example/api/rpc");
+      resolveBrowserRpcEndpoint("/api/rpc", "mainnet-beta", "https://fluxpad.example/"),
+    ).toBe("https://fluxpad.example/api/rpc");
   });
 
   it("falls back to the public Mainnet endpoint when unset", () => {

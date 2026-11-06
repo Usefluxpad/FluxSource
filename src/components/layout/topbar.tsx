@@ -15,10 +15,9 @@ import { RouteBadge } from "@/components/brand/route-badge";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { shortAddress } from "@/lib/format";
 
-/** Official FluxPad social links — current project accounts, opened in a new tab, never routed in-app. */
+/** Official FluxPad links — GitHub org is the verified project home; no X account is published yet, so none is linked (never point brand links at a legacy brand's accounts). */
 const SOCIAL_LINKS = [
-  { href: "https://x.com/DotPadHQ", label: "Official FluxPad on X", brand: "x" as const, size: 13 },
-  { href: "https://github.com/DotPadTrade", label: "Official FluxPad GitHub", brand: "github" as const, size: 15 },
+  { href: "https://github.com/Usefluxpad", label: "Official FluxPad GitHub", brand: "github" as const, size: 15 },
 ];
 
 function SocialLinks() {

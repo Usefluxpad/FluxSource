@@ -22,8 +22,7 @@ const themeBootstrap = `(function(){try{var t=localStorage.getItem("fluxpad-them
  * (e.g. /flux-banner.jpg) to absolute URLs.
  *
  * - Production (Vercel builds): VERCEL_PROJECT_PRODUCTION_URL is injected by
- *   the platform and reflects the production domain (currently
- *   https://relaypad-solflow.vercel.app — verified live; note the project is
+ *   the platform and reflects the production domain (note: the project may be
  *   behind Vercel Deployment Protection/SSO until public launch, and any
  *   custom domain added in the Vercel dashboard is picked up automatically).
  * - Local development: NEXT_PUBLIC_APP_URL from .env.local

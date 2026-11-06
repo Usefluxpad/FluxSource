@@ -11,7 +11,7 @@
  * failed-to-connect error as an uncaught page error (rendered by the Next.js
  * dev overlay).
  *
- * RelayPad is Solana-only and never offered an EVM path, so this port drops
+ * FluxPad is Solana-only and never offered an EVM path, so this port drops
  * the entire bridge while keeping the Solflare Solana behavior identical to
  * the official adapter: ready-state polling, the iOS universal-link
  * redirect, the dynamic Solflare SDK load, connect/disconnect error

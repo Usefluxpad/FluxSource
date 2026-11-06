@@ -1,6 +1,6 @@
-# Hostinger Production Environment Setup — DotPad
+# Hostinger Production Environment Setup — FluxPad
 
-Complete, code-verified checklist of every environment variable the DotPad
+Complete, code-verified checklist of every environment variable the FluxPad
 production deployment needs on Hostinger (Next.js 15, Node.js 22, Solana
 Mainnet, SQLite). Derived from a full source scan of `src/`, `prisma/`,
 `next.config.mjs` and `package.json` — nothing here is assumed.
@@ -24,7 +24,7 @@ Legend for the tables:
 - `NEXT_PUBLIC_*` values are **inlined into the client bundle at build
   time**. Changing them without rebuilding has NO effect.
 - Server-side variables (`ALCHEMY_*`, `PINATA_*`, `SOLANA_RPC_URL`,
-  `DATABASE_URL`, `DOTPAD_OFFICIAL_*`) are read at **runtime** — a restart
+  `DATABASE_URL`, `FLUXPAD_OFFICIAL_*`) are read at **runtime** — a restart
   of the Node.js application is enough.
 - Hostinger (VPS "Node.js app" in hPanel) lets you define environment
   variables in the app settings; they are injected into the process.
@@ -51,7 +51,7 @@ npm run start                    # next start (serves on $PORT / 3000)
 |---|---|---|---|---|---|---|
 | `NODE_ENV` | Platform-managed | Runtime mode for Next.js/Prisma logging | — | `production` (set by platform / `next start`) | public | restart |
 
-No other core variables exist. The application name is fixed ("DotPad") in
+No other core variables exist. The application name is fixed ("FluxPad") in
 `src/app/layout.tsx` — there is no `NEXT_PUBLIC_APP_NAME` variable in the
 code (a `NEXT_PUBLIC_APP_NAME` entry in `.env.local` is dead and must not
 be migrated).
@@ -60,10 +60,9 @@ be migrated).
 
 | Variable | Required? | Purpose | Local value? | Hostinger value | Exposure | Reload |
 |---|---|---|---|---|---|---|
-| `NEXT_PUBLIC_DOTPAD_NETWORK` | **REQUIRED** | Active Solana cluster for client + server (`devnet` \| `mainnet-beta`) | SET | `mainnet-beta` (copy local) | PUBLIC | **REBUILD** |
+| `NEXT_PUBLIC_FLUXPAD_NETWORK` | **REQUIRED** | Active Solana cluster for client + server (`devnet` \| `mainnet-beta`) | SET | `mainnet-beta` (copy local) | PUBLIC | **REBUILD** |
 | `NEXT_PUBLIC_SOLANA_RPC_URL` | RECOMMENDED | Browser RPC endpoint. Use the relative proxy path `/api/rpc` so browser traffic flows through the server-side Alchemy proxy (key never reaches the browser) | SET | copy local **if it is `/api/rpc` or a public URL** — never a credentialed URL | PUBLIC | **REBUILD** |
 | `SOLANA_RPC_URL` | OPTIONAL | Server-side custom RPC, used when Alchemy is not configured (falls back to the public cluster endpoint, which is rate-limited) | empty | omit unless you have a dedicated non-Alchemy endpoint | SERVER | restart |
-| `NEXT_PUBLIC_RELAYPAD_NETWORK` | DO NOT SET | Legacy name only (in-code fallback; `DOTPAD` wins) | removed | omit — avoid duplicate definitions | PUBLIC | — |
 
 Server-side RPC precedence (verified in `src/lib/connection.ts`):
 `ALCHEMY_SOLANA_RPC_URL` → `ALCHEMY_API_KEY` (constructs
@@ -103,42 +102,43 @@ New Key (Admin) → copy the JWT. The upload size cap is fixed at 10 MB in
 code (`src/lib/metadata.ts`) and is not configurable — an
 `UPLOAD_MAX_BYTES` entry would be dead and must not be migrated.
 
-## F. Official DotPad token (DotPad naming only)
+## F. Official FluxPad token (FluxPad naming only)
 
 All seven variables are read server-side at runtime
-(`src/lib/relay-official/config.ts` via `getRelayOfficialConfig(process.env)`)
+(`src/lib/official-token/config.ts` via `getOfficialTokenConfig(process.env)`)
 — **restart only, no rebuild**. Empty values count as unset; the dashboard
 renders honest "configuration needed" states.
 
 | Variable | Required? | Purpose | Local value? | Hostinger value | Exposure | Reload |
 |---|---|---|---|---|---|---|
-| `DOTPAD_OFFICIAL_ENABLED` | REQUIRED (official-token + treasury features) | Master switch — `true` or `1` enables the official-token card/treasury | SET | copy local (`true`) | public (flag) | restart |
-| `DOTPAD_OFFICIAL_NETWORK` | RECOMMENDED | Network override for official-token reads (falls back to `NEXT_PUBLIC_DOTPAD_NETWORK`) | SET | copy local (`mainnet-beta`) | public | restart |
-| `DOTPAD_OFFICIAL_CREATOR_WALLET` | RECOMMENDED | W1 — official $DOT creator-fee receiver (public Solana address) | SET | copy local unchanged — **do not invent** | public address | restart |
-| `DOTPAD_OFFICIAL_BUYBACK_TREASURY` | RECOMMENDED | W2 — dedicated buyback treasury (public address) | SET | copy local unchanged | public address | restart |
-| `DOTPAD_OFFICIAL_OPS_TREASURY` | OPTIONAL | W3 — operations & reserve treasury | empty | omit or leave empty until finalized | public address | restart |
-| `DOTPAD_OFFICIAL_DEV_WALLET` | OPTIONAL | W4 — development wallet (transparency listing only) | empty | omit or leave empty | public address | restart |
-| `DOTPAD_OFFICIAL_MINT` | **KEEP EMPTY until you provide the verified mint** | The ONLY source of the official $DOT mint. While empty: card shows `CA NOT OFFICIAL YET` + "Official $DOT mint has not been configured yet.", copy disabled | empty | **leave empty** | public address once set | restart |
+| `FLUXPAD_OFFICIAL_ENABLED` | REQUIRED (official-token + treasury features) | Master switch — `true` or `1` enables the official-token card/treasury | SET | copy local (`true`) | public (flag) | restart |
+| `FLUXPAD_OFFICIAL_NETWORK` | RECOMMENDED | Network override for official-token reads (falls back to `NEXT_PUBLIC_FLUXPAD_NETWORK`) | SET | copy local (`mainnet-beta`) | public | restart |
+| `FLUXPAD_OFFICIAL_CREATOR_WALLET` | RECOMMENDED | W1 — official $FLUX creator-fee receiver (public Solana address) | SET | copy local unchanged — **do not invent** | public address | restart |
+| `FLUXPAD_OFFICIAL_BUYBACK_TREASURY` | RECOMMENDED | W2 — dedicated buyback treasury (public address) | SET | copy local unchanged | public address | restart |
+| `FLUXPAD_OFFICIAL_OPS_TREASURY` | OPTIONAL | W3 — operations & reserve treasury | empty | omit or leave empty until finalized | public address | restart |
+| `FLUXPAD_OFFICIAL_DEV_WALLET` | OPTIONAL | W4 — development wallet (transparency listing only) | empty | omit or leave empty | public address | restart |
+| `FLUXPAD_OFFICIAL_MINT` | **KEEP EMPTY until you provide the verified mint** | The ONLY source of the official $FLUX mint. While empty: card shows `CA NOT OFFICIAL YET` + "Official $FLUX mint has not been configured yet.", copy disabled | empty | **leave empty** | public address once set | restart |
 
 Hard rules (enforced by code + tests):
 
-- The mint is read **exclusively** from `DOTPAD_OFFICIAL_MINT`. There is NO
-  legacy fallback — `RELAY_OFFICIAL_MINT` is never consulted and its old
-  value must never be reused as the $DOT mint.
+- The mint is read **exclusively** from `FLUXPAD_OFFICIAL_MINT`. There is NO
+  legacy fallback — `FLUXPAD_OFFICIAL_MINT` is never consulted and its old
+  value must never be reused as the $FLUX mint.
 - Setting the variable does NOT make a token official: a syntactically
   valid address shows `NOT YET VERIFIED` until explicit on-chain
   verification marks it official. An invalid value renders an
   `INVALID CONFIGURATION` error state (raw value never exposed).
-- The literal string `REPLACE_WITH_OFFICIAL_RELAY_MINT` is treated exactly
+- The literal string `REPLACE_WITH_OFFICIAL_FLUX_MINT` is treated exactly
   like an unset value.
-- **Do not configure any `RELAY_OFFICIAL_*` variable on Hostinger.** The six
-  non-mint legacy names still work as in-code fallbacks, but setting them
-  would create duplicate definitions; the mint has no fallback at all.
+- **Do not configure any legacy `DOTPAD_OFFICIAL_*` / `RELAY_OFFICIAL_*` variable
+  on Hostinger.** Legacy fallback reads were removed from the code — those names
+  are no longer consulted anywhere, so setting them would have no effect.
+  Configure only the `FLUXPAD_OFFICIAL_*` variables above.
 
 ## G. Treasury and wallet configuration
 
 Fully covered by section F — the treasury dashboard (W1–W4) reads the same
-`DOTPAD_OFFICIAL_*` wallet variables. There are no separate treasury
+`FLUXPAD_OFFICIAL_*` wallet variables. There are no separate treasury
 variables. All wallet values are PUBLIC Solana addresses (never private
 keys — the schema and code store/validate public keys only).
 
@@ -176,7 +176,7 @@ Behavior verified in code (`src/lib/db.ts`):
 
 | Variable | Required? | Purpose | Local value? | Hostinger value | Exposure | Reload |
 |---|---|---|---|---|---|---|
-| `NEXT_PUBLIC_APP_URL` | **REQUIRED** | Origin for `metadataBase` — resolves relative OG/Twitter image URLs (`/dotpad-banner.jpg`) to absolute ones in `src/app/layout.tsx` | SET (`http://localhost:3300` locally) | `https://<your-production-domain>` — **change it from localhost** | PUBLIC | **REBUILD** |
+| `NEXT_PUBLIC_APP_URL` | **REQUIRED** | Origin for `metadataBase` — resolves relative OG/Twitter image URLs (`/fluxpad-banner.jpg`) to absolute ones in `src/app/layout.tsx` | SET (`http://localhost:3300` locally) | `https://<your-production-domain>` — **change it from localhost** | PUBLIC | **REBUILD** |
 | `VERCEL_PROJECT_PRODUCTION_URL` | DO NOT SET (Hostinger) | Vercel-only origin injection; on non-Vercel hosts it stays unset and `NEXT_PUBLIC_APP_URL` is used instead (verified fallback in `layout.tsx`) | not needed | omit | public | — |
 
 ⚠️ Without a correct `NEXT_PUBLIC_APP_URL`, social-preview images resolve
@@ -203,7 +203,7 @@ These facts MUST be confirmed in hPanel before the first production deploy
    replaces the application directory (fresh clone), a database stored
    inside the app directory is DELETED with it. In that case you MUST use
    an absolute `file:` URL pointing OUTSIDE the app directory, e.g.
-   `DATABASE_URL=file:/home/<user>/dotpad-data/prod.db` — create that
+   `DATABASE_URL=file:/home/<user>/fluxpad-data/prod.db` — create that
    directory once and confirm the exact path in hPanel (do not assume any
    specific path exists).
 3. **Disk type**: SQLite needs a real local filesystem. On a VPS
@@ -220,12 +220,12 @@ Quick decision tree:
 - App directory persists across redeploys → `DATABASE_URL=file:./dev.db`
   is fine (resolves to `<app>/prisma/dev.db`).
 - Redeploy recreates the app directory → use an absolute path outside it,
-  e.g. `file:/home/<user>/dotpad-data/prod.db` (confirm the real path in
+  e.g. `file:/home/<user>/fluxpad-data/prod.db` (confirm the real path in
   hPanel first).
 
 ## Security audit (pre-deployment)
 
-Verified against the committed repository (`DotPadTrade/dotfun`, branch
+Verified against the committed repository (`FluxPadTrade/dotfun`, branch
 `main`) and the local working tree:
 
 - `.env.local` / `.env` are git-ignored (`.env*` with `!.env.example`) and
@@ -233,7 +233,7 @@ Verified against the committed repository (`DotPadTrade/dotfun`, branch
   `git ls-tree` scan of the pushed HEAD).
 - No API keys, private keys, seed phrases, database files, or backup files
   are committed (pattern-scanned before upload).
-- Browser-exposed variables are exactly: `NEXT_PUBLIC_DOTPAD_NETWORK`
+- Browser-exposed variables are exactly: `NEXT_PUBLIC_FLUXPAD_NETWORK`
   (network name), `NEXT_PUBLIC_SOLANA_RPC_URL` (a relative `/api/rpc`
   proxy path or public URL — **never** a credentialed URL; code comments
   and tests enforce this), `NEXT_PUBLIC_APP_URL` (a public domain). No
@@ -248,32 +248,32 @@ Verified against the committed repository (`DotPadTrade/dotfun`, branch
 
 After the first deploy on Hostinger (in this order):
 
-1. `GET /` returns 200 and shows the DotPad logo/banner and branding.
-2. `GET /status` shows **Solana Mainnet** (`NEXT_PUBLIC_DOTPAD_NETWORK`
+1. `GET /` returns 200 and shows the FluxPad logo/banner and branding.
+2. `GET /status` shows **Solana Mainnet** (`NEXT_PUBLIC_FLUXPAD_NETWORK`
    was set before the build — otherwise rebuild).
-3. `GET /api/relay-official/token` returns `"status":"placeholder"`,
-   `"displayValue":"Official $DOT mint has not been configured yet."`,
+3. `GET /api/official-token/token` returns `"status":"placeholder"`,
+   `"displayValue":"Official $FLUX mint has not been configured yet."`,
    `"copyable":false`, `"badgeLabel":"CA NOT OFFICIAL YET"` while
-   `DOTPAD_OFFICIAL_MINT` is empty — never a placeholder string.
+   `FLUXPAD_OFFICIAL_MINT` is empty — never a placeholder string.
 4. `GET /api/launches` returns 200 → confirms the SQLite database is
    reachable (a 503 with a `[db] DATABASE_URL` log line means the variable
    is missing/invalid on the server).
-5. The homepage official $DOT card shows the honest not-configured state;
+5. The homepage official $FLUX card shows the honest not-configured state;
    Copy Address is disabled.
 6. Wallet connection works in the browser (browser RPC = the `/api/rpc`
    proxy → server-side Alchemy). `POST /api/rpc` with an allowlisted
    method (e.g. `getHealth`) returns 200; non-allowlisted methods get 403
    by design.
 7. `GET /treasury` renders the honest configuration state from the
-   `DOTPAD_OFFICIAL_*` values.
+   `FLUXPAD_OFFICIAL_*` values.
 8. Open Graph preview (paste the URL into a social composer) resolves
    images against the production domain (`NEXT_PUBLIC_APP_URL` was set
    before the build).
 9. Check the application logs on the first registry request — a one-time
    "[db] SQLite schema bootstrapped" message is expected on a fresh
    database.
-10. When the verified $DOT mint arrives later: set
-    `DOTPAD_OFFICIAL_MINT=<verified mint>` on Hostinger and RESTART only —
+10. When the verified $FLUX mint arrives later: set
+    `FLUXPAD_OFFICIAL_MINT=<verified mint>` on Hostinger and RESTART only —
     the card picks it up through the API without a rebuild and shows
     `NOT YET VERIFIED` until on-chain verification marks it official.
 
@@ -283,7 +283,7 @@ Required to match current local functionality (copy values from
 `.env.local` where marked; never print or share them):
 
 ```
-NEXT_PUBLIC_DOTPAD_NETWORK=mainnet-beta
+NEXT_PUBLIC_FLUXPAD_NETWORK=mainnet-beta
 NEXT_PUBLIC_SOLANA_RPC_URL=/api/rpc
 NEXT_PUBLIC_APP_URL=https://<your-production-domain>
 DATABASE_URL=file:./dev.db             # or an absolute path per the persistence rules
@@ -292,14 +292,14 @@ PINATA_GATEWAY=<copy from .env.local>  # optional but recommended
 ALCHEMY_SOLANA_RPC_URL=<copy from .env.local>
 ALCHEMY_API_KEY=<copy from .env.local>
 ALCHEMY_SOLANA_WS_URL=<copy from .env.local>   # optional
-DOTPAD_OFFICIAL_ENABLED=true
-DOTPAD_OFFICIAL_NETWORK=mainnet-beta
-DOTPAD_OFFICIAL_CREATOR_WALLET=<copy from .env.local>
-DOTPAD_OFFICIAL_BUYBACK_TREASURY=<copy from .env.local>
-DOTPAD_OFFICIAL_MINT=                  # intentionally EMPTY until the verified mint exists
+FLUXPAD_OFFICIAL_ENABLED=true
+FLUXPAD_OFFICIAL_NETWORK=mainnet-beta
+FLUXPAD_OFFICIAL_CREATOR_WALLET=<copy from .env.local>
+FLUXPAD_OFFICIAL_BUYBACK_TREASURY=<copy from .env.local>
+FLUXPAD_OFFICIAL_MINT=                  # intentionally EMPTY until the verified mint exists
 ```
 
-Do NOT set: `RELAY_OFFICIAL_*` (legacy), `NEXT_PUBLIC_RELAYPAD_NETWORK`
+Do NOT set: `FLUXPAD_OFFICIAL_*` (legacy), `NEXT_PUBLIC_FLUXPAD_NETWORK`
 (legacy), `NEXT_PUBLIC_APP_NAME`, `UPLOAD_MAX_BYTES`,
 `VERCEL_PROJECT_PRODUCTION_URL`, `VERCEL_OIDC_TOKEN`,
 `POSTGRES_DATABASE_URL`.
@@ -307,8 +307,8 @@ Do NOT set: `RELAY_OFFICIAL_*` (legacy), `NEXT_PUBLIC_RELAYPAD_NETWORK`
 Build/restart rule of thumb: after changing any `NEXT_PUBLIC_*` or
 `NEXT_PUBLIC_APP_URL` → full `npm run build` + restart. After changing any
 server-side variable (`ALCHEMY_*`, `PINATA_*`, `DATABASE_URL`,
-`DOTPAD_OFFICIAL_*`, `SOLANA_RPC_URL`) → restart only.
+`FLUXPAD_OFFICIAL_*`, `SOLANA_RPC_URL`) → restart only.
 
-— End of document. Generated from a source-level audit of DotPad @ `main`
-(`c111026`), repository `DotPadTrade/dotfun`.
+— End of document. Generated from a source-level audit of FluxPad @ `main`
+(`c111026`), repository `FluxPadTrade/dotfun`.
 

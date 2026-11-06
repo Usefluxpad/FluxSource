@@ -28,7 +28,7 @@ function redact(url) {
 
 async function main() {
   loadEnvLocal();
-  const cluster = process.env.NEXT_PUBLIC_RELAYPAD_NETWORK === "mainnet-beta" ? "mainnet-beta" : "devnet";
+  const cluster = process.env.NEXT_PUBLIC_FLUXPAD_NETWORK === "mainnet-beta" ? "mainnet-beta" : "devnet";
   const net = cluster === "mainnet-beta" ? "mainnet" : "devnet";
 
   const alchemyRpc = (process.env.ALCHEMY_SOLANA_RPC_URL || "").trim();

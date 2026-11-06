@@ -27,7 +27,7 @@ import { PublicKey } from "@solana/web3.js";
  *
  * The classifier is network-agnostic and takes no I/O — fully unit testable
  * against fixtures that mirror real parser output
- * (see src/tests/relay-official.test.ts).
+ * (see src/tests/official-token.test.ts).
  */
 
 export const ACTIVITY_TYPES = ["fee_collect", "transfer", "swap", "burn", "other"] as const;

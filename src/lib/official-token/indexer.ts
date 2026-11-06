@@ -1,15 +1,15 @@
 import type { ClusterId } from "../constants";
-import { getRelayOfficialConfig, type RelayOfficialConfig } from "./config";
+import { getOfficialTokenConfig, type OfficialTokenConfig } from "./config";
 import {
   classifyTransaction,
   networkFeeLamports,
   type ActivityRecord,
   type ClassifiedTransaction,
 } from "./classify";
-import type { RelayOfficialStore } from "./store";
+import type { OfficialTokenStore } from "./store";
 
 /**
- * Read-only on-chain indexer for the official-$RELAY treasury dashboard.
+ * Read-only on-chain indexer for the official-$FLUX treasury dashboard.
  *
  * Scans the transaction history of each configured treasury wallet over the
  * existing RPC architecture, classifies confirmed transactions, and stores
@@ -60,11 +60,11 @@ const RECONCILE_BATCH = 200;
 
 export async function indexTreasuryActivity(opts: {
   connection: IndexerConnection;
-  store: RelayOfficialStore;
-  config?: RelayOfficialConfig;
+  store: OfficialTokenStore;
+  config?: OfficialTokenConfig;
   maxPagesPerWallet?: number;
 }): Promise<IndexResult> {
-  const config = opts.config ?? getRelayOfficialConfig();
+  const config = opts.config ?? getOfficialTokenConfig();
   const now = new Date();
   const result: IndexResult = {
     network: config.network,
@@ -80,7 +80,7 @@ export async function indexTreasuryActivity(opts: {
 
   const configured = config.wallets.filter((w) => w.address !== null);
   if (configured.length === 0) return result;
-  if (!config.enabled) return result; // master switch (RELAY_OFFICIAL_ENABLED)
+  if (!config.enabled) return result; // master switch (FLUXPAD_OFFICIAL_ENABLED)
 
   const roleByAddress = new Map<string, string>();
   for (const w of configured) roleByAddress.set(w.address as string, w.role);

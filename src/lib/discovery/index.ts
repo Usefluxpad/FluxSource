@@ -5,12 +5,12 @@
  * background timers, no unbounded loops). Every request that hits the API
  * route either reuses a fresh cache or triggers exactly one bounded refresh
  * per source; a failing provider degrades to its last cached feed plus an
- * error flag — it never corrupts RelayPad launch records, which come from the
+ * error flag — it never corrupts FluxPad launch records, which come from the
  * local database.
  *
- * Dedupe: by mint, keeping the most informative record. RelayPad attribution
- * is sticky — a mint with a verified RelayPad launch record carries
- * `relaypadLaunchId` in every feed it appears in, but tab membership is by
+ * Dedupe: by mint, keeping the most informative record. FluxPad attribution
+ * is sticky — a mint with a verified FluxPad launch record carries
+ * `fluxpadLaunchId` in every feed it appears in, but tab membership is by
  * record identity, so a token is never double-counted across feeds.
  */
 import type {
@@ -34,21 +34,21 @@ export interface DiscoveryResponse {
   total: number;
 }
 
-/** Merge feeds into deduped records with RelayPad attribution applied. */
+/** Merge feeds into deduped records with FluxPad attribution applied. */
 export function mergeFeeds(feeds: SourceFeed[], now = Date.now(), ttlMs = 30_000): DiscoveredToken[] {
   const byMint = new Map<string, DiscoveredToken>();
-  const relaypadByMint = new Map<string, DiscoveredToken>();
+  const fluxpadByMint = new Map<string, DiscoveredToken>();
   for (const f of feeds) {
     for (const t of f.tokens) {
-      if (f.source === "relaypad") relaypadByMint.set(t.mint, t);
+      if (f.source === "fluxpad") fluxpadByMint.set(t.mint, t);
     }
   }
   for (const f of feeds) {
     for (const t of f.tokens) {
       const record: DiscoveredToken = { ...t, stale: now - f.fetchedAt > ttlMs };
-      const attributed = relaypadByMint.get(t.mint);
+      const attributed = fluxpadByMint.get(t.mint);
       if (attributed) {
-        record.relaypadLaunchId = attributed.relaypadLaunchId;
+        record.fluxpadLaunchId = attributed.fluxpadLaunchId;
         if (attributed.poolAddress && !record.poolAddress) record.poolAddress = attributed.poolAddress;
         if (attributed.curveProgress != null && record.curveProgress == null) {
           record.curveProgress = attributed.curveProgress;
@@ -61,15 +61,15 @@ export function mergeFeeds(feeds: SourceFeed[], now = Date.now(), ttlMs = 30_000
       }
       // Prefer the record with more verified information; graduated/pool
       // state wins over a stale curve snapshot, but the earliest known
-      // creation time and RelayPad attribution are preserved.
-      const rank = (x: DiscoveredToken) => (x.source === "relaypad" ? 3 : x.status === "pool" ? 2 : 1);
+      // creation time and FluxPad attribution are preserved.
+      const rank = (x: DiscoveredToken) => (x.source === "fluxpad" ? 3 : x.status === "pool" ? 2 : 1);
       const winner = rank(record) >= rank(existing) ? record : existing;
       const loser = winner === record ? existing : record;
       byMint.set(t.mint, {
         ...winner,
         createdAt: winner.createdAt ?? loser.createdAt,
         imageUrl: winner.imageUrl ?? loser.imageUrl,
-        relaypadLaunchId: winner.relaypadLaunchId ?? loser.relaypadLaunchId,
+        fluxpadLaunchId: winner.fluxpadLaunchId ?? loser.fluxpadLaunchId,
         creatorWallet: winner.creatorWallet ?? loser.creatorWallet,
         name: winner.name === "Unknown" ? loser.name : winner.name,
         symbol: winner.symbol === "???" ? loser.symbol : winner.symbol,
@@ -110,9 +110,9 @@ export function tabTokens(all: DiscoveredToken[], tab: DiscoveryTab): Discovered
     case "graduated":
       // Graduated tokens: migrated to a destination pool (PumpSwap / CPMM).
       return all.filter((t) => t.status === "pool" || t.status === "graduated");
-    case "relaypad":
-      // RelayPad tab: only records with a verified RelayPad launch id.
-      return all.filter((t) => t.relaypadLaunchId != null);
+    case "fluxpad":
+      // FluxPad tab: only records with a verified FluxPad launch id.
+      return all.filter((t) => t.fluxpadLaunchId != null);
   }
 }
 

@@ -3,9 +3,9 @@
  * Official $FLUX card + homepage/treasury freshness regression tests.
  *
  * The configured contract address must reach the page from the CURRENT
- * RELAY_OFFICIAL_MINT environment configuration:
+ * FLUXPAD_OFFICIAL_MINT environment configuration:
  * - the homepage and treasury routes are force-dynamic (no baked-in CA);
- * - the card revalidates against /api/relay-official/token on mount even
+ * - the card revalidates against /api/official-token/token on mount even
  *   when a server-rendered view exists.
  * Written with React.createElement (no JSX), matching the project's
  * vitest include pattern.
@@ -17,11 +17,11 @@ import { cleanup, render, screen, waitFor } from "@testing-library/react";
 afterEach(cleanup);
 
 import { OfficialTokenCard } from "@/components/official/official-token-card";
-import type { OfficialTokenView } from "@/lib/relay-official/token-display";
-import { OFFICIAL_MINT_UNCONFIGURED_TEXT } from "@/lib/relay-official/token-display";
+import type { OfficialTokenView } from "@/lib/official-token/token-display";
+import { OFFICIAL_MINT_UNCONFIGURED_TEXT } from "@/lib/official-token/token-display";
 import { explorerUrl } from "@/lib/constants";
 
-const RELAY_MINT = "Re1ayMintAddressAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+const FLUX_MINT = "Re1ayMintAddressAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 
 const placeholderView: OfficialTokenView = {
   status: "placeholder",
@@ -39,12 +39,12 @@ const configuredView: OfficialTokenView = {
   status: "configured",
   network: "mainnet-beta",
   networkLabel: "Solana Mainnet",
-  displayValue: RELAY_MINT,
-  mint: RELAY_MINT,
+  displayValue: FLUX_MINT,
+  mint: FLUX_MINT,
   copyable: true,
   badgeLabel: "NOT YET VERIFIED",
   message: "Valid Solana address format.",
-  explorerHref: explorerUrl("mainnet-beta", "address", RELAY_MINT),
+  explorerHref: explorerUrl("mainnet-beta", "address", FLUX_MINT),
 };
 
 describe("OfficialTokenCard — placeholder vs configured", () => {
@@ -52,7 +52,7 @@ describe("OfficialTokenCard — placeholder vs configured", () => {
     render(createElement(OfficialTokenCard, { initialView: placeholderView }));
     expect(screen.getByText(OFFICIAL_MINT_UNCONFIGURED_TEXT)).toBeTruthy();
     // The legacy placeholder string must never appear as the contract address.
-    expect(screen.queryByText("REPLACE_WITH_OFFICIAL_RELAY_MINT")).toBeNull();
+    expect(screen.queryByText("REPLACE_WITH_OFFICIAL_FLUX_MINT")).toBeNull();
     expect(screen.getByText("CA NOT OFFICIAL YET")).toBeTruthy();
     const copy = screen.getByRole("button", { name: /copying is disabled/i });
     expect((copy as HTMLButtonElement).disabled).toBe(true);
@@ -61,15 +61,15 @@ describe("OfficialTokenCard — placeholder vs configured", () => {
 
   it("renders the configured mint with an enabled copy button, a clickable CA, and the explorer token page", () => {
     render(createElement(OfficialTokenCard, { initialView: configuredView }));
-    expect(screen.getByText(RELAY_MINT)).toBeTruthy();
+    expect(screen.getByText(FLUX_MINT)).toBeTruthy();
     expect(screen.getByText("NOT YET VERIFIED")).toBeTruthy();
     const copy = screen.getByRole("button", { name: /copy official token address/i });
     expect((copy as HTMLButtonElement).disabled).toBe(false);
-    const caLink = screen.getByText(RELAY_MINT).closest("a");
-    expect(caLink?.getAttribute("href")).toBe(explorerUrl("mainnet-beta", "address", RELAY_MINT));
+    const caLink = screen.getByText(FLUX_MINT).closest("a");
+    expect(caLink?.getAttribute("href")).toBe(explorerUrl("mainnet-beta", "address", FLUX_MINT));
     expect(caLink?.getAttribute("target")).toBe("_blank");
     expect(screen.getByText("Explorer").closest("a")?.getAttribute("href")).toBe(
-      explorerUrl("mainnet-beta", "address", RELAY_MINT),
+      explorerUrl("mainnet-beta", "address", FLUX_MINT),
     );
   });
 });
@@ -80,7 +80,7 @@ describe("OfficialTokenCard — configuration freshness", () => {
   beforeEach(() => {
     fetchMock.impl = vi.fn(async (input: unknown) => {
       const url = typeof input === "string" ? input : (input as Request).url;
-      if (String(url).includes("/api/relay-official/token")) {
+      if (String(url).includes("/api/official-token/token")) {
         return {
           ok: true,
           json: async () => configuredView,
@@ -102,7 +102,7 @@ describe("OfficialTokenCard — configuration freshness", () => {
     // returns the configured mint — the card must update automatically.
     render(createElement(OfficialTokenCard, { initialView: placeholderView }));
     expect(screen.getByText(OFFICIAL_MINT_UNCONFIGURED_TEXT)).toBeTruthy();
-    await waitFor(() => expect(screen.getByText(RELAY_MINT)).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(FLUX_MINT)).toBeTruthy());
     expect(fetchMock.impl).toHaveBeenCalledTimes(1);
   });
 
@@ -119,7 +119,7 @@ describe("OfficialTokenCard — configuration freshness", () => {
 
   it("fetches with loading state when no server view is provided", async () => {
     render(createElement(OfficialTokenCard));
-    await waitFor(() => expect(screen.getByText(RELAY_MINT)).toBeTruthy());
+    await waitFor(() => expect(screen.getByText(FLUX_MINT)).toBeTruthy());
   });
 });
 

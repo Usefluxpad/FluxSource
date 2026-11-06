@@ -279,7 +279,7 @@ export async function fetchPumpswapPools(
         poolAddress: s.address,
         signature: null,
         creatorWallet: null, // creator not included in the bounded slice
-        relaypadLaunchId: null,
+        fluxpadLaunchId: null,
         provenance: "pumpswap-pool(gpa)",
       };
     });

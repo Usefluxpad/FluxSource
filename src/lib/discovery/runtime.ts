@@ -5,7 +5,7 @@
  *   requests, at most one per source per TTL window; concurrent requests
  *   share a single in-flight promise per source (no duplicate subscriptions).
  * - Provider outages degrade to the last cached feed with `degraded: true`
- *   and stale flags; RelayPad registry records are read from the local
+ *   and stale flags; FluxPad registry records are read from the local
  *   database and are never affected by provider outages.
  * - All provider hosts are official documented endpoints; credentials are not
  *   used for the read paths (no keys exist), so none can leak.
@@ -18,7 +18,7 @@ import { fetchPumpGlobals, scanPumpProgram, enrichPumpCurves } from "./pumpfun";
 import { fetchPumpswapPools } from "./pumpswap";
 import { fetchLaunchLabMints } from "./launchlab";
 import { fetchRaydiumCpmmPools, fetchSolPriceUsd } from "./raydium";
-import { fetchRelaypadLaunches } from "./relaypad";
+import { fetchFluxpadLaunches } from "./fluxpad";
 import { mergeFeeds, tabTokens, applyFilter, sortTokens, searchTokens, paginate, applySolPrice, applyScannerFilters, type DiscoveryFilter, type DiscoveryResponse } from "./index";
 import type { DiscoveredToken, DiscoverySort, DiscoveryTab, SourceFeed } from "./types";
 
@@ -27,7 +27,7 @@ const TTL: Record<string, number> = {
   "pumpfun.pool": 60_000,
   "launchlab.curve": 45_000,
   "raydium.cpmm": 60_000,
-  relaypad: 10_000,
+  fluxpad: 10_000,
 };
 
 /** Pump.fun curve freshness TTL (mirrors the TTL table above). */
@@ -138,24 +138,24 @@ export interface DiscoveryQuery {
   q: string;
   page: number;
   pageSize: number;
-  /** RelayPad-tab sub-filters (only applied when tab === "relaypad"). */
-  relayRoute: "all" | "pump" | "launchlab";
-  relayStatus: "all" | "pending" | "graduated";
+  /** FluxPad-tab sub-filters (only applied when tab === "fluxpad"). */
+  launchRoute: "all" | "pump" | "launchlab";
+  launchStatus: "all" | "pending" | "graduated";
 }
 
-/** Launch route for a verified RelayPad record, from record identity only. */
-export function relayRouteOf(t: DiscoveredToken): "pump" | "launchlab" | null {
+/** Launch route for a verified FluxPad record, from record identity only. */
+export function launchRouteOf(t: DiscoveredToken): "pump" | "launchlab" | null {
   if (t.source === "pumpfun.curve" || t.source === "pumpfun.pool") return "pump";
   if (t.source === "launchlab.curve" || t.source === "raydium.cpmm") return "launchlab";
-  // RelayPad registry provenance carries the full route token
+  // FluxPad registry provenance carries the full route token
   // (`pump_pumpswap` / `launchlab_cpmm`) — match on the route prefix.
-  const m = /relaypad-registry\((pump|launchlab)[^)]*\)/.exec(t.provenance ?? "");
+  const m = /fluxpad-registry\((pump|launchlab)[^)]*\)/.exec(t.provenance ?? "");
   return m ? (m[1] as "pump" | "launchlab") : null;
 }
 
-function applyRelayFilters(tokens: DiscoveredToken[], route: DiscoveryQuery["relayRoute"], status: DiscoveryQuery["relayStatus"]): DiscoveredToken[] {
+function applyLaunchFilters(tokens: DiscoveredToken[], route: DiscoveryQuery["launchRoute"], status: DiscoveryQuery["launchStatus"]): DiscoveredToken[] {
   return tokens.filter((t) => {
-    if (route !== "all" && relayRouteOf(t) !== route) return false;
+    if (route !== "all" && launchRouteOf(t) !== route) return false;
     if (status === "pending" && t.status !== "verified-launch") return false;
     if (status === "graduated" && !(t.status === "graduated" || t.status === "pool")) return false;
     return true;
@@ -206,8 +206,8 @@ export async function getDiscovery(
     ),
     withCache("launchlab.curve", "launchlab.curve", () => fetchLaunchLabMints(cluster, { sort: "new", now })),
     withCache("raydium.cpmm", "raydium.cpmm", () => fetchRaydiumCpmmPools(cluster, { now })),
-    // RelayPad records come from the local DB — always fresh, never cached stale.
-    fetchRelaypadLaunches(now),
+    // FluxPad records come from the local DB — always fresh, never cached stale.
+    fetchFluxpadLaunches(now),
   ]);
   const solPriceUsd = await withCache("raydium.solprice", "raydium.cpmm", async () => {
     const price = await fetchSolPriceUsd(cluster);
@@ -230,8 +230,8 @@ export async function getDiscovery(
       ? applyScannerFilters(tabbed, scannerFilters, now)
       : tabbed;
   const relayed =
-    query.tab === "relaypad"
-      ? applyRelayFilters(scanned, query.relayRoute, query.relayStatus)
+    query.tab === "fluxpad"
+      ? applyLaunchFilters(scanned, query.launchRoute, query.launchStatus)
       : scanned;
   const filtered = applyFilter(relayed, query.filter, now);
   const searched = searchTokens(filtered, query.q);

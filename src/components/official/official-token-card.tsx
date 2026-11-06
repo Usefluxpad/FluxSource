@@ -5,7 +5,7 @@
  *
  * Public, read-only display of the official token identity (name, symbol,
  * network, contract address). Fetches the sanitized view from the guarded
- * /api/relay-official/token endpoint so the homepage and the treasury
+ * /api/official-token/token endpoint so the homepage and the treasury
  * dashboard always render the SAME configured value (single source of truth).
  *
  * Honesty guarantees:
@@ -22,7 +22,7 @@ import { Badge, Button, Card } from "@/components/ui/primitives";
 import { Icon } from "@/components/ui/icons";
 import { FluxSymbol } from "@/components/brand/logo";
 import { copyText, type CopyResult } from "@/components/official/copy-text";
-import type { OfficialTokenView } from "@/lib/relay-official/token-display";
+import type { OfficialTokenView } from "@/lib/official-token/token-display";
 
 type LoadState =
   | { phase: "loading" }
@@ -53,7 +53,7 @@ export function OfficialTokenCard({
     // rebuild and without a loading flash.
     if (!opts.silent) setState({ phase: "loading" });
     try {
-      const res = await fetch("/api/relay-official/token", { cache: "no-store" });
+      const res = await fetch("/api/official-token/token", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const view = (await res.json()) as OfficialTokenView;
       setState({ phase: "ready", view });

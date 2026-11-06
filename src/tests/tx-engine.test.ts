@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { RelaypadError, toRelaypadError } from "@/lib/connection";
+import { FluxpadError, toFluxpadError } from "@/lib/connection";
 import {
   getFreshBlockhash,
   isBlockhashUsable,
@@ -108,7 +108,7 @@ const buildTx = async () => {
 
 describe("wallet rejection mapping", () => {
   it("maps user rejection to WALLET_REJECTED", () => {
-    const mapped = toRelaypadError(new Error("User rejected the request."));
+    const mapped = toFluxpadError(new Error("User rejected the request."));
     expect(mapped.code).toBe("WALLET_REJECTED");
   });
 });
@@ -167,9 +167,9 @@ describe("getFreshBlockhash", () => {
   });
 });
 
-describe("RelaypadError taxonomy", () => {
+describe("FluxpadError taxonomy", () => {
   it("preserves codes", () => {
-    expect(new RelaypadError("PROTOCOL", "x").code).toBe("PROTOCOL");
+    expect(new FluxpadError("PROTOCOL", "x").code).toBe("PROTOCOL");
   });
 });
 
@@ -242,11 +242,11 @@ describe("submitAndConfirm confirmation strategy", () => {
 
   it("reports UNRESOLVED with the signature when the result stays unknown", async () => {
     const conn = makeConnectionStub({ pollQueue: [null], historical: null });
-    let caught: RelaypadError | null = null;
+    let caught: FluxpadError | null = null;
     try {
       await submitAndConfirm(conn, buildTx, walletSigner(), tiny);
     } catch (err) {
-      caught = err as RelaypadError;
+      caught = err as FluxpadError;
     }
     expect(caught?.code).toBe("UNRESOLVED");
     expect(caught?.signature).toBe("sig123");
@@ -270,7 +270,7 @@ describe("submitAndConfirm confirmation strategy", () => {
   });
 
   it("maps the web3.js confirmation-timeout message to UNRESOLVED", () => {
-    const mapped = toRelaypadError(
+    const mapped = toFluxpadError(
       new Error(
         "Transaction was not confirmed in 30.00 seconds. It is unknown if it succeeded or failed. Check signature abc using the Solana Explorer or CLI tools.",
       ),
@@ -436,6 +436,6 @@ describe("blockhash freshness + rebuild-and-resign (LaunchLab CPMM fix)", () => 
   });
 
   it("maps transaction-level BlockhashNotFound to BLOCKHASH_EXPIRED (not SIMULATION_FAILED)", () => {
-    expect(toRelaypadError(new Error("BlockhashNotFound")).code).toBe("BLOCKHASH_EXPIRED");
+    expect(toFluxpadError(new Error("BlockhashNotFound")).code).toBe("BLOCKHASH_EXPIRED");
   });
 });

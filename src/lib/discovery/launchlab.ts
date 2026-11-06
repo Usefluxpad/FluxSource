@@ -72,7 +72,7 @@ export function normalizeLaunchLabMint(raw: Obj, now: number, cluster: string): 
     poolAddress: str(pick(raw, "poolAddress", "poolId", "cpmmPool")),
     signature: null,
     creatorWallet: str(pick(raw, "creator", "creatorAddress", "owner")),
-    relaypadLaunchId: null,
+    fluxpadLaunchId: null,
     provenance: `raydium-launch-mint-api(${cluster})`,
   };
 }

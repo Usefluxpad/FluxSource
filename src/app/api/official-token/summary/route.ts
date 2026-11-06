@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { resolveServerNetworkConfig, getConnection } from "@/lib/connection";
-import { getRelayOfficialConfig } from "@/lib/relay-official/config";
-import { getRelayOfficialStore } from "@/lib/relay-official/store";
-import { buildTreasurySummary } from "@/lib/relay-official/summary";
-import { indexTreasuryActivity } from "@/lib/relay-official/indexer";
-import { adaptConnection } from "@/lib/relay-official/rpc-adapter";
-import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/relay-official/api-guard";
+import { getOfficialTokenConfig } from "@/lib/official-token/config";
+import { getOfficialTokenStore } from "@/lib/official-token/store";
+import { buildTreasurySummary } from "@/lib/official-token/summary";
+import { indexTreasuryActivity } from "@/lib/official-token/indexer";
+import { adaptConnection } from "@/lib/official-token/rpc-adapter";
+import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/official-token/api-guard";
 import {
   REFRESH_MIN_INTERVAL_MS,
   REFRESH_STATE_KEY,
   shouldRunRefresh,
-} from "@/lib/relay-official/refresh-gate";
-import { logSafeDetail, publicInvalidRoles } from "@/lib/relay-official/sanitize";
+} from "@/lib/official-token/refresh-gate";
+import { logSafeDetail, publicInvalidRoles } from "@/lib/official-token/sanitize";
 
 /**
- * GET /api/relay-official/summary — public, read-only treasury overview.
+ * GET /api/official-token/summary — public, read-only treasury overview.
  *
  * Read-only by construction: this endpoint contains no transfer, buyback,
  * burn, or configuration logic, and rejects every non-GET method. The
@@ -54,8 +54,8 @@ export async function GET(req: Request) {
     );
   }
 
-  const config = getRelayOfficialConfig();
-  const store = getRelayOfficialStore();
+  const config = getOfficialTokenConfig();
+  const store = getOfficialTokenStore();
   if (!store && config.anyWalletConfigured) {
     return NextResponse.json(
       { error: "database_not_configured" },
@@ -64,7 +64,7 @@ export async function GET(req: Request) {
   }
 
   // Optional read-only refresh (bounded scan + idempotent cache writes).
-  // Gated on the RELAY_OFFICIAL_ENABLED master switch, a per-process time
+  // Gated on the FLUXPAD_OFFICIAL_ENABLED master switch, a per-process time
   // throttle and single-flight flag (exact within this process), plus a
   // DB-backed timestamp gate shared by every instance through the existing
   // RelayOfficialIndexState table — so N production instances do not all
@@ -79,7 +79,7 @@ export async function GET(req: Request) {
     } catch (err) {
       // Gate check is best-effort: a DB outage falls back to the per-process
       // throttle; the indexer run itself contains and records the failure.
-      console.error("[api/relay-official/summary] refresh gate read failed:", logSafeDetail(err));
+      console.error("[api/official-token/summary] refresh gate read failed:", logSafeDetail(err));
       dbLastRunAt = null;
     }
   }
@@ -106,14 +106,14 @@ export async function GET(req: Request) {
         lastError: null,
       });
     } catch (err) {
-      console.error("[api/relay-official/summary] refresh claim failed:", logSafeDetail(err));
+      console.error("[api/official-token/summary] refresh claim failed:", logSafeDetail(err));
     }
     const networkCfg = resolveServerNetworkConfig(config.network);
     const connection = adaptConnection(getConnection(networkCfg));
     try {
       await indexTreasuryActivity({ connection, store: store!, config });
     } catch (err) {
-      console.error("[api/relay-official/summary] index error:", logSafeDetail(err));
+      console.error("[api/official-token/summary] index error:", logSafeDetail(err));
       // Contained: the summary still renders from stored data.
       try {
         await store!.setIndexState(REFRESH_STATE_KEY, {
@@ -138,7 +138,7 @@ export async function GET(req: Request) {
       { headers: jsonHeaders() },
     );
   } catch (err) {
-    console.error("[api/relay-official/summary] error:", logSafeDetail(err));
+    console.error("[api/official-token/summary] error:", logSafeDetail(err));
     return NextResponse.json(
       { error: "summary_unavailable" },
       { status: 503, headers: jsonHeaders() },

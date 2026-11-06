@@ -7,7 +7,7 @@ import { curveProgress } from "@/lib/format";
  * POST /api/launches — persist a launch intent (idempotent via idempotencyKey).
  * GET  /api/launches?creator=...&limit= — list launches.
  *
- * The database stores RelayPad's observations only; on-chain state remains the
+ * The database stores FluxPad's observations only; on-chain state remains the
  * source of truth for graduation and pool verification.
  */
 

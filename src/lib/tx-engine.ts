@@ -9,13 +9,13 @@ import {
 } from "@solana/web3.js";
 import {
   isTransactionTooLargeError,
-  RelaypadError,
-  toRelaypadError,
+  FluxpadError,
+  toFluxpadError,
 } from "./connection";
 
 /**
  * The wallet-facing signer surface. In the browser this is satisfied by a
- * wallet-adapter wallet. In tests it is a mock. RelayPad never holds user
+ * wallet-adapter wallet. In tests it is a mock. FluxPad never holds user
  * keys — all signing happens in the wallet (plus the ephemeral mint keypair,
  * which stays in client memory when a vanity mint is requested).
  */
@@ -66,7 +66,7 @@ export async function simulateTransaction(
     if (value.err) {
       const errJson = JSON.stringify(value.err);
       if (errJson.includes("InsufficientFunds") || errJson.includes("InsufficientFundsForFee")) {
-        throw new RelaypadError(
+        throw new FluxpadError(
           "INSUFFICIENT_FUNDS",
           "Simulation failed: insufficient funds for fees/buy amount.",
         );
@@ -75,24 +75,24 @@ export async function simulateTransaction(
         // The transaction's referenced blockhash is no longer valid (e.g. the
         // wallet approval took too long). NOT a program-logic failure and
         // nothing was submitted — retryable via a rebuild + fresh approval.
-        throw new RelaypadError(
+        throw new FluxpadError(
           "BLOCKHASH_EXPIRED",
           "The transaction's blockhash expired before it could be submitted — the approval took too long or the network moved on. Nothing was submitted. FluxPad rebuilds the transaction with a fresh blockhash and asks for approval again.",
         );
       }
-      throw new RelaypadError(
+      throw new FluxpadError(
         "SIMULATION_FAILED",
         `Simulation failed: ${errJson}`,
       );
     }
     return { ok: true, logs: value.logs ?? [] };
   } catch (err) {
-    if (err instanceof RelaypadError) throw err;
+    if (err instanceof FluxpadError) throw err;
     return null; // not fully signed — simulation not possible pre-wallet
   }
 }
 
-export { toRelaypadError };
+export { toFluxpadError };
 
 const DEFAULT_CONFIRM_WINDOW_MS = 90_000;
 const DEFAULT_POLL_INTERVAL_MS = 2_500;
@@ -139,14 +139,14 @@ export async function submitAndConfirm(
     try {
       tx = await buildTx();
     } catch (err) {
-      throw toRelaypadError(err);
+      throw toFluxpadError(err);
     }
 
     let signed: Transaction | VersionedTransaction;
     try {
       signed = await signer.signTransaction(tx);
     } catch (err) {
-      throw toRelaypadError(err);
+      throw toFluxpadError(err);
     }
 
     // Best-effort simulation (skipped when the tx isn't fully signed). It
@@ -156,11 +156,11 @@ export async function submitAndConfirm(
     // an automatic duplicate submission).
     try {
       await simulateTransaction(connection, signed).catch((err) => {
-        if (err instanceof RelaypadError) throw err;
+        if (err instanceof FluxpadError) throw err;
         return null;
       });
     } catch (err) {
-      const mapped = err instanceof RelaypadError ? err : toRelaypadError(err);
+      const mapped = err instanceof FluxpadError ? err : toFluxpadError(err);
       if (mapped.code === "BLOCKHASH_EXPIRED" && attempt < maxAttempts) {
         lastError = err;
         continue; // rebuild (buildTx) + re-sign on the next attempt
@@ -175,7 +175,7 @@ export async function submitAndConfirm(
         maxRetries: 5,
       });    } catch (err) {
       lastError = err;
-      const mapped = toRelaypadError(err);
+      const mapped = toFluxpadError(err);
       if (
         (mapped.code === "STALE_BLOCKHASH" ||
           mapped.code === "BLOCKHASH_EXPIRED" ||
@@ -235,9 +235,9 @@ export async function submitAndConfirm(
             errJson.includes("InsufficientFunds") ||
             errJson.includes("InsufficientFundsForFee")
           ) {
-            throw new RelaypadError("INSUFFICIENT_FUNDS", `On-chain failure: ${errJson}`);
+            throw new FluxpadError("INSUFFICIENT_FUNDS", `On-chain failure: ${errJson}`);
           }
-          throw new RelaypadError(
+          throw new FluxpadError(
             "SIMULATION_FAILED",
             `Transaction landed but failed on-chain: ${errJson}`,
           );
@@ -287,9 +287,9 @@ export async function submitAndConfirm(
           errJson.includes("InsufficientFunds") ||
           errJson.includes("InsufficientFundsForFee")
         ) {
-          throw new RelaypadError("INSUFFICIENT_FUNDS", `On-chain failure: ${errJson}`);
+          throw new FluxpadError("INSUFFICIENT_FUNDS", `On-chain failure: ${errJson}`);
         }
-        throw new RelaypadError(
+        throw new FluxpadError(
           "SIMULATION_FAILED",
           `Transaction landed but failed on-chain: ${errJson}`,
         );
@@ -299,7 +299,7 @@ export async function submitAndConfirm(
 
     // Genuinely unresolved — reported as unknown, never as a failure, and
     // never a reason to resubmit.
-    throw new RelaypadError(
+    throw new FluxpadError(
       "UNRESOLVED",
       `FluxPad could not verify the launch result in time. The transaction (signature ${signature}) may still land. Do NOT launch again — check the signature on the Solana Explorer first.`,
       lastError ?? lastPollError,
@@ -307,7 +307,7 @@ export async function submitAndConfirm(
     );
   }
 
-  throw new RelaypadError(
+  throw new FluxpadError(
     "UNRESOLVED",
     `Transaction could not be confirmed after ${maxAttempts} attempts. The launch may still have landed — verify recent signatures before retrying.`,
     lastError,
@@ -385,7 +385,7 @@ export function makeBlockhashAwareBuildTx(
     const tx = opts.getTx();
     if (await isBlockhashUsable(opts.connection, tx)) return tx;
     if (!opts.rebuild) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "BLOCKHASH_EXPIRED",
         opts.expiredMessage ??
           "This launch was prepared more than about a minute ago and its blockhash has expired. Click Launch again — FluxPad will rebuild it with a fresh blockhash before asking your wallet to sign. No transaction was submitted.",
@@ -408,10 +408,10 @@ export async function assertMinBalance(
   try {
     lamports = await connection.getBalance(pubkey, "confirmed");
   } catch (err) {
-    throw toRelaypadError(err);
+    throw toFluxpadError(err);
   }
   if (BigInt(lamports) < requiredLamports) {
-    throw new RelaypadError(
+    throw new FluxpadError(
       "INSUFFICIENT_FUNDS",
       `Wallet balance ${(Number(lamports) / 1e9).toFixed(4)} SOL is below the required minimum ${(Number(requiredLamports) / 1e9).toFixed(4)} SOL.`,
     );
@@ -429,12 +429,12 @@ export async function getFreshBlockhash(
   try {
     const res = await connection.getLatestBlockhash(commitment);
     if (!res || !res.blockhash) {
-      throw new RelaypadError("RPC_ERROR", "RPC returned an empty blockhash.");
+      throw new FluxpadError("RPC_ERROR", "RPC returned an empty blockhash.");
     }
     return res;
   } catch (err) {
-    if (err instanceof RelaypadError) throw err;
-    throw toRelaypadError(err);
+    if (err instanceof FluxpadError) throw err;
+    throw toFluxpadError(err);
   }
 }
 
@@ -451,7 +451,7 @@ export async function getFreshBlockhash(
  * returning a size (legacy: a Node `ERR_OUT_OF_RANGE` RangeError from the
  * fixed 1,232-byte message buffer; v0: BufferLayout's `encoding overruns
  * Uint8Array`). That throw is converted to a coded `TX_TOO_LARGE`
- * RelaypadError here, so no raw web3.js/Node error can ever escape the size
+ * FluxpadError here, so no raw web3.js/Node error can ever escape the size
  * guard.
  */
 export function measureTransactionSize(
@@ -462,8 +462,8 @@ export function measureTransactionSize(
     if (tx instanceof VersionedTransaction) return tx.serialize().length;
     return tx.serialize({ requireAllSignatures: false, verifySignatures: false }).length;
   } catch (err) {
-    if (err instanceof RelaypadError) throw err;
-    throw new RelaypadError(
+    if (err instanceof FluxpadError) throw err;
+    throw new FluxpadError(
       "TX_TOO_LARGE",
       `The ${label} transaction exceeds Solana's ${PACKET_DATA_SIZE}-byte packet limit and cannot be signed or broadcast. Shorten the metadata URI (the default IPFS gateway produces the shortest URIs) or adjust the launch options — for example launch without the initial buy — then try again.`,
       err,
@@ -474,7 +474,7 @@ export function measureTransactionSize(
 /**
  * Pre-signing transaction-size guard (P0.2): run after a launch transaction
  * is constructed and before it is presented for wallet signing. Throws a
- * coded `TX_TOO_LARGE` RelaypadError with an actionable message when the
+ * coded `TX_TOO_LARGE` FluxpadError with an actionable message when the
  * transaction exceeds Solana's 1,232-byte packet limit. Never requires
  * broadcasting or a real wallet signature.
  */
@@ -488,19 +488,19 @@ export function assertTransactionFits(
   } catch (err) {
     // measureTransactionSize already maps serialization overflow to a coded
     // TX_TOO_LARGE carrying the label — rethrow unchanged.
-    if (err instanceof RelaypadError && err.code === "TX_TOO_LARGE") throw err;
-    if (err instanceof RelaypadError) throw err;
+    if (err instanceof FluxpadError && err.code === "TX_TOO_LARGE") throw err;
+    if (err instanceof FluxpadError) throw err;
     if (isTransactionTooLargeError(err)) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "TX_TOO_LARGE",
         `The ${label} transaction exceeds Solana's ${PACKET_DATA_SIZE}-byte packet limit and cannot be signed or broadcast. Shorten the metadata URI (the default IPFS gateway produces the shortest URIs) or adjust the launch options — for example launch without the initial buy — then try again.`,
         err,
       );
     }
-    throw toRelaypadError(err);
+    throw toFluxpadError(err);
   }
   if (size > PACKET_DATA_SIZE) {
-    throw new RelaypadError(
+    throw new FluxpadError(
       "TX_TOO_LARGE",
       `The ${label} transaction is ${size} bytes — over Solana's ${PACKET_DATA_SIZE}-byte packet limit. Shorten the metadata URI (the default IPFS gateway produces the shortest URIs) or adjust the launch options — for example launch without the initial buy — then try again.`,
     );

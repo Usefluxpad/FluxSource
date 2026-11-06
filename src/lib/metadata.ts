@@ -143,7 +143,7 @@ export function validateArtwork(
  * used by Pump.fun, LaunchLab/LetsBonk and third-party scanners), with
  * `external_url` mirroring the website for Metaplex-standard consumers.
  *
- * Handles/URLs are normalized here (e.g. `@dotpad` → `https://x.com/dotpad`)
+ * Handles/URLs are normalized here (e.g. `@fluxpad` → `https://x.com/fluxpad`)
  * so the on-chain JSON always carries absolute, validated https links.
  * Invalid values are omitted rather than written broken.
  */
@@ -180,7 +180,7 @@ export interface TokenSocials {
  * conventions seen in the wild without trusting them:
  * - top-level `website` / `twitter` / `telegram` (Pump.fun, LaunchLab, FluxPad)
  * - `x` as a Twitter alias, `external_url` as a website fallback
- * - legacy DotPad shape: a `social: { website, twitter, telegram }` object
+ * - legacy FluxPad shape: a `social: { website, twitter, telegram }` object
  * - `extensions: { website, twitter, telegram }` (Metaplex convention)
  *
  * Every value must be an absolute http(s) URL — `javascript:`, `data:` and

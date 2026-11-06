@@ -198,7 +198,7 @@ export async function scanPumpProgram(
             poolAddress: null,
             signature: null,
             creatorWallet: ev.creator?.toBase58() ?? null,
-            relaypadLaunchId: null,
+            fluxpadLaunchId: null,
             provenance: "pump-program(create-event)",
           });
           scannedMints.push(ev.mint.toBase58());

@@ -1,6 +1,6 @@
 # PostgreSQL provider package (`prisma/postgres/`)
 
-Production PostgreSQL configuration for RelayPad, kept **fully separate** from
+Production PostgreSQL configuration for FluxPad, kept **fully separate** from
 the SQLite development setup under `prisma/`. Nothing in the SQLite tree was
 modified; no database was created, reset, or migrated by this phase.
 

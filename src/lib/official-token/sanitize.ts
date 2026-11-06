@@ -1,5 +1,5 @@
 /**
- * Public-safe error rendering for the relay-official API surface.
+ * Public-safe error rendering for the official-token API surface.
  *
  * Public responses must never leak provider endpoints, API keys, internal
  * paths, or raw infrastructure messages. Servers keep the full detail in
@@ -8,7 +8,7 @@
  * coarse reason code.
  */
 
-import type { RelayOfficialConfig } from "./config";
+import type { OfficialTokenConfig } from "./config";
 
 const URL_RE = /https?:\/\/[^\s"'<>]+/g;
 
@@ -37,7 +37,7 @@ export function publicErrorReason(err: unknown): string {
  * value stays available server-side in `config.invalid` for diagnostics.
  */
 export function publicInvalidRoles(
-  config: RelayOfficialConfig,
+  config: OfficialTokenConfig,
 ): { role: string }[] {
   return config.invalid.map((i) => ({ role: i.role }));
 }

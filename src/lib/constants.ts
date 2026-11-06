@@ -1,5 +1,5 @@
 /**
- * RelayPad protocol constants.
+ * FluxPad protocol constants.
  *
  * Every address below is taken from official documentation, not invented:
  * - PumpSwap program + global config:

@@ -1,11 +1,11 @@
-# RelayPad manual production smoke test
+# FluxPad manual production smoke test
 
 > **Run only with explicit human approval.** Never conduct unapproved
 > real-money transactions. Complete the devnet pass first.
 
 ## 0. Preconditions
 
-- [ ] `.env.local` configured; `NEXT_PUBLIC_RELAYPAD_NETWORK` deliberately set
+- [ ] `.env.local` configured; `NEXT_PUBLIC_FLUXPAD_NETWORK` deliberately set
 - [ ] `DATABASE_URL` reachable (`npx prisma migrate deploy` succeeded)
 - [ ] `npm run build` and `npm test` pass
 - [ ] Wallet funded with ≥ 0.1 SOL above intended buy amounts

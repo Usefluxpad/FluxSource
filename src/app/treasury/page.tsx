@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 import TreasuryDashboard from "@/components/treasury/treasury-dashboard";
 import { OfficialTokenCard } from "@/components/official/official-token-card";
-import { getRelayOfficialConfig } from "@/lib/relay-official/config";
-import { officialTokenView } from "@/lib/relay-official/token-display";
+import { getOfficialTokenConfig } from "@/lib/official-token/config";
+import { officialTokenView } from "@/lib/official-token/token-display";
 
 /**
  * /treasury — public, read-only Treasury & On-Chain Activity dashboard for
- * RelayPad's official $RELAY token. Renders only verified on-chain data;
+ * FluxPad's official $FLUX token. Renders only verified on-chain data;
  * missing configuration renders as explicit placeholder states.
  *
  * Force-dynamic: the Official $FLUX contract address must reflect the
- * CURRENT RELAY_OFFICIAL_MINT configuration on every request.
+ * CURRENT FLUXPAD_OFFICIAL_MINT configuration on every request.
  */
 export const dynamic = "force-dynamic";
 
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default function TreasuryPage() {
-  const officialToken = officialTokenView(getRelayOfficialConfig());
+  const officialToken = officialTokenView(getOfficialTokenConfig());
   return (
     <div className="animate-fade-up mx-auto max-w-5xl">
       <header className="mb-4">

@@ -1,7 +1,7 @@
 import type { ClusterId } from "../constants";
-import { getRelayOfficialConfig, type RelayOfficialConfig } from "./config";
+import { getOfficialTokenConfig, type OfficialTokenConfig } from "./config";
 import { SOL_ASSET, type ActivityType } from "./classify";
-import type { RelayOfficialStore } from "./store";
+import type { OfficialTokenStore } from "./store";
 import { publicErrorReason, logSafeDetail } from "./sanitize";
 
 /**
@@ -38,7 +38,7 @@ export interface WalletBalance {
   configured: boolean;
   /** SOL lamports balance, or null when unavailable. */
   lamports: number | null;
-  /** $RELAY token balance (raw), or null when unavailable/unconfigured. */
+  /** $FLUX token balance (raw), or null when unavailable/unconfigured. */
   relayBalance: string | null;
   relayDecimals: number | null;
   balanceError: string | null;
@@ -53,10 +53,10 @@ export interface TreasurySummary {
     feesCollected: string | null;
     /** Verified treasury transfers (SOL in → out of the treasury set). */
     transfers: string | null;
-    /** Verified $RELAY purchased via swaps by W2 (raw units). */
-    relayPurchased: string | null;
-    /** Verified $RELAY burned (raw units). */
-    relayBurned: string | null;
+    /** Verified $FLUX purchased via swaps by W2 (raw units). */
+    fluxPurchased: string | null;
+    /** Verified $FLUX burned (raw units). */
+    fluxBurned: string | null;
   };
   activityCounts: Record<ActivityType, number>;
   lastReconciledAt: string | null;
@@ -95,7 +95,7 @@ async function readRelayBalance(
     // Public payload gets a coarse reason only; full detail stays in the
     // server log (URLs stripped so no endpoint/credential is captured).
     console.error(
-      "[relay-official/summary] $FLUX balance read failed:",
+      "[official-token/summary] $FLUX balance read failed:",
       logSafeDetail(err),
     );
     return {
@@ -108,10 +108,10 @@ async function readRelayBalance(
 
 export async function buildTreasurySummary(opts: {
   balanceConnection: BalanceConnection | null;
-  store: RelayOfficialStore | null;
-  config?: RelayOfficialConfig;
+  store: OfficialTokenStore | null;
+  config?: OfficialTokenConfig;
 }): Promise<TreasurySummary> {
-  const config = opts.config ?? getRelayOfficialConfig();
+  const config = opts.config ?? getOfficialTokenConfig();
   const errors: string[] = [];
 
   const wallets: WalletBalance[] = [];
@@ -132,7 +132,7 @@ export async function buildTreasurySummary(opts: {
         // Public payload gets a coarse reason only (never provider text that
         // could carry endpoints/keys); full detail stays in the server log.
         console.error(
-          "[relay-official/summary] SOL balance read failed:",
+          "[official-token/summary] SOL balance read failed:",
           logSafeDetail(err),
         );
         base.balanceError = publicErrorReason(err);
@@ -151,8 +151,8 @@ export async function buildTreasurySummary(opts: {
   const activityCounts = {} as Record<ActivityType, number>;
   let feesCollected: string | null = null;
   let transfers: string | null = null;
-  let relayPurchased: string | null = null;
-  let relayBurned: string | null = null;
+  let fluxPurchased: string | null = null;
+  let fluxBurned: string | null = null;
 
   if (opts.store) {
     try {
@@ -174,20 +174,20 @@ export async function buildTreasurySummary(opts: {
           { asset: config.mint, ...verifiedOnly },
         );
         activityCounts.swap = swapTotals.count;
-        relayPurchased = swapTotals.totalOutput; // $RELAY output only
+        fluxPurchased = swapTotals.totalOutput; // $FLUX output only
         const burnTotals = await opts.store.totalsByType(
           "burn",
           { asset: config.mint, ...verifiedOnly },
         );
         activityCounts.burn = burnTotals.count;
-        relayBurned = burnTotals.totalInput; // $RELAY burned only
+        fluxBurned = burnTotals.totalInput; // $FLUX burned only
       }
       activityCounts.other = (
         await opts.store.totalsByType("other", verifiedOnly)
       ).count;
     } catch (err) {
       console.error(
-        "[relay-official/summary] aggregates failed:",
+        "[official-token/summary] aggregates failed:",
         logSafeDetail(err),
       );
       errors.push(`aggregates unavailable: ${publicErrorReason(err)}`);
@@ -211,8 +211,8 @@ export async function buildTreasurySummary(opts: {
     totals: {
       feesCollected,
       transfers,
-      relayPurchased,
-      relayBurned,
+      fluxPurchased,
+      fluxBurned,
     },
     activityCounts,
     lastReconciledAt,

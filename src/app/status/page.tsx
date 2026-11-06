@@ -1,5 +1,5 @@
 "use client";
-/** Network status — live RPC reachability and the programs RelayPad uses. */
+/** Network status — live RPC reachability and the programs FluxPad uses. */
 import { currentNetworkCluster } from "@/lib/network-env";
 import { useEffect, useRef, useState } from "react";
 import { useConnection } from "@solana/wallet-adapter-react";

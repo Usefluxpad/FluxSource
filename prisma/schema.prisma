@@ -1,6 +1,6 @@
-// RelayPad — persistent launch records.
+// FluxPad — persistent launch records.
 // On-chain state is the source of truth for graduation and pool verification;
-// this database stores RelayPad's own observations and user launch intents.
+// this database stores FluxPad's own observations and user launch intents.
 
 generator client {
   provider = "prisma-client-js"
@@ -109,7 +109,7 @@ model UploadAudit {
 }
 
 // =============================================================================
-// Official $RELAY treasury dashboard (read-only observability).
+// Official $FLUX treasury dashboard (read-only observability).
 //
 // On-chain state is the source of truth: every row below is derived from a
 // verified, confirmed transaction fetched over RPC and is idempotently

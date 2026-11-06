@@ -1,8 +1,8 @@
 {
-  "name": "relaypad",
+  "name": "fluxpad",
   "version": "0.1.0",
   "private": true,
-  "description": "DotPad — One Launchpad. Two Routes. Solana dual-route token launchpad (Pump.fun -> PumpSwap, Raydium LaunchLab -> CPMM).",
+  "description": "FluxPad — One Launchpad. Two Routes. Solana dual-route token launchpad (Pump.fun -> PumpSwap, Raydium LaunchLab -> CPMM).",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

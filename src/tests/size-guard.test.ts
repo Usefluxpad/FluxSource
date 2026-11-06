@@ -7,7 +7,7 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from "@solana/web3.js";
-import { isTransactionTooLargeError, RelaypadError, toRelaypadError } from "@/lib/connection";
+import { isTransactionTooLargeError, FluxpadError, toFluxpadError } from "@/lib/connection";
 import { assertTransactionFits, measureTransactionSize } from "@/lib/tx-engine";
 
 const BLOCKHASH = "11111111111111111111111111111111";
@@ -91,18 +91,18 @@ describe("pre-signing transaction size guard (P0.2)", () => {
       const err = catchGuard(() =>
         assertTransactionFits(legacyTx(dataBytes), "Pump.fun launch"),
       );
-      expect(err).toBeInstanceOf(RelaypadError);
-      expect((err as RelaypadError).code).toBe("TX_TOO_LARGE");
-      expect((err as RelaypadError).message).toContain("Pump.fun launch");
-      expect((err as RelaypadError).message).toContain("1232");
+      expect(err).toBeInstanceOf(FluxpadError);
+      expect((err as FluxpadError).code).toBe("TX_TOO_LARGE");
+      expect((err as FluxpadError).message).toContain("Pump.fun launch");
+      expect((err as FluxpadError).message).toContain("1232");
     }
   });
 
   it("rejects an oversized v0 transaction with TX_TOO_LARGE", () => {
     const err = catchGuard(() => assertTransactionFits(v0Tx(2000), "LaunchLab launch"));
-    expect(err).toBeInstanceOf(RelaypadError);
-    expect((err as RelaypadError).code).toBe("TX_TOO_LARGE");
-    expect((err as RelaypadError).message).toContain("LaunchLab launch");
+    expect(err).toBeInstanceOf(FluxpadError);
+    expect((err as FluxpadError).code).toBe("TX_TOO_LARGE");
+    expect((err as FluxpadError).message).toContain("LaunchLab launch");
   });
 });
 
@@ -120,15 +120,15 @@ describe("size-error classification and mapping (P0.3)", () => {
   });
 
   it("maps raw web3.js size errors to TX_TOO_LARGE", () => {
-    expect(toRelaypadError(new Error("Transaction too large: 1243 > 1232")).code).toBe(
+    expect(toFluxpadError(new Error("Transaction too large: 1243 > 1232")).code).toBe(
       "TX_TOO_LARGE",
     );
-    expect(toRelaypadError(new Error("encoding overruns Uint8Array")).code).toBe("TX_TOO_LARGE");
-    expect(toRelaypadError(new Error("some other failure")).code).toBe("UNKNOWN");
+    expect(toFluxpadError(new Error("encoding overruns Uint8Array")).code).toBe("TX_TOO_LARGE");
+    expect(toFluxpadError(new Error("some other failure")).code).toBe("UNKNOWN");
   });
 
-  it("passes coded RelaypadError instances through unchanged", () => {
-    const coded = new RelaypadError("TX_TOO_LARGE", "canned message");
-    expect(toRelaypadError(coded)).toBe(coded);
+  it("passes coded FluxpadError instances through unchanged", () => {
+    const coded = new FluxpadError("TX_TOO_LARGE", "canned message");
+    expect(toFluxpadError(coded)).toBe(coded);
   });
 });

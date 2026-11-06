@@ -1,5 +1,5 @@
 /*
- * Dev tooling: protocol verification for RelayPad (devnet only).
+ * Dev tooling: protocol verification for FluxPad (devnet only).
  * - Verifies devnet RPC reachability.
  * - Pump route: live Global config load, offline create_v2 transaction
  *   construction + local mint signing (NO submission).
@@ -56,9 +56,9 @@ function typedCheck(name, fn) {
     const user = Keypair.generate().publicKey;
     const ix = await pump.PUMP_SDK.createV2Instruction({
       mint: mintKp.publicKey,
-      name: "RelayPad Verification",
+      name: "FluxPad Verification",
       symbol: "RPV",
-      uri: "https://ipfs.io/ipfs/relaypad-verification.json",
+      uri: "https://ipfs.io/ipfs/fluxpad-verification.json",
       creator: user,
       user,
       mayhemMode: false,
@@ -91,9 +91,9 @@ function typedCheck(name, fn) {
     const payer = Keypair.generate(); // 0 lamports by design
     const ix = await pump.PUMP_SDK.createV2Instruction({
       mint: mintKp.publicKey,
-      name: "RelayPad Simulation",
+      name: "FluxPad Simulation",
       symbol: "RPS",
-      uri: "https://ipfs.io/ipfs/relaypad-simulation.json",
+      uri: "https://ipfs.io/ipfs/fluxpad-simulation.json",
       creator: payer.publicKey,
       user: payer.publicKey,
       mayhemMode: false,
@@ -180,9 +180,9 @@ function typedCheck(name, fn) {
         platformId: ray.DEVNET_PROGRAM_ID.LAUNCHPAD_PLATFORM,
         mintA: mintKp.publicKey,
         decimals: 6,
-        name: "RelayPad Verification",
+        name: "FluxPad Verification",
         symbol: "RPV",
-        uri: "https://ipfs.io/ipfs/relaypad-verification.json",
+        uri: "https://ipfs.io/ipfs/fluxpad-verification.json",
         migrateType: "cpmm",
         configId,
         configInfo: cfg,

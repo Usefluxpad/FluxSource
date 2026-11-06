@@ -59,19 +59,19 @@ describe("artwork validation", () => {
 describe("parseTokenSocials (scanner normalization)", () => {
   it("reads standard top-level fields", () => {
     const s = parseTokenSocials({
-      name: "Dot",
-      website: "https://dotpad.xyz",
-      twitter: "https://x.com/dotpad",
-      telegram: "https://t.me/dotpad",
+      name: "Flux",
+      website: "https://fluxpad.xyz",
+      twitter: "https://x.com/fluxpad",
+      telegram: "https://t.me/fluxpad",
     });
     expect(s).toEqual({
-      website: "https://dotpad.xyz",
-      twitter: "https://x.com/dotpad",
-      telegram: "https://t.me/dotpad",
+      website: "https://fluxpad.xyz",
+      twitter: "https://x.com/fluxpad",
+      telegram: "https://t.me/fluxpad",
     });
   });
 
-  it("reads the legacy DotPad `social` object and Metaplex `extensions`", () => {
+  it("reads the legacy FluxPad `social` object and Metaplex `extensions`", () => {
     const legacy = parseTokenSocials({ social: { website: "https://a.example", twitter: "@a", telegram: "https://t.me/a" } });
     expect(legacy).toEqual({ website: "https://a.example", twitter: "https://x.com/a", telegram: "https://t.me/a" });
     const ext = parseTokenSocials({ extensions: { website: "https://b.example", twitter: "https://x.com/b" } });
@@ -142,8 +142,8 @@ describe("decodeMetadataUri (Metaplex metadata account)", () => {
   }
 
   it("extracts the metadata uri from the on-chain account layout", () => {
-    const uri = "https://ipfs.io/ipfs/QmDotPadMetadata";
-    const data = buildMetadataAccount({ name: "Dot Token", symbol: "DOT", uri });
+    const uri = "https://ipfs.io/ipfs/QmFluxPadMetadata";
+    const data = buildMetadataAccount({ name: "Flux Token", symbol: "FLUX", uri });
     expect(decodeMetadataUri(data)).toBe(uri);
   });
 
@@ -158,27 +158,27 @@ describe("offchain metadata builder", () => {
   it("writes social links as standard top-level fields (Pump.fun/LaunchLab convention)", () => {
     const m = buildOffchainMetadata(
       {
-        name: "Dot",
-        symbol: "DOT",
+        name: "Flux",
+        symbol: "FLUX",
         description: "",
-        website: "https://dotpad.example",
-        twitter: "@dotpad",
-        telegram: "https://t.me/dotpad",
+        website: "https://fluxpad.example",
+        twitter: "@fluxpad",
+        telegram: "https://t.me/fluxpad",
       },
       "https://img/x.png",
     );
     expect(m.image).toBe("https://img/x.png");
-    expect(m.website).toBe("https://dotpad.example");
-    expect(m.external_url).toBe("https://dotpad.example");
-    expect(m.twitter).toBe("https://x.com/dotpad");
-    expect(m.telegram).toBe("https://t.me/dotpad");
+    expect(m.website).toBe("https://fluxpad.example");
+    expect(m.external_url).toBe("https://fluxpad.example");
+    expect(m.twitter).toBe("https://x.com/fluxpad");
+    expect(m.telegram).toBe("https://t.me/fluxpad");
     // The legacy non-standard `social` object must no longer be written.
     expect("social" in m).toBe(false);
     expect("description" in m).toBe(false);
   });
 
   it("omits social fields the user left empty", () => {
-    const m = buildOffchainMetadata({ name: "Dot", symbol: "DOT" }, "https://img/x.png");
+    const m = buildOffchainMetadata({ name: "Flux", symbol: "FLUX" }, "https://img/x.png");
     expect("website" in m).toBe(false);
     expect("twitter" in m).toBe(false);
     expect("telegram" in m).toBe(false);
@@ -188,8 +188,8 @@ describe("offchain metadata builder", () => {
   it("never writes unsafe social values", () => {
     const m = buildOffchainMetadata(
       {
-        name: "Dot",
-        symbol: "DOT",
+        name: "Flux",
+        symbol: "FLUX",
         website: "javascript:alert(1)",
         twitter: "not a real handle!!",
         telegram: "data:text/html,bad",
@@ -205,17 +205,17 @@ describe("offchain metadata builder", () => {
 
 describe("tokenMetadataSchema social validation", () => {
   it("accepts handles and legit URLs for twitter/telegram", () => {
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", twitter: "@dotpad" }).success).toBe(true);
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", twitter: "https://x.com/dotpad" }).success).toBe(true);
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", telegram: "@dotpadofficial" }).success).toBe(true);
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", website: "https://dotpad.xyz" }).success).toBe(true);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", twitter: "@fluxpad" }).success).toBe(true);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", twitter: "https://x.com/fluxpad" }).success).toBe(true);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", telegram: "@fluxpadofficial" }).success).toBe(true);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", website: "https://fluxpad.xyz" }).success).toBe(true);
   });
 
   it("rejects unsafe or malformed social values", () => {
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", twitter: "javascript:alert(1)" }).success).toBe(false);
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", twitter: "https://evil.com/dotpad" }).success).toBe(false);
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", telegram: "ftp://t.me/x" }).success).toBe(false);
-    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "DOT", website: "not-a-url" }).success).toBe(false);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", twitter: "javascript:alert(1)" }).success).toBe(false);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", twitter: "https://evil.com/fluxpad" }).success).toBe(false);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", telegram: "ftp://t.me/x" }).success).toBe(false);
+    expect(tokenMetadataSchema.safeParse({ name: "D", symbol: "FLUX", website: "not-a-url" }).success).toBe(false);
   });
 });
 

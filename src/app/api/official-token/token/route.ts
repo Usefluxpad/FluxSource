@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
-import { getRelayOfficialConfig } from "@/lib/relay-official/config";
-import { officialTokenView } from "@/lib/relay-official/token-display";
-import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/relay-official/api-guard";
+import { getOfficialTokenConfig } from "@/lib/official-token/config";
+import { officialTokenView } from "@/lib/official-token/token-display";
+import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/official-token/api-guard";
 
 /**
- * GET /api/relay-official/token — public, read-only official-token identity.
+ * GET /api/official-token/token — public, read-only official-token identity.
  *
  * Single source of truth for the public "Official $FLUX Token" section: the
- * same RELAY_OFFICIAL_MINT configuration the treasury dashboard uses. The
+ * same FLUXPAD_OFFICIAL_MINT configuration the treasury dashboard uses. The
  * response is sanitized (no raw invalid values, no secrets) and carries an
  * honest status: "placeholder" (not announced yet), "invalid" (misconfigured),
  * or "configured" (valid address — still "NOT YET VERIFIED" on-chain).
@@ -21,7 +21,7 @@ export async function GET(req: Request) {
   const guard = publicApiGuard(req);
   if (guard) return guard;
 
-  const config = getRelayOfficialConfig();
+  const config = getOfficialTokenConfig();
   return NextResponse.json(
     { ...officialTokenView(config) },
     { headers: jsonHeaders() },

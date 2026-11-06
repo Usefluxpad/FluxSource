@@ -1,7 +1,7 @@
 /**
- * RelayPad launch-records adapter — the "RelayPad Launches" tab source.
+ * FluxPad launch-records adapter — the "FluxPad Launches" tab source.
  *
- * Only launches that originated through RelayPad AND whose launch
+ * Only launches that originated through FluxPad AND whose launch
  * transaction + mint have been verified on-chain are included: the registry
  * only sets CONFIRMED (and later statuses) after `getAccountInfo(mint)` came
  * back non-null, so the query filters to status >= CONFIRMED and requires
@@ -21,10 +21,10 @@ const VERIFIED_STATUSES: LaunchStatus[] = [
   LaunchStatus.POOL_VERIFIED,
 ];
 
-export async function fetchRelaypadLaunches(now = Date.now()): Promise<SourceFeed> {
+export async function fetchFluxpadLaunches(now = Date.now()): Promise<SourceFeed> {
   const db = getDb();
   if (!db) {
-    return { source: "relaypad", tokens: [], fetchedAt: now, ok: false, error: "database_not_configured" };
+    return { source: "fluxpad", tokens: [], fetchedAt: now, ok: false, error: "database_not_configured" };
   }
   try {
     const rows = await db.launch.findMany({
@@ -56,7 +56,7 @@ export async function fetchRelaypadLaunches(now = Date.now()): Promise<SourceFee
       name: r.name,
       symbol: r.symbol,
       imageUrl: r.imageUrl,
-      source: "relaypad",
+      source: "fluxpad",
       status: r.status === LaunchStatus.POOL_VERIFIED ? "pool" : "verified-launch",
       createdAt: Math.floor(r.createdAt.getTime() / 1000),
       firstSeenAt: r.createdAt.getTime(),
@@ -73,13 +73,13 @@ export async function fetchRelaypadLaunches(now = Date.now()): Promise<SourceFee
       poolAddress: r.poolAddress,
       signature: r.signature,
       creatorWallet: r.creatorWallet,
-      relaypadLaunchId: r.id,
-      provenance: `relaypad-registry(${r.route.toLowerCase()})`,
+      fluxpadLaunchId: r.id,
+      provenance: `fluxpad-registry(${r.route.toLowerCase()})`,
     }));
-    return { source: "relaypad", tokens, fetchedAt: now, ok: true, error: null };
+    return { source: "fluxpad", tokens, fetchedAt: now, ok: true, error: null };
   } catch (err) {
     return {
-      source: "relaypad",
+      source: "fluxpad",
       tokens: [],
       fetchedAt: now,
       ok: false,

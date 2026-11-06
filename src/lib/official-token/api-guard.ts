@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { PerIpRateLimiter } from "@/lib/rpc-proxy-policy";
 
 /**
- * Shared guard for the public read-only /api/relay-official/* endpoints:
+ * Shared guard for the public read-only /api/official-token/* endpoints:
  * GET-only method allowlist + per-IP rate limiting + no-store headers.
  * Public requests can never initiate transfers, buybacks, burns, or
  * configuration changes — these endpoints contain no such logic at all.

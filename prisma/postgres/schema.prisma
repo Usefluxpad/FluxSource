@@ -1,4 +1,4 @@
-// RelayPad - PostgreSQL provider schema (production).
+// FluxPad - PostgreSQL provider schema (production).
 //
 // Model definitions are IDENTICAL to `prisma/schema.prisma` (SQLite dev) -
 // this file is DERIVED from it. Only the generator output directory and the
@@ -20,7 +20,7 @@
 // (prisma migrate diff --from-empty --to-schema-datamodel) - it is NOT a
 // reinterpretation of the SQLite SQL.
 //
-// See docs/RELAY_OFFICIAL_PRODUCTION_READINESS.md section 4 for the full
+// See docs/archive/RELAY_OFFICIAL_PRODUCTION_READINESS.md section 4 for the full
 // strategy, verification status, and deployment steps.
 
 generator client {
@@ -127,7 +127,7 @@ model UploadAudit {
 }
 
 // =============================================================================
-// Official $RELAY treasury dashboard (read-only observability).
+// Official $FLUX treasury dashboard (read-only observability).
 //
 // On-chain state is the source of truth: every row below is derived from a
 // verified, confirmed transaction fetched over RPC and is idempotently

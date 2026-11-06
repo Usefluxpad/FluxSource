@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 /**
- * Topbar social-links regression tests (official X + GitHub).
+ * Topbar social-links regression tests (official GitHub link).
  * Wallet/connection/navigation modules are mocked at the boundary; the real
- * Topbar renders with the new social links.
+ * Topbar renders with the current social links.
  */
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createElement } from "react";
@@ -46,24 +46,11 @@ function renderTopbar() {
   );
 }
 
-describe("topbar social links (official X + GitHub)", () => {
-  it("renders an X icon link to https://x.com/DotPadHQ", () => {
-    renderTopbar();
-    const link = screen.getByRole("link", { name: "Official FluxPad on X" });
-    expect(link.getAttribute("href")).toBe("https://x.com/DotPadHQ");
-    expect(link.getAttribute("target")).toBe("_blank");
-    expect(link.getAttribute("rel")).toContain("noopener");
-    expect(link.getAttribute("rel")).toContain("noreferrer");
-    // Official solid-fill brand glyph, not the generic line "close" icon.
-    const svg = link.querySelector("svg");
-    expect(svg).not.toBeNull();
-    expect(svg?.getAttribute("fill")).toBe("currentColor");
-  });
-
-  it("renders a GitHub icon link to https://github.com/DotPadTrade", () => {
+describe("topbar social links (official GitHub)", () => {
+  it("renders a GitHub icon link to https://github.com/Usefluxpad", () => {
     renderTopbar();
     const link = screen.getByRole("link", { name: "Official FluxPad GitHub" });
-    expect(link.getAttribute("href")).toBe("https://github.com/DotPadTrade");
+    expect(link.getAttribute("href")).toBe("https://github.com/Usefluxpad");
     expect(link.getAttribute("target")).toBe("_blank");
     expect(link.getAttribute("rel")).toContain("noopener");
     expect(link.getAttribute("rel")).toContain("noreferrer");
@@ -72,22 +59,27 @@ describe("topbar social links (official X + GitHub)", () => {
     expect(svg?.getAttribute("fill")).toBe("currentColor");
   });
 
-  it("places both social links in the same top-right group as the wallet button", () => {
+  it("does not link any legacy-brand social accounts (DotPad/RelayPad)", () => {
     renderTopbar();
-    const x = screen.getByRole("link", { name: "Official FluxPad on X" });
+    const links = Array.from(document.querySelectorAll("a[aria-label^='Official FluxPad']"));
+    expect(links.length).toBeGreaterThan(0);
+    for (const a of links) {
+      const href = a.getAttribute("href") ?? "";
+      expect(href).not.toContain("DotPad");
+      expect(href).not.toContain("RelayPad");
+      expect(href).not.toContain("dotpad");
+      expect(href).not.toContain("relaypad");
+    }
+  });
+
+  it("places the social link in the same top-right group as the wallet button", () => {
+    renderTopbar();
     const github = screen.getByRole("link", { name: "Official FluxPad GitHub" });
     const connect = screen.getByRole("button", { name: /connect/i });
     // WalletButton wraps its own button; the shared top-right group is the
     // nearest ancestor with the ml-auto layout class.
     const group = connect.closest(".ml-auto");
     expect(group).not.toBeNull();
-    expect(group?.contains(x)).toBe(true);
     expect(group?.contains(github)).toBe(true);
-    // Precede the wallet button (top-right, next to it).
-    const children = Array.from(group!.children);
-    expect(children.indexOf(x.closest("div") ?? x)).toBeLessThan(children.length - 1);
-    expect(children.indexOf(x.closest("div") ?? x)).toBeLessThan(
-      children.indexOf(connect.closest("div") ?? connect),
-    );
   });
 });

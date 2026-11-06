@@ -3,7 +3,7 @@
 import { Card, CopyChip } from "@/components/ui/primitives";
 import type { PreparedLaunch } from "@/lib/adapters/types";
 import type { LaunchFormState } from "@/hooks/use-launch-flow";
-import type { RelaypadNetworkConfig } from "@/lib/connection";
+import type { FluxpadNetworkConfig } from "@/lib/connection";
 import { LAMPORTS_PER_SOL } from "@/lib/constants";
 
 function sol(lamports: bigint): string {
@@ -18,7 +18,7 @@ export function ReviewPanel({
 }: {
   prepared: PreparedLaunch;
   form: LaunchFormState;
-  network: RelaypadNetworkConfig;
+  network: FluxpadNetworkConfig;
   vanityPublicKey: string | null;
 }) {
   return (

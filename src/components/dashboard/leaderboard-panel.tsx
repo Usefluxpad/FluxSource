@@ -1,6 +1,6 @@
 "use client";
 /**
- * Panel C — Creator leaderboard. Rankings computed from RelayPad's registry:
+ * Panel C — Creator leaderboard. Rankings computed from FluxPad's registry:
  * launches are real record counts; "graduated" counts only lifecycle states
  * verified on-chain (graduation detected / pool verified). No earnings,
  * volume, or profitability data exists — none is shown.

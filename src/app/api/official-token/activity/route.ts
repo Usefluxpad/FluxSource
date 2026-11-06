@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getRelayOfficialStore } from "@/lib/relay-official/store";
-import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/relay-official/api-guard";
+import { getOfficialTokenStore } from "@/lib/official-token/store";
+import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/official-token/api-guard";
 
 /**
- * GET /api/relay-official/activity — public, read-only activity feed.
+ * GET /api/official-token/activity — public, read-only activity feed.
  *
  * Validated + paginated. Filters: type, wallet role, sender/recipient
  * address, signature substring, date range. Only stored VERIFIED data is
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
     );
   }
 
-  const store = getRelayOfficialStore();
+  const store = getOfficialTokenStore();
   if (!store) {
     return NextResponse.json(
       { error: "database_not_configured" },
@@ -83,7 +83,7 @@ export async function GET(req: Request) {
       { headers: jsonHeaders() },
     );
   } catch (err) {
-    console.error("[api/relay-official/activity] db error", err);
+    console.error("[api/official-token/activity] db error", err);
     return NextResponse.json(
       { error: "database_error" },
       { status: 500, headers: jsonHeaders() },

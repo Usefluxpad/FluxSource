@@ -8,7 +8,7 @@ import type { LaunchRoute } from "@/lib/adapters/types";
  * Adapter unit tests without network access: verify construction, program
  * descriptions, and route registry behaviour. Transaction construction is
  * covered by integration tests against a supported network (see
- * docs/VERIFICATION.md) — RelayPad does not claim transaction construction
+ * docs/VERIFICATION.md) — FluxPad does not claim transaction construction
  * works from these stubs alone.
  */
 describe("route registry", () => {

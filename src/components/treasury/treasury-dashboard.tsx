@@ -3,7 +3,7 @@
 /**
  * Treasury & On-Chain Activity dashboard (read-only).
  *
- * Consumes the public /api/relay-official/* endpoints. Every metric shown is
+ * Consumes the public /api/official-token/* endpoints. Every metric shown is
  * either verified stored activity or a live on-chain balance; anything
  * unconfigured or unavailable renders as an explicit placeholder state.
  * The dashboard cannot initiate any transaction — the API is read-only.
@@ -40,8 +40,8 @@ interface SummaryResponse {
   totals: {
     feesCollected: string | null;
     transfers: string | null;
-    relayPurchased: string | null;
-    relayBurned: string | null;
+    fluxPurchased: string | null;
+    fluxBurned: string | null;
   };
   activityCounts: Record<string, number | undefined>;
   lastReconciledAt: string | null;
@@ -168,7 +168,7 @@ export default function TreasuryDashboard() {
 
   const loadSummary = useCallback(async () => {
     try {
-      const res = await fetch("/api/relay-official/summary", { cache: "no-store" });
+      const res = await fetch("/api/official-token/summary", { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setSummary((await res.json()) as SummaryResponse);
       setSummaryError(null);
@@ -184,7 +184,7 @@ export default function TreasuryDashboard() {
     if (fromDate) params.set("from", new Date(`${fromDate}T00:00:00Z`).toISOString());
     if (toDate) params.set("to", new Date(`${toDate}T23:59:59Z`).toISOString());
     try {
-      const res = await fetch(`/api/relay-official/activity?${params.toString()}`, {
+      const res = await fetch(`/api/official-token/activity?${params.toString()}`, {
         cache: "no-store",
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -236,13 +236,13 @@ export default function TreasuryDashboard() {
       },
       {
         label: "$FLUX purchased",
-        value: t?.relayPurchased != null ? formatToken(t.relayPurchased, null) : "—",
+        value: t?.fluxPurchased != null ? formatToken(t.fluxPurchased, null) : "—",
         sub: "verified swap output",
         icon: "trending",
       },
       {
         label: "$FLUX burned",
-        value: t?.relayBurned != null ? formatToken(t.relayBurned, null) : "—",
+        value: t?.fluxBurned != null ? formatToken(t.fluxBurned, null) : "—",
         sub: "verified SPL burns",
         icon: "zap",
       },

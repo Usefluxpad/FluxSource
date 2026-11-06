@@ -1,6 +1,6 @@
 "use client";
 /**
- * Panel D — Latest launches. The most recent records in RelayPad's registry,
+ * Panel D — Latest launches. The most recent records in FluxPad's registry,
  * with route filters and most-recent sorting. Only real records are shown.
  */
 import { useCallback, useEffect, useState } from "react";

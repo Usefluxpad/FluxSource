@@ -2,12 +2,12 @@ import { getDb } from "@/lib/db";
 import type { ActivityRecord, ActivityStatus, ActivityType } from "./classify";
 
 /**
- * Storage for verified official-$RELAY treasury activity.
+ * Storage for verified official-$FLUX treasury activity.
  *
  * Two implementations of the same repository interface:
- * - PrismaRelayOfficialStore: the runtime store over the existing database
+ * - PrismaOfficialTokenStore: the runtime store over the existing database
  *   (SQLite locally, PostgreSQL in production).
- * - MemoryRelayOfficialStore: an in-memory store for unit tests.
+ * - MemoryOfficialTokenStore: an in-memory store for unit tests.
  *
  * The Prisma model enforces @@unique([signature, entryKey]); the upsert
  * path is idempotent so re-indexing after RPC or DB failures never
@@ -70,7 +70,7 @@ export interface TypeTotalsFilter {
   verifiedOnly?: boolean;
 }
 
-export interface RelayOfficialStore {
+export interface OfficialTokenStore {
   upsertActivities(rows: ActivityRecord[]): Promise<{ written: number; duplicates: number }>;
   knownSignatures(signatures: string[]): Promise<Set<string>>;
   listActivities(filter: ActivityFilter): Promise<ActivityRow[]>;
@@ -116,7 +116,7 @@ function matchesFilter(row: ActivityRow, f: ActivityFilter): boolean {
   return true;
 }
 
-export class MemoryRelayOfficialStore implements RelayOfficialStore {
+export class MemoryOfficialTokenStore implements OfficialTokenStore {
   readonly rows: ActivityRow[] = [];
   private readonly state = new Map<string, IndexStateRow>();
   private failNextUpsert: { times: number } | null = null;
@@ -224,7 +224,7 @@ import { Prisma } from "@prisma/client";
  * Prisma-backed store. Throws on infrastructure failures so callers can
  * reconcile before retrying (never silently drops a confirmed transaction).
  */
-export class PrismaRelayOfficialStore implements RelayOfficialStore {
+export class PrismaOfficialTokenStore implements OfficialTokenStore {
   private readonly db: NonNullable<ReturnType<typeof getDb>>;
 
   constructor(db: NonNullable<ReturnType<typeof getDb>>) {
@@ -443,7 +443,7 @@ function serializeRow(row: {
 }
 
 /** Runtime store accessor (null when the database is not configured). */
-export function getRelayOfficialStore(): RelayOfficialStore | null {
+export function getOfficialTokenStore(): OfficialTokenStore | null {
   const db = getDb();
-  return db ? new PrismaRelayOfficialStore(db) : null;
+  return db ? new PrismaOfficialTokenStore(db) : null;
 }

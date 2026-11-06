@@ -14,7 +14,7 @@
  *   inflow ⇒ buy; venue token outflow ⇒ buy; user token delta as fallback).
  *   Transactions that cannot be classified stay "unknown" — never guessed.
  * - Wallet intelligence is derived from the same decoded trades; "creator"
- *   labeling only happens when the wallet matches a RelayPad launch record's
+ *   labeling only happens when the wallet matches a FluxPad launch record's
  *   creatorWallet (verified provenance). Top holders come from the documented
  *   getTokenLargestAccounts RPC — balances are on-chain facts, owner
  *   identities are NOT inferred.
@@ -116,7 +116,7 @@ const TX_BATCH = 4;
 /** Resolve which venue trades this mint, using cheap existence checks. */
 export async function resolveTokenVenue(connection: Connection, mint: string): Promise<TokenVenue> {
   const mintPk = new PublicKey(mint);
-  // 1) RelayPad record: its route/poolAddress are verified provenance.
+  // 1) FluxPad record: its route/poolAddress are verified provenance.
   try {
     const db = getDb();
     const record = db

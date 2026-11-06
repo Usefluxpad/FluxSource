@@ -5,7 +5,7 @@
  * Covers the stuck-"Connecting…" regression: a hung adapter connect must be
  * bounded so the UI always recovers, and every failure must surface a
  * user-friendly error. Also guards against reintroducing any MetaMask/EVM
- * wallet integration into RelayPad's Solana-only runtime.
+ * wallet integration into FluxPad's Solana-only runtime.
  */
 import { afterEach, describe, expect, it, vi, beforeEach } from "vitest";
 import { EventEmitter } from "node:events";

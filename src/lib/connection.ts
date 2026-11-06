@@ -2,13 +2,13 @@ import { Connection, Cluster, Commitment } from "@solana/web3.js";
 import { ClusterId, clusterApiEndpoint } from "./constants";
 import { rpcFetchMiddleware } from "./rpc/rpc-gateway";
 
-export interface RelaypadNetworkConfig {
+export interface FluxpadNetworkConfig {
   cluster: ClusterId;
   rpcUrl: string;
   commitment: Commitment;
 }
 
-export interface RelaypadServerNetworkConfig extends RelaypadNetworkConfig {
+export interface FluxpadServerNetworkConfig extends FluxpadNetworkConfig {
   /** WebSocket endpoint for subscriptions; null when not configured. */
   wsUrl: string | null;
   /** True when the dedicated Alchemy endpoint is in use. */
@@ -27,7 +27,7 @@ export interface RelaypadServerNetworkConfig extends RelaypadNetworkConfig {
  */
 export function resolveServerNetworkConfig(
   envNetwork: string | undefined,
-): RelaypadServerNetworkConfig {
+): FluxpadServerNetworkConfig {
   const cluster: ClusterId =
     envNetwork === "mainnet-beta" ? "mainnet-beta" : "devnet";
 
@@ -36,7 +36,7 @@ export function resolveServerNetworkConfig(
   const solRpc = process.env.SOLANA_RPC_URL?.trim() || "";
 
   let rpcUrl = solRpc;
-  let provider: RelaypadServerNetworkConfig["provider"] = solRpc ? "custom" : "public";
+  let provider: FluxpadServerNetworkConfig["provider"] = solRpc ? "custom" : "public";
   if (alchemyRpc) {
     rpcUrl = alchemyRpc;
     provider = "alchemy";
@@ -64,7 +64,7 @@ export function resolveServerNetworkConfig(
 export function resolveNetworkConfig(
   envNetwork: string | undefined,
   envRpc: string | undefined,
-): RelaypadNetworkConfig {
+): FluxpadNetworkConfig {
   const cluster: ClusterId =
     envNetwork === "mainnet-beta" ? "mainnet-beta" : "devnet";
   return {
@@ -80,7 +80,7 @@ export function resolveNetworkConfig(
  * The browser never uses the Alchemy key (server-side only). Two supported
  * sources, in order:
  * 1. NEXT_PUBLIC_SOLANA_RPC_URL — when set to a relative path (e.g. "/api/rpc")
- *    it points at RelayPad's own server-side RPC proxy; the path is absolutized
+ *    it points at FluxPad's own server-side RPC proxy; the path is absolutized
  *    against the page origin. Never a secret.
  * 2. The public cluster endpoint (fallback).
  *
@@ -110,7 +110,7 @@ export function resolveBrowserNetworkConfig(
   envNetwork: string | undefined,
   envRpc: string | undefined,
   origin?: string,
-): RelaypadNetworkConfig {
+): FluxpadNetworkConfig {
   const cluster: ClusterId =
     envNetwork === "mainnet-beta" ? "mainnet-beta" : "devnet";
   return {
@@ -122,7 +122,7 @@ export function resolveBrowserNetworkConfig(
 
 const connections = new Map<string, Connection>();
 
-export function getConnection(cfg: RelaypadNetworkConfig): Connection {
+export function getConnection(cfg: FluxpadNetworkConfig): Connection {
   const key = `${cfg.cluster}:${cfg.rpcUrl}`;
   let conn = connections.get(key);
   if (!conn) {
@@ -147,7 +147,7 @@ export function getCluster(conn: Connection): Cluster {
 }
 
 /** Error taxonomy used across the transaction engine and adapters. */
-export type RelaypadErrorCode =
+export type FluxpadErrorCode =
   | "WALLET_REJECTED"
   | "INSUFFICIENT_FUNDS"
   | "STALE_BLOCKHASH"
@@ -161,15 +161,15 @@ export type RelaypadErrorCode =
   | "PROTOCOL"
   | "UNKNOWN";
 
-export class RelaypadError extends Error {
-  readonly code: RelaypadErrorCode;
+export class FluxpadError extends Error {
+  readonly code: FluxpadErrorCode;
   readonly cause?: unknown;
   /** Set when the error refers to an already-submitted transaction. */
   readonly signature?: string;
 
-  constructor(code: RelaypadErrorCode, message: string, cause?: unknown, signature?: string) {
+  constructor(code: FluxpadErrorCode, message: string, cause?: unknown, signature?: string) {
     super(message);
-    this.name = "RelaypadError";
+    this.name = "FluxpadError";
     this.code = code;
     this.cause = cause;
     this.signature = signature;
@@ -196,8 +196,8 @@ export function isTransactionTooLargeError(err: unknown): boolean {
   );
 }
 
-export function toRelaypadError(err: unknown): RelaypadError {
-  if (err instanceof RelaypadError) return err;
+export function toFluxpadError(err: unknown): FluxpadError {
+  if (err instanceof FluxpadError) return err;
   const raw = err instanceof Error ? err.message : String(err);
   const lower = raw.toLowerCase();
   if (
@@ -206,14 +206,14 @@ export function toRelaypadError(err: unknown): RelaypadError {
     lower.includes("declined") ||
     lower.includes("wallet request was denied")
   ) {
-    return new RelaypadError("WALLET_REJECTED", "The wallet request was rejected.", err);
+    return new FluxpadError("WALLET_REJECTED", "The wallet request was rejected.", err);
   }
   if (
     lower.includes("insufficient") ||
     lower.includes("0x1") ||
     lower.includes("custom program error") === false && lower.includes("lamport")
   ) {
-    return new RelaypadError("INSUFFICIENT_FUNDS", raw, err);
+    return new FluxpadError("INSUFFICIENT_FUNDS", raw, err);
   }
   // Transaction-level "BlockhashNotFound" (the camelCase form returned in
   // simulation results and send rejections): the transaction's referenced
@@ -221,7 +221,7 @@ export function toRelaypadError(err: unknown): RelaypadError {
   // never proof the transaction landed, and — checked before submission —
   // always recoverable by rebuilding with a fresh blockhash.
   if (lower.includes("blockhashnotfound")) {
-    return new RelaypadError(
+    return new FluxpadError(
       "BLOCKHASH_EXPIRED",
       "The transaction's blockhash expired before submission (the approval window closed). Nothing was submitted — rebuild with a fresh blockhash and approve again.",
       err,
@@ -232,7 +232,7 @@ export function toRelaypadError(err: unknown): RelaypadError {
     lower.includes("blockhash") ||
     lower.includes("expired")
   ) {
-    return new RelaypadError("STALE_BLOCKHASH", raw, err);
+    return new FluxpadError("STALE_BLOCKHASH", raw, err);
   }
   if (
     lower.includes("429") ||
@@ -241,10 +241,10 @@ export function toRelaypadError(err: unknown): RelaypadError {
     lower.includes("network") ||
     lower.includes("-32005")
   ) {
-    return new RelaypadError("RPC_ERROR", raw, err);
+    return new FluxpadError("RPC_ERROR", raw, err);
   }
   if (isTransactionTooLargeError(err)) {
-    return new RelaypadError(
+    return new FluxpadError(
       "TX_TOO_LARGE",
       "The transaction exceeds Solana's 1,232-byte packet limit and cannot be signed or broadcast. Shorten the metadata URI (the default IPFS gateway produces the shortest URIs) or adjust the launch options — for example launch without the initial buy — then try again.",
       err,
@@ -257,8 +257,8 @@ export function toRelaypadError(err: unknown): RelaypadError {
     lower.includes("was not confirmed in") ||
     lower.includes("unknown if it succeeded")
   ) {
-    return new RelaypadError("UNRESOLVED", raw, err);
+    return new FluxpadError("UNRESOLVED", raw, err);
   }
 
-  return new RelaypadError("UNKNOWN", raw, err);
+  return new FluxpadError("UNKNOWN", raw, err);
 }

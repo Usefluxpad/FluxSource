@@ -21,7 +21,7 @@ export const REFRESH_MIN_INTERVAL_MS = 20_000;
 export const REFRESH_STATE_KEY = "refresh";
 
 export interface RefreshGateInput {
-  /** RELAY_OFFICIAL_ENABLED master switch. */
+  /** FLUXPAD_OFFICIAL_ENABLED master switch. */
   enabled: boolean;
   /** At least one wallet address configured. */
   anyWalletConfigured: boolean;

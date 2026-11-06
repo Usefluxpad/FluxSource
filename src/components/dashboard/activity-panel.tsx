@@ -1,7 +1,7 @@
 "use client";
 /**
  * Panel B — Live Launches & Activity. Streams real lifecycle events from
- * RelayPad's registry (LaunchEvent records) with polling and reconnect-safe
+ * FluxPad's registry (LaunchEvent records) with polling and reconnect-safe
  * refresh. No simulated users, trades, or events.
  */
 import { useCallback, useEffect, useState } from "react";

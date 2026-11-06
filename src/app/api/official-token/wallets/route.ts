@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { resolveServerNetworkConfig, getConnection } from "@/lib/connection";
-import { getRelayOfficialConfig } from "@/lib/relay-official/config";
-import { buildTreasurySummary } from "@/lib/relay-official/summary";
-import { adaptConnection } from "@/lib/relay-official/rpc-adapter";
-import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/relay-official/api-guard";
-import { logSafeDetail } from "@/lib/relay-official/sanitize";
+import { getOfficialTokenConfig } from "@/lib/official-token/config";
+import { buildTreasurySummary } from "@/lib/official-token/summary";
+import { adaptConnection } from "@/lib/official-token/rpc-adapter";
+import { jsonHeaders, mutationRejected, publicApiGuard } from "@/lib/official-token/api-guard";
+import { logSafeDetail } from "@/lib/official-token/sanitize";
 
 /**
- * GET /api/relay-official/wallets — public wallet directory.
+ * GET /api/official-token/wallets — public wallet directory.
  *
  * Lists the configured treasury wallets (role, public address, live SOL and
  * $FLUX balances, explorer link). Unconfigured roles render as explicit
@@ -20,7 +20,7 @@ export async function GET(req: Request) {
   const guard = publicApiGuard(req);
   if (guard) return guard;
 
-  const config = getRelayOfficialConfig();
+  const config = getOfficialTokenConfig();
   try {
     const networkCfg = resolveServerNetworkConfig(config.network);
     const connection = adaptConnection(getConnection(networkCfg));
@@ -43,7 +43,7 @@ export async function GET(req: Request) {
       { headers: jsonHeaders() },
     );
   } catch (err) {
-    console.error("[api/relay-official/wallets] error:", logSafeDetail(err));
+    console.error("[api/official-token/wallets] error:", logSafeDetail(err));
     return NextResponse.json(
       { error: "wallets_unavailable" },
       { status: 503, headers: jsonHeaders() },

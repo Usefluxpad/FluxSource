@@ -1,5 +1,5 @@
 import type { LaunchRoute, RouteAdapter } from "./types";
-import { RelaypadError } from "../connection";
+import { FluxpadError } from "../connection";
 
 /**
  * Adapter registry. Adapters are loaded lazily so that bundlers keep each
@@ -18,7 +18,7 @@ export async function getAdapter(route: LaunchRoute): Promise<RouteAdapter> {
     }
     default: {
       const never: never = route;
-      throw new RelaypadError("VALIDATION", `Unknown launch route: ${String(never)}`);
+      throw new FluxpadError("VALIDATION", `Unknown launch route: ${String(never)}`);
     }
   }
 }

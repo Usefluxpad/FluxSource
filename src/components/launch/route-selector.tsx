@@ -5,7 +5,7 @@ import type { Connection } from "@solana/web3.js";
 import { getAdapter, ROUTES } from "@/lib/adapters";
 import type { LaunchRoute } from "@/lib/adapters/types";
 import { Badge, Card, Spinner } from "@/components/ui/primitives";
-import { RelaypadError } from "@/lib/connection";
+import { FluxpadError } from "@/lib/connection";
 
 export function RouteSelector({
   value,
@@ -43,7 +43,7 @@ export function RouteSelector({
           out[route.id] = {
             ok: false,
             details: [
-              err instanceof RelaypadError
+              err instanceof FluxpadError
                 ? `${err.code}: ${err.message}`
                 : String(err).slice(0, 200),
             ],

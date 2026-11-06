@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getDb, isDatabaseBootError } from "@/lib/db";
 
 /**
- * GET /api/activity — recent lifecycle events from RelayPad's registry,
+ * GET /api/activity — recent lifecycle events from FluxPad's registry,
  * joined with their launch. Powers the Live Launches feed. Real records
  * only; the client polls and renders honest empty states.
  */

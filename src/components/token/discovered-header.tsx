@@ -1,7 +1,7 @@
 "use client";
 /**
  * Identity header for tokens discovered on-chain but not registered in
- * RelayPad's launch registry. Pulls the discovery snapshot (real provider
+ * FluxPad's launch registry. Pulls the discovery snapshot (real provider
  * data) and falls back to the raw mint when the token is not discovered.
  */
 import { currentNetworkCluster } from "@/lib/network-env";

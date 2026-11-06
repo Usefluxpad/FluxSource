@@ -82,7 +82,7 @@ export function normalizeCpmmPool(raw: Obj, now: number, cluster: string, solPri
     poolAddress: id,
     signature: null,
     creatorWallet: null,
-    relaypadLaunchId: null,
+    fluxpadLaunchId: null,
     provenance: `raydium-api-v3(${cluster})`,
   };
 }

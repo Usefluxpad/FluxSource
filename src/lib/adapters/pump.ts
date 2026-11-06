@@ -35,7 +35,7 @@ import {
 } from "@pump-fun/pump-sdk";
 import { NATIVE_MINT } from "@solana/spl-token";
 import type { ClusterId } from "../constants";
-import { isTransactionTooLargeError, RelaypadError, toRelaypadError } from "../connection";
+import { isTransactionTooLargeError, FluxpadError, toFluxpadError } from "../connection";
 import { METADATA_URI_MAX, PUMP_COMBINED_URI_MAX, validateMetadataUri } from "../metadata";
 import type {
   CurveState,
@@ -73,7 +73,7 @@ export class PumpAdapter implements RouteAdapter {
     try {
       global = await online.fetchGlobal();
     } catch (err) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "PROTOCOL",
         `Pump program is not reachable on ${cluster}: the Global account could not be fetched. This route requires a cluster where the pump.fun program is deployed.`,
         err,
@@ -123,7 +123,7 @@ export class PumpAdapter implements RouteAdapter {
       combined ? PUMP_COMBINED_URI_MAX : METADATA_URI_MAX,
     );
     if (!uriCheck.ok) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "TX_TOO_LARGE",
         combined
           ? `${uriCheck.reason} The bundled create+buy transaction can only carry ${PUMP_COMBINED_URI_MAX}-character URIs. Launch without an initial buy (create-only supports up to ${METADATA_URI_MAX} characters) or use the default IPFS gateway (ipfs.io), then try again.`
@@ -215,7 +215,7 @@ export class PumpAdapter implements RouteAdapter {
     const pda = bondingCurvePda(mint);
     const info = await connection.getAccountInfo(pda, "confirmed");
     if (!info) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "PROTOCOL",
         `Bonding curve account ${pda.toBase58()} not found for mint ${mint.toBase58()}.`,
       );
@@ -297,7 +297,7 @@ export class PumpAdapter implements RouteAdapter {
     const { blockhash, lastValidBlockHeight } = await connection
       .getLatestBlockhash("finalized")
       .catch((err) => {
-        throw new RelaypadError("RPC_ERROR", "Could not fetch a blockhash.", err);
+        throw new FluxpadError("RPC_ERROR", "Could not fetch a blockhash.", err);
       });
     const tx = new Transaction({
       feePayer: signer.publicKey,
@@ -315,15 +315,15 @@ export class PumpAdapter implements RouteAdapter {
     try {
       tx.partialSign(mintKeypair);
     } catch (err) {
-      if (err instanceof RelaypadError) throw err;
+      if (err instanceof FluxpadError) throw err;
       if (isTransactionTooLargeError(err)) {
-        throw new RelaypadError(
+        throw new FluxpadError(
           "TX_TOO_LARGE",
           `The Pump.fun launch transaction exceeds Solana's ${PACKET_DATA_SIZE}-byte packet limit and cannot be signed or broadcast. Shorten the metadata URI (the default IPFS gateway produces the shortest URIs) or adjust the launch options — for example launch without the initial buy — then try again.`,
           err,
         );
       }
-      throw toRelaypadError(err);
+      throw toFluxpadError(err);
     }
     // Pre-signing size guard (P0.2): reject transactions that would exceed
     // Solana's 1,232-byte packet limit before the wallet is ever asked to

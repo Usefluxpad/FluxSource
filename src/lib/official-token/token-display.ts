@@ -1,6 +1,6 @@
 import type { ClusterId } from "../constants";
 import { explorerUrl } from "../constants";
-import type { RelayOfficialConfig } from "./config";
+import type { OfficialTokenConfig } from "./config";
 
 /**
  * View model for the public "Official $FLUX Token" section.
@@ -53,7 +53,7 @@ export function networkLabelFor(cluster: ClusterId): string {
 }
 
 export function officialTokenView(
-  config: RelayOfficialConfig,
+  config: OfficialTokenConfig,
 ): OfficialTokenView {
   const networkLabel = networkLabelFor(config.network);
   const mintInvalid = config.invalid.find((entry) => entry.role === "MINT");

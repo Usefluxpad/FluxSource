@@ -40,7 +40,7 @@ const PAGES = [
 
 for (const [path, marker] of PAGES) {
   const { status, text } = await get(path);
-  const branded = text.includes("RelayPad");
+  const branded = text.includes("FluxPad");
   check(`page ${path}`, status === 200 && branded, `status=${status}, branding=${branded}, marker="${marker}" found=${text.includes(marker)}`);
 }
 

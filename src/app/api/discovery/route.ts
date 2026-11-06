@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 /**
  * GET /api/discovery — merged, normalized token discovery across the Pump.fun
  * bonding curves + PumpSwap pools (on-chain), Raydium LaunchLab Mint API and
- * API v3 CPMM pools (documented REST), and verified RelayPad launch records.
+ * API v3 CPMM pools (documented REST), and verified FluxPad launch records.
  * All query parameters are validated and bounded; results are paginated.
  */
 const querySchema = z.object({
@@ -24,7 +24,7 @@ const querySchema = z.object({
       "trending",
       "graduating",
       "graduated",
-      "relaypad",
+      "fluxpad",
     ])
     .default("all"),
   filter: z.enum(["all", "movers", "new", "market-cap", "oldest", "last-trade"]).default("all"),
@@ -32,8 +32,8 @@ const querySchema = z.object({
   q: z.string().max(64).default(""),
   page: z.coerce.number().int().min(1).max(500).default(1),
   pageSize: z.coerce.number().int().min(5).max(50).default(25),
-  relayRoute: z.enum(["all", "pump", "launchlab"]).default("all"),
-  relayStatus: z.enum(["all", "pending", "graduated"]).default("all"),
+  launchRoute: z.enum(["all", "pump", "launchlab"]).default("all"),
+  launchStatus: z.enum(["all", "pending", "graduated"]).default("all"),
   // Live-scanner filters (Phase 7) — all optional, all bounded.
   minMarketCapUsd: z.coerce.number().min(0).max(1e12).optional(),
   maxMarketCapUsd: z.coerce.number().min(0).max(1e12).optional(),
@@ -54,8 +54,8 @@ export async function GET(req: NextRequest) {
     q: url.searchParams.get("q") ?? undefined,
     page: url.searchParams.get("page") ?? undefined,
     pageSize: url.searchParams.get("pageSize") ?? undefined,
-    relayRoute: url.searchParams.get("relayRoute") ?? undefined,
-    relayStatus: url.searchParams.get("relayStatus") ?? undefined,
+    launchRoute: url.searchParams.get("launchRoute") ?? undefined,
+    launchStatus: url.searchParams.get("launchStatus") ?? undefined,
     minMarketCapUsd: url.searchParams.get("minMarketCapUsd") ?? undefined,
     maxMarketCapUsd: url.searchParams.get("maxMarketCapUsd") ?? undefined,
     minLiquidityQuote: url.searchParams.get("minLiquidityQuote") ?? undefined,

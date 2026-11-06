@@ -36,7 +36,7 @@ vi.mock("@/lib/connection", async (importOriginal) => {
 });
 
 import { POST } from "@/app/api/launches/[id]/route";
-import { relayRouteOf } from "@/lib/discovery/runtime";
+import { launchRouteOf } from "@/lib/discovery/runtime";
 
 const PUMP_PROGRAM_ID = "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P";
 
@@ -243,18 +243,18 @@ describe("launch event → provenance binding → on-chain reconciliation", () =
   });
 });
 
-describe("relayRouteOf (FluxPad-tab route filters)", () => {
+describe("launchRouteOf (FluxPad-tab route filters)", () => {
   it("parses the registry provenance route prefix", () => {
     expect(
-      relayRouteOf({ source: "relaypad", provenance: "relaypad-registry(pump_pumpswap)" } as never),
+      launchRouteOf({ source: "fluxpad", provenance: "fluxpad-registry(pump_pumpswap)" } as never),
     ).toBe("pump");
     expect(
-      relayRouteOf({ source: "relaypad", provenance: "relaypad-registry(launchlab_cpmm)" } as never),
+      launchRouteOf({ source: "fluxpad", provenance: "fluxpad-registry(launchlab_cpmm)" } as never),
     ).toBe("launchlab");
   });
 
   it("returns null when the route cannot be established", () => {
-    expect(relayRouteOf({ source: "relaypad", provenance: "relaypad-registry(unknown)" } as never)).toBeNull();
-    expect(relayRouteOf({ source: "pumpfun.curve", provenance: "x" } as never)).toBe("pump");
+    expect(launchRouteOf({ source: "fluxpad", provenance: "fluxpad-registry(unknown)" } as never)).toBeNull();
+    expect(launchRouteOf({ source: "pumpfun.curve", provenance: "x" } as never)).toBe("pump");
   });
 });

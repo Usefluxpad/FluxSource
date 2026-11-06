@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * RelayPad vanity mint Web Worker.
+ * FluxPad vanity mint Web Worker.
  *
  * Runs the bounded search loop off the main thread. Receives a pattern,
  * streams progress back, and transfers the found secret key once. The secret

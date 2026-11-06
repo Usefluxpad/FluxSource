@@ -11,7 +11,7 @@
  * - Curve state via `LaunchpadPool.decode` on the pool PDA from
  *   `getPdaLaunchpadPoolId(programId, mintA, mintB)`.
  * - Graduation: LaunchLab's migration wallet signs `MigrateToCpswap` —
- *   RelayPad never executes it. Destination pool discovery uses Raydium's
+ *   FluxPad never executes it. Destination pool discovery uses Raydium's
  *   launch-mint service (the endpoint used by Raydium's own demo) and every
  *   candidate pool is verified on-chain against the Raydium CPMM program
  *   before being displayed.
@@ -35,7 +35,7 @@ import {
 } from "@raydium-io/raydium-sdk-v2";
 import { NATIVE_MINT } from "@solana/spl-token";
 import type { ClusterId } from "../constants";
-import { RelaypadError } from "../connection";
+import { FluxpadError } from "../connection";
 import type {
   CurveState,
   PoolVerification,
@@ -101,7 +101,7 @@ export class LaunchLabAdapter implements RouteAdapter {
     const configId = getPdaLaunchpadConfigId(programId, NATIVE_MINT, 0, 0).publicKey;
     const data = await connection.getAccountInfo(configId, "confirmed");
     if (!data) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "PROTOCOL",
         `LaunchLab config account ${configId.toBase58()} not found on ${cluster}. LaunchLab is not deployed/configured for this cluster + quote mint.`,
       );
@@ -110,7 +110,7 @@ export class LaunchLabAdapter implements RouteAdapter {
     // Validate the quote mint side: the real mint account must exist.
     const mintB = await connection.getParsedAccountInfo(config.mintB);
     if (!mintB.value) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "PROTOCOL",
         `LaunchLab quote mint ${config.mintB.toBase58()} does not exist on ${cluster}.`,
       );
@@ -160,7 +160,7 @@ export class LaunchLabAdapter implements RouteAdapter {
     const configId = getPdaLaunchpadConfigId(programId, NATIVE_MINT, 0, 0).publicKey;
     const configData = await connection.getAccountInfo(configId, "confirmed");
     if (!configData) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "PROTOCOL",
         `LaunchLab config ${configId.toBase58()} disappeared before launch. Re-validate the route and retry.`,
       );
@@ -168,7 +168,7 @@ export class LaunchLabAdapter implements RouteAdapter {
     const configInfo = LaunchpadConfig.decode(configData.data);
     const mintBInfo = await raydium.token.getTokenInfo(configInfo.mintB);
     if (!mintBInfo) {
-      throw new RelaypadError("PROTOCOL", "Quote mint info unavailable.");
+      throw new FluxpadError("PROTOCOL", "Quote mint info unavailable.");
     }
 
     const { transactions } = await raydium.launchpad.createLaunchpad({
@@ -259,7 +259,7 @@ export class LaunchLabAdapter implements RouteAdapter {
       const info = await connection.getAccountInfo(poolId, "confirmed");
       if (info) return { poolId, programId };
     }
-    throw new RelaypadError(
+    throw new FluxpadError(
       "PROTOCOL",
       `No LaunchLab curve account found for mint ${mint.toBase58()} on mainnet-beta or devnet.`,
     );
@@ -272,7 +272,7 @@ export class LaunchLabAdapter implements RouteAdapter {
     const { poolId } = await this.resolveCurveAccount(connection, mint);
     const info = await connection.getAccountInfo(poolId, "confirmed");
     if (!info) {
-      throw new RelaypadError(
+      throw new FluxpadError(
         "PROTOCOL",
         `LaunchLab curve state not found for mint ${mint.toBase58()}.`,
       );

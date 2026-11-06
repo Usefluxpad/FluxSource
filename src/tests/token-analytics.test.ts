@@ -405,7 +405,7 @@ function token(p: Partial<DiscoveredToken> = {}): DiscoveredToken {
     poolAddress: pick(p.poolAddress, null),
     signature: pick(p.signature, null),
     creatorWallet: pick(p.creatorWallet, null),
-    relaypadLaunchId: pick(p.relaypadLaunchId, null),
+    fluxpadLaunchId: pick(p.fluxpadLaunchId, null),
     provenance: pick(p.provenance, "test"),
   };
 }

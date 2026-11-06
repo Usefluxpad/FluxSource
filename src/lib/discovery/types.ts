@@ -1,6 +1,6 @@
 /**
  * Shared discovery model — every provider adapter (Pump.fun, PumpSwap,
- * LaunchLab, Raydium CPMM, RelayPad registry) normalizes into this shape.
+ * LaunchLab, Raydium CPMM, FluxPad registry) normalizes into this shape.
  *
  * Honesty rules enforced here:
  * - Numeric metrics are `null` when no defensible source exists. Callers
@@ -18,7 +18,7 @@ export type DiscoverySource =
   | "pumpfun.pool" // graduated PumpSwap pool
   | "launchlab.curve" // LaunchLab bonding-curve token
   | "raydium.cpmm" // graduated Raydium CPMM pool
-  | "relaypad"; // verified RelayPad-originated launch
+  | "fluxpad"; // verified FluxPad-originated launch
 
 export type DiscoveryStatus = "curve" | "graduated" | "pool" | "verified-launch";
 
@@ -53,11 +53,11 @@ export interface DiscoveredToken {
   curveProgress: number | null;
   /** Verified destination pool address (post-graduation). */
   poolAddress: string | null;
-  /** Launch transaction signature (RelayPad records). */
+  /** Launch transaction signature (FluxPad records). */
   signature: string | null;
   creatorWallet: string | null;
-  /** Set when this mint also has a verified RelayPad launch record. */
-  relaypadLaunchId: string | null;
+  /** Set when this mint also has a verified FluxPad launch record. */
+  fluxpadLaunchId: string | null;
   /** Provider label for provenance, e.g. "raydium-mint-api(devnet)". */
   provenance: string;
 }
@@ -82,7 +82,7 @@ export type DiscoveryTab =
   | "trending"
   | "graduating"
   | "graduated"
-  | "relaypad";
+  | "fluxpad";
 
 export type DiscoverySort =
   | "newest"

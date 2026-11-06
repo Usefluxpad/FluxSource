@@ -1,6 +1,6 @@
 "use client";
 /**
- * RelayPad application shell: auto-collapsing desktop sidebar, mobile drawer,
+ * FluxPad application shell: auto-collapsing desktop sidebar, mobile drawer,
  * top bar, and content area. The rail starts at 68px and expands to 240px
  * while hovered, pinned, or keyboard-focused; the content area adapts.
  */

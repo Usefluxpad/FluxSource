@@ -11,17 +11,17 @@ import {
   type ClassifiedTransaction,
   type ParsedInstruction,
   type TokenBalance,
-} from "@/lib/relay-official/classify";
+} from "@/lib/official-token/classify";
 import {
-  MemoryRelayOfficialStore,
+  MemoryOfficialTokenStore,
   type ActivityFilter,
-} from "@/lib/relay-official/store";
-import { indexTreasuryActivity, type IndexerConnection } from "@/lib/relay-official/indexer";
-import { buildTreasurySummary, type BalanceConnection } from "@/lib/relay-official/summary";
-import { getRelayOfficialConfig } from "@/lib/relay-official/config";
-import { publicApiGuard, resetPublicApiLimiter, ipOf } from "@/lib/relay-official/api-guard";
-import { publicErrorReason, logSafeDetail, publicInvalidRoles } from "@/lib/relay-official/sanitize";
-import { shouldRunRefresh, REFRESH_MIN_INTERVAL_MS } from "@/lib/relay-official/refresh-gate";
+} from "@/lib/official-token/store";
+import { indexTreasuryActivity, type IndexerConnection } from "@/lib/official-token/indexer";
+import { buildTreasurySummary, type BalanceConnection } from "@/lib/official-token/summary";
+import { getOfficialTokenConfig } from "@/lib/official-token/config";
+import { publicApiGuard, resetPublicApiLimiter, ipOf } from "@/lib/official-token/api-guard";
+import { publicErrorReason, logSafeDetail, publicInvalidRoles } from "@/lib/official-token/sanitize";
+import { shouldRunRefresh, REFRESH_MIN_INTERVAL_MS } from "@/lib/official-token/refresh-gate";
 
 /* ---------------------------------------------------------------- fixtures */
 
@@ -32,15 +32,15 @@ const W2 = "91PyJwjNrfqTK1JP7yAiJXjBH69A5MB3UCiJMuc35FU";
 const OTHER = "7g1brfz5spz8VgShvSMsfkzn3at81MBpspR7nY7Bp5LT";
 const W2_ATA = "Qoi8fYUFL6UW8ZB3RVzQJYjR8ijzYGaexp1GEGnqFbx";
 const OTHER_ATA = "Una53Nq6GWZtT5L8fjNyx4wxY2go2MX4TouuxeNuFRR";
-const RELAY_MINT = "Re1ayMintAddressAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+const FLUX_MINT = "F1uxMintAddressAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 const OTHER_MINT = "0therMintAddressAAAAAAAAAAAAAAAAAAAAAAAAA0";
 const WSOL_MINT = "So11111111111111111111111111111111111111112";
 const TOKEN_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
 
-const CONFIG = getRelayOfficialConfig({
-  RELAY_OFFICIAL_CREATOR_WALLET: W1,
-  RELAY_OFFICIAL_BUYBACK_TREASURY: W2,
-  RELAY_OFFICIAL_ENABLED: "true",
+const CONFIG = getOfficialTokenConfig({
+  FLUXPAD_OFFICIAL_CREATOR_WALLET: W1,
+  FLUXPAD_OFFICIAL_BUYBACK_TREASURY: W2,
+  FLUXPAD_OFFICIAL_ENABLED: "true",
 });
 const ROLES = new Map([
   [W1, "W1"],
@@ -123,21 +123,21 @@ describe("classifyTransaction — burn verification (real parser shapes)", () =>
       [
         parsedIx(TOKEN_PROGRAM, "spl-token", "burnChecked", {
           account: W2_ATA,
-          mint: RELAY_MINT,
+          mint: FLUX_MINT,
           tokenAmount: { uiAmount: 1, amount: "1000000", decimals: 6 },
           authority: W2,
         }),
       ],
       {
-        preTokenBalances: [tb(2, RELAY_MINT, W2, "5000000", 6)],
-        postTokenBalances: [tb(2, RELAY_MINT, W2, "4000000", 6)],
+        preTokenBalances: [tb(2, FLUX_MINT, W2, "5000000", 6)],
+        postTokenBalances: [tb(2, FLUX_MINT, W2, "4000000", 6)],
       },
       [W1, W2, W2_ATA],
     );
     const [record] = classifyTransaction(tx, classifyOpts("sig_burn"));
     expect(record.type).toBe("burn");
     expect(record.burnVerified).toBe(true);
-    expect(record.burnMint).toBe(RELAY_MINT);
+    expect(record.burnMint).toBe(FLUX_MINT);
     expect(record.inputAmount).toBe("1000000");
     expect(record.inputDecimals).toBe(6);
     // Attribution resolves the token account's OWNER, not the ATA address.
@@ -157,15 +157,15 @@ describe("classifyTransaction — burn verification (real parser shapes)", () =>
         }),
       ],
       {
-        preTokenBalances: [tb(2, RELAY_MINT, W2, "1500000", 6)],
-        postTokenBalances: [tb(2, RELAY_MINT, W2, "1000000", 6)],
+        preTokenBalances: [tb(2, FLUX_MINT, W2, "1500000", 6)],
+        postTokenBalances: [tb(2, FLUX_MINT, W2, "1000000", 6)],
       },
       [W1, W2, W2_ATA],
     );
     const [record] = classifyTransaction(tx, classifyOpts("sig_burn_legacy"));
     expect(record.type).toBe("burn");
     expect(record.burnVerified).toBe(true);
-    expect(record.burnMint).toBe(RELAY_MINT); // derived, not guessed
+    expect(record.burnMint).toBe(FLUX_MINT); // derived, not guessed
     expect(record.inputAmount).toBe("500000");
     expect(record.inputDecimals).toBe(6);
     expect(record.sender).toBe(W2);
@@ -178,19 +178,19 @@ describe("classifyTransaction — burn verification (real parser shapes)", () =>
         parsedIx(TOKEN_PROGRAM, "spl-token", "transferChecked", {
           source: W2_ATA,
           destination: OTHER_ATA,
-          mint: RELAY_MINT,
+          mint: FLUX_MINT,
           tokenAmount: { uiAmount: 0.5, amount: "500000", decimals: 6 },
           authority: W2,
         }),
       ],
       {
         preTokenBalances: [
-          tb(2, RELAY_MINT, W2, "1000000", 6),
-          tb(3, RELAY_MINT, OTHER, "0", 6),
+          tb(2, FLUX_MINT, W2, "1000000", 6),
+          tb(3, FLUX_MINT, OTHER, "0", 6),
         ],
         postTokenBalances: [
-          tb(2, RELAY_MINT, W2, "500000", 6),
-          tb(3, RELAY_MINT, OTHER, "500000", 6),
+          tb(2, FLUX_MINT, W2, "500000", 6),
+          tb(3, FLUX_MINT, OTHER, "500000", 6),
         ],
       },
       [W1, W2, W2_ATA, OTHER_ATA],
@@ -208,14 +208,14 @@ describe("classifyTransaction — burn verification (real parser shapes)", () =>
       [
         parsedIx(TOKEN_PROGRAM, "spl-token", "burnChecked", {
           account: OTHER_ATA,
-          mint: RELAY_MINT,
+          mint: FLUX_MINT,
           tokenAmount: { uiAmount: 1, amount: "999999", decimals: 6 },
           authority: OTHER,
         }),
       ],
       {
-        preTokenBalances: [tb(3, RELAY_MINT, OTHER, "999999", 6)],
-        postTokenBalances: [tb(3, RELAY_MINT, OTHER, "0", 6)],
+        preTokenBalances: [tb(3, FLUX_MINT, OTHER, "999999", 6)],
+        postTokenBalances: [tb(3, FLUX_MINT, OTHER, "0", 6)],
       },
       [W1, W2, OTHER_ATA],
     );
@@ -226,13 +226,13 @@ describe("classifyTransaction — burn verification (real parser shapes)", () =>
     const ix = () =>
       parsedIx(TOKEN_PROGRAM, "spl-token", "burnChecked", {
         account: W2_ATA,
-        mint: RELAY_MINT,
+        mint: FLUX_MINT,
         tokenAmount: { uiAmount: 1, amount: "1000", decimals: 6 },
         authority: W2,
       });
     const balances = {
-      preTokenBalances: [tb(2, RELAY_MINT, W2, "3000", 6)],
-      postTokenBalances: [tb(2, RELAY_MINT, W2, "1000", 6)],
+      preTokenBalances: [tb(2, FLUX_MINT, W2, "3000", 6)],
+      postTokenBalances: [tb(2, FLUX_MINT, W2, "1000", 6)],
     };
     const tx = baseTx([ix(), ix()], balances, [W1, W2, W2_ATA]);
     const records = classifyTransaction(tx, classifyOpts("sig_two_burns"));
@@ -260,15 +260,15 @@ describe("classifyTransaction — burn verification (real parser shapes)", () =>
             instructions: [
               parsedIx(TOKEN_PROGRAM, "spl-token", "burnChecked", {
                 account: W2_ATA,
-                mint: RELAY_MINT,
+                mint: FLUX_MINT,
                 tokenAmount: { uiAmount: 2, amount: "2000000", decimals: 6 },
                 authority: W2,
               }),
             ],
           },
         ],
-        preTokenBalances: [tb(2, RELAY_MINT, W2, "2000000", 6)],
-        postTokenBalances: [tb(2, RELAY_MINT, W2, "0", 6)],
+        preTokenBalances: [tb(2, FLUX_MINT, W2, "2000000", 6)],
+        postTokenBalances: [tb(2, FLUX_MINT, W2, "0", 6)],
       },
       [W1, W2, W2_ATA, OTHER_ATA],
     );
@@ -277,7 +277,7 @@ describe("classifyTransaction — burn verification (real parser shapes)", () =>
     );
     expect(burns).toHaveLength(1);
     expect(burns[0].inputAmount).toBe("2000000");
-    expect(burns[0].burnMint).toBe(RELAY_MINT);
+    expect(burns[0].burnMint).toBe(FLUX_MINT);
   });
 });
 
@@ -286,11 +286,11 @@ describe("classifyTransaction — swap input/output decoding", () => {
     err: null,
     fee: 5000,
     preTokenBalances: [
-      tb(0, RELAY_MINT, W2, "1000", 6),
+      tb(0, FLUX_MINT, W2, "1000", 6),
       tb(1, WSOL_MINT, W2, "5000000000", 9),
     ],
     postTokenBalances: [
-      tb(0, RELAY_MINT, W2, "4000", 6),
+      tb(0, FLUX_MINT, W2, "4000", 6),
       tb(1, WSOL_MINT, W2, "2000000000", 9),
     ],
     logMessages: [
@@ -302,7 +302,7 @@ describe("classifyTransaction — swap input/output decoding", () => {
   it("derives verified input/output amounts from pre/post balance deltas", () => {
     const tx = baseTx([], swapMeta);
     const deltas = tokenDeltaByMint(tx, W2);
-    expect(deltas.find((d) => d.mint === RELAY_MINT)?.delta).toBe("3000");
+    expect(deltas.find((d) => d.mint === FLUX_MINT)?.delta).toBe("3000");
     expect(deltas.find((d) => d.mint === WSOL_MINT)?.delta).toBe("-3000000000");
 
     const [swap] = classifyTransaction(tx, classifyOpts("sig_swap"));
@@ -310,7 +310,7 @@ describe("classifyTransaction — swap input/output decoding", () => {
     expect(swap.inputAmount).toBe("3000000000");
     expect(swap.inputAsset).toBe(WSOL_MINT);
     expect(swap.outputAmount).toBe("3000");
-    expect(swap.outputAsset).toBe(RELAY_MINT);
+    expect(swap.outputAsset).toBe(FLUX_MINT);
     expect(swap.walletRole).toBe("W2");
   });
 
@@ -332,11 +332,11 @@ describe("classifyTransaction — swap input/output decoding", () => {
       err: null,
       fee: 5000,
       preTokenBalances: [
-        tb(0, RELAY_MINT, W2, "1000", 6),
+        tb(0, FLUX_MINT, W2, "1000", 6),
         tb(1, WSOL_MINT, W2, "5000000000", 9),
       ],
       postTokenBalances: [
-        tb(0, RELAY_MINT, W2, "1000", 6),
+        tb(0, FLUX_MINT, W2, "1000", 6),
         tb(1, WSOL_MINT, W2, "5000000000", 9),
       ],
       logMessages: ["Program log: Instruction: Buy"],
@@ -392,19 +392,19 @@ describe("classifyTransaction — fee collections and transfers", () => {
         parsedIx(TOKEN_PROGRAM, "spl-token", "transferChecked", {
           source: W2_ATA,
           destination: OTHER_ATA,
-          mint: RELAY_MINT,
+          mint: FLUX_MINT,
           tokenAmount: { uiAmount: 2, amount: "2000000", decimals: 6 },
           authority: W2,
         }),
       ],
       {
         preTokenBalances: [
-          tb(2, RELAY_MINT, W2, "3000000", 6),
-          tb(3, RELAY_MINT, OTHER, "0", 6),
+          tb(2, FLUX_MINT, W2, "3000000", 6),
+          tb(3, FLUX_MINT, OTHER, "0", 6),
         ],
         postTokenBalances: [
-          tb(2, RELAY_MINT, W2, "1000000", 6),
-          tb(3, RELAY_MINT, OTHER, "2000000", 6),
+          tb(2, FLUX_MINT, W2, "1000000", 6),
+          tb(3, FLUX_MINT, OTHER, "2000000", 6),
         ],
       },
       [W1, W2, W2_ATA, OTHER_ATA],
@@ -429,19 +429,19 @@ describe("classifyTransaction — fee collections and transfers", () => {
       ],
       {
         preTokenBalances: [
-          tb(2, RELAY_MINT, W2, "1000", 6),
-          tb(3, RELAY_MINT, OTHER, "0", 6),
+          tb(2, FLUX_MINT, W2, "1000", 6),
+          tb(3, FLUX_MINT, OTHER, "0", 6),
         ],
         postTokenBalances: [
-          tb(2, RELAY_MINT, W2, "223", 6),
-          tb(3, RELAY_MINT, OTHER, "777", 6),
+          tb(2, FLUX_MINT, W2, "223", 6),
+          tb(3, FLUX_MINT, OTHER, "777", 6),
         ],
       },
       [W1, W2, W2_ATA, OTHER_ATA],
     );
     const [transfer] = classifyTransaction(tx, classifyOpts("sig_legacy_transfer"));
     expect(transfer.type).toBe("transfer");
-    expect(transfer.inputAsset).toBe(RELAY_MINT); // derived from balances
+    expect(transfer.inputAsset).toBe(FLUX_MINT); // derived from balances
     expect(transfer.inputDecimals).toBe(6);
     expect(transfer.inputAmount).toBe("777");
     expect(transfer.sender).toBe(W2);
@@ -473,10 +473,10 @@ describe("classifyTransaction — fee collections and transfers", () => {
 
 /* --------------------------------------------- store: duplicates & filters */
 
-describe("MemoryRelayOfficialStore — duplicates, pagination, filters", () => {
-  let store: MemoryRelayOfficialStore;
+describe("MemoryOfficialTokenStore — duplicates, pagination, filters", () => {
+  let store: MemoryOfficialTokenStore;
   beforeEach(() => {
-    store = new MemoryRelayOfficialStore();
+    store = new MemoryOfficialTokenStore();
   });
 
   const record = (
@@ -589,22 +589,22 @@ const burnTx = baseTx(
   [
     parsedIx(TOKEN_PROGRAM, "spl-token", "burnChecked", {
       account: W2_ATA,
-      mint: RELAY_MINT,
+      mint: FLUX_MINT,
       tokenAmount: { uiAmount: 42, amount: "42", decimals: 0 },
       authority: W2,
     }),
   ],
   {
-    preTokenBalances: [tb(2, RELAY_MINT, W2, "100", 0)],
-    postTokenBalances: [tb(2, RELAY_MINT, W2, "58", 0)],
+    preTokenBalances: [tb(2, FLUX_MINT, W2, "100", 0)],
+    postTokenBalances: [tb(2, FLUX_MINT, W2, "58", 0)],
   },
   [W1, W2, W2_ATA],
 );
 
 describe("indexTreasuryActivity", () => {
-  let store: MemoryRelayOfficialStore;
+  let store: MemoryOfficialTokenStore;
   beforeEach(() => {
-    store = new MemoryRelayOfficialStore();
+    store = new MemoryOfficialTokenStore();
   });
 
   it("scans configured wallets, classifies, and stores verified activity", async () => {
@@ -681,7 +681,7 @@ describe("indexTreasuryActivity", () => {
   });
 
   it("does nothing when no wallets are configured", async () => {
-    const empty = getRelayOfficialConfig({});
+    const empty = getOfficialTokenConfig({});
     const conn = makeConnectionStub({ signaturesError: new Error("must not be called") });
     const result = await indexTreasuryActivity({ connection: conn, store, config: empty });
     expect(result.walletsScanned).toBe(0);
@@ -689,9 +689,9 @@ describe("indexTreasuryActivity", () => {
   });
 
   it("does not scan when the master switch is disabled", async () => {
-    const disabled = getRelayOfficialConfig({
-      RELAY_OFFICIAL_CREATOR_WALLET: W1,
-      RELAY_OFFICIAL_ENABLED: "false",
+    const disabled = getOfficialTokenConfig({
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: W1,
+      FLUXPAD_OFFICIAL_ENABLED: "false",
     });
     const conn = makeConnectionStub({ signaturesError: new Error("must not be called") });
     const result = await indexTreasuryActivity({ connection: conn, store, config: disabled });
@@ -714,12 +714,12 @@ describe("indexTreasuryActivity", () => {
         sender: W2,
         recipient: null,
         inputAmount: "7",
-        inputAsset: RELAY_MINT,
+        inputAsset: FLUX_MINT,
         inputDecimals: 0,
         outputAmount: null,
         outputAsset: null,
         outputDecimals: null,
-        burnMint: RELAY_MINT,
+        burnMint: FLUX_MINT,
         burnVerified: true,
         programId: null,
         network: "mainnet-beta",
@@ -770,12 +770,12 @@ describe("buildTreasurySummary", () => {
     const summary = await buildTreasurySummary({
       balanceConnection: null,
       store: null,
-      config: getRelayOfficialConfig({}),
+      config: getOfficialTokenConfig({}),
     });
     expect(summary.configured).toBe(false);
     expect(summary.wallets.every((w) => !w.configured && w.lamports === null)).toBe(true);
     expect(summary.totals.feesCollected).toBeNull();
-    expect(summary.totals.relayBurned).toBeNull();
+    expect(summary.totals.fluxBurned).toBeNull();
   });
 
   it("reports unavailable balances with sanitized reasons, never raw provider text", async () => {
@@ -801,7 +801,7 @@ describe("buildTreasurySummary", () => {
   });
 
   it("aggregates verified store data with live balances", async () => {
-    const store = new MemoryRelayOfficialStore();
+    const store = new MemoryOfficialTokenStore();
     await store.upsertActivities([
       {
         signature: "sig1",
@@ -873,7 +873,7 @@ describe("buildTreasurySummary — asset/mint scoping", () => {
   });
 
   it("never mixes token units into SOL totals", async () => {
-    const store = new MemoryRelayOfficialStore();
+    const store = new MemoryOfficialTokenStore();
     await store.upsertActivities([
       row("t1", "transfer", "SOL", "SOL"),
       row("t2", "transfer", OTHER_MINT, OTHER_MINT), // token transfer
@@ -890,42 +890,42 @@ describe("buildTreasurySummary — asset/mint scoping", () => {
   });
 
   it("never mixes other mints into $FLUX purchase/burn totals", async () => {
-    const store = new MemoryRelayOfficialStore();
+    const store = new MemoryOfficialTokenStore();
     await store.upsertActivities([
-      row("s1", "swap", WSOL_MINT, RELAY_MINT),
+      row("s1", "swap", WSOL_MINT, FLUX_MINT),
       row("s2", "swap", WSOL_MINT, OTHER_MINT), // unrelated swap
-      row("b1", "burn", RELAY_MINT, null),
+      row("b1", "burn", FLUX_MINT, null),
       row("b2", "burn", OTHER_MINT, null), // unrelated burn
     ]);
     await store.markOnChainVerified(["s1", "s2", "b1", "b2"], new Date());
-    const mintedConfig = getRelayOfficialConfig({
-      RELAY_OFFICIAL_CREATOR_WALLET: W1,
-      FLUXPAD_OFFICIAL_MINT: RELAY_MINT,
-      RELAY_OFFICIAL_ENABLED: "true",
+    const mintedConfig = getOfficialTokenConfig({
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: W1,
+      FLUXPAD_OFFICIAL_MINT: FLUX_MINT,
+      FLUXPAD_OFFICIAL_ENABLED: "true",
     });
     const summary = await buildTreasurySummary({
       balanceConnection: null,
       store,
       config: mintedConfig,
     });
-    expect(summary.totals.relayPurchased).toBe("10"); // s1 only
-    expect(summary.totals.relayBurned).toBe("10"); // b1 only
+    expect(summary.totals.fluxPurchased).toBe("10"); // s1 only
+    expect(summary.totals.fluxBurned).toBe("10"); // b1 only
   });
 
   it("renders $FLUX totals as unavailable while the mint is unconfigured", async () => {
-    const store = new MemoryRelayOfficialStore();
-    await store.upsertActivities([row("s1", "swap", WSOL_MINT, RELAY_MINT)]);
+    const store = new MemoryOfficialTokenStore();
+    await store.upsertActivities([row("s1", "swap", WSOL_MINT, FLUX_MINT)]);
     await store.markOnChainVerified(["s1"], new Date());
     const summary = await buildTreasurySummary({
       balanceConnection: null,
       store,
-      config: getRelayOfficialConfig({
-        RELAY_OFFICIAL_CREATOR_WALLET: W1,
-        RELAY_OFFICIAL_ENABLED: "true",
+      config: getOfficialTokenConfig({
+        FLUXPAD_OFFICIAL_CREATOR_WALLET: W1,
+        FLUXPAD_OFFICIAL_ENABLED: "true",
       }),
     });
-    expect(summary.totals.relayPurchased).toBeNull();
-    expect(summary.totals.relayBurned).toBeNull();
+    expect(summary.totals.fluxPurchased).toBeNull();
+    expect(summary.totals.fluxBurned).toBeNull();
   });
 });
 
@@ -979,9 +979,9 @@ describe("public API guard — security", () => {
 
 /* ------------------------------------------------------------- config safety */
 
-describe("getRelayOfficialConfig — placeholders and validation", () => {
+describe("getOfficialTokenConfig — placeholders and validation", () => {
   it("returns unconfigured placeholder roles when no addresses are set", () => {
-    const config = getRelayOfficialConfig({});
+    const config = getOfficialTokenConfig({});
     expect(config.wallets).toHaveLength(4);
     expect(config.wallets.map((w) => w.role)).toEqual(["W1", "W2", "W3", "W4"]);
     expect(config.wallets.every((w) => w.address === null)).toBe(true);
@@ -990,20 +990,20 @@ describe("getRelayOfficialConfig — placeholders and validation", () => {
   });
 
   it("rejects malformed addresses by treating them as unconfigured", () => {
-    const config = getRelayOfficialConfig({
-      RELAY_OFFICIAL_CREATOR_WALLET: "not-a-valid-base58-address!!!",
+    const config = getOfficialTokenConfig({
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: "not-a-valid-base58-address!!!",
     });
     expect(config.wallets.find((w) => w.role === "W1")?.address).toBeNull();
     expect(config.anyWalletConfigured).toBe(false);
   });
 
   it("accepts valid public addresses for W1..W4", () => {
-    const config = getRelayOfficialConfig({
-      RELAY_OFFICIAL_CREATOR_WALLET: W1,
-      RELAY_OFFICIAL_BUYBACK_TREASURY: W2,
-      RELAY_OFFICIAL_OPS_TREASURY: W1,
-      RELAY_OFFICIAL_DEV_WALLET: W2,
-      FLUXPAD_OFFICIAL_MINT: RELAY_MINT,
+    const config = getOfficialTokenConfig({
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: W1,
+      FLUXPAD_OFFICIAL_BUYBACK_TREASURY: W2,
+      FLUXPAD_OFFICIAL_OPS_TREASURY: W1,
+      FLUXPAD_OFFICIAL_DEV_WALLET: W2,
+      FLUXPAD_OFFICIAL_MINT: FLUX_MINT,
     });
     expect(config.anyWalletConfigured).toBe(true);
     expect(config.wallets.filter((w) => w.address !== null)).toHaveLength(4);
@@ -1040,8 +1040,8 @@ describe("public error sanitization", () => {
   });
 
   it("publicInvalidRoles exposes roles only, never the raw env values", () => {
-    const config = getRelayOfficialConfig({
-      RELAY_OFFICIAL_CREATOR_WALLET: "not-a-valid-base58-address!!!",
+    const config = getOfficialTokenConfig({
+      FLUXPAD_OFFICIAL_CREATOR_WALLET: "not-a-valid-base58-address!!!",
       FLUXPAD_OFFICIAL_MINT: "also-bad!!!",
     });
     // Server-side diagnostics keep the raw values internally.
@@ -1105,9 +1105,9 @@ describe("shouldRunRefresh - layered refresh gate", () => {
 /* ------------------------------- indexer: pending, statuses, duplicates */
 
 describe("indexTreasuryActivity - pending, reconcile failures, duplicate upserts", () => {
-  let store: MemoryRelayOfficialStore;
+  let store: MemoryOfficialTokenStore;
   beforeEach(() => {
-    store = new MemoryRelayOfficialStore();
+    store = new MemoryOfficialTokenStore();
   });
 
   it("treats null RPC transactions as pending: never stored, retried next run", async () => {
@@ -1151,12 +1151,12 @@ describe("indexTreasuryActivity - pending, reconcile failures, duplicate upserts
       sender: W2,
       recipient: null,
       inputAmount: "1",
-      inputAsset: RELAY_MINT,
+      inputAsset: FLUX_MINT,
       inputDecimals: 6,
       outputAmount: null,
       outputAsset: null,
       outputDecimals: null,
-      burnMint: RELAY_MINT,
+      burnMint: FLUX_MINT,
       burnVerified: true,
       programId: null,
       network: "mainnet-beta",

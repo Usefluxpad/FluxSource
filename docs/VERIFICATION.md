@@ -1,6 +1,6 @@
 # Verification notes (honest scope)
 
-This file records what RelayPad *does* and *does not* claim to have verified.
+This file records what FluxPad *does* and *does not* claim to have verified.
 
 ## Runtime verification session (latest)
 
@@ -20,7 +20,7 @@ Performed against the running application on this machine:
   `next build` + `next start` also verified. A clean build must be produced
   with the dev server stopped — building while `next dev` is running corrupts
   `.next` (observed: 500 responses from the production server until rebuild).
-- **Pages verified over HTTP** (status 200 + RelayPad branding): `/`,
+- **Pages verified over HTTP** (status 200 + FluxPad branding): `/`,
   `/create`, `/tokens`, `/dashboard`, `/settings`, `/tokens/<record-id>`.
   Registry records created during verification render on the tokens list and
   detail pages.
@@ -134,7 +134,7 @@ HTTP with the full UI (kind selector, case toggle, security warning).
 
 ## Mainnet migration (Alchemy)
 
-`NEXT_PUBLIC_RELAYPAD_NETWORK` migrated to `mainnet-beta` with Alchemy as the
+`NEXT_PUBLIC_FLUXPAD_NETWORK` migrated to `mainnet-beta` with Alchemy as the
 dedicated server-side RPC. Verified live: `node scripts/rpc-check.js` →
 `provider: alchemy`, real `getSlot` OK (mainnet slot returned, key redacted in
 all output).
@@ -156,7 +156,7 @@ Per-layer mapping when cluster = `mainnet-beta`:
 - **Reconciliation**: `resolveServerNetworkConfig(launch.network)` → Alchemy
   mainnet for on-chain lifecycle verification.
 
-**Devnet testing preserved**: setting `NEXT_PUBLIC_RELAYPAD_NETWORK=devnet`
+**Devnet testing preserved**: setting `NEXT_PUBLIC_FLUXPAD_NETWORK=devnet`
 reverts every layer to Devnet (public devnet RPC or a `SOLANA_RPC_URL`, devnet
 Raydium hosts, `DEVNET_PROGRAM_ID.LAUNCHPAD_PROGRAM` + devnet platform config).
 
@@ -214,7 +214,7 @@ Both routes verified for mainnet consistency:
   loads with `cluster: "mainnet"`; config account validated live before
   building; required `extraSigners: [mintKeypair]` +
   `ensureMintSignature`; graduation executed by Raydium's migration wallet
-  (detected/verified, never executed by RelayPad).
+  (detected/verified, never executed by FluxPad).
 - **Network consistency**: one network config flows everywhere —
   `loadConfig(connection, network.cluster)` and
   `prepareLaunch({ cluster: network.cluster })`; launch intent is persisted
@@ -235,7 +235,7 @@ submission, confirmation polling, post-confirm mint read) all used the public
 launch-reliability bottleneck on Mainnet.
 
 **After:** `NEXT_PUBLIC_SOLANA_RPC_URL=/api/rpc` points the browser at
-RelayPad's own **server-side RPC proxy** (`src/app/api/rpc/route.ts`):
+FluxPad's own **server-side RPC proxy** (`src/app/api/rpc/route.ts`):
 - Forwards browser JSON-RPC (single or batch) to `ALCHEMY_SOLANA_RPC_URL`
   server-side. The key never appears in the request path, response, HTML,
   bundles, source maps, or logs.
@@ -279,7 +279,7 @@ Strict typecheck (`tsc --noEmit`) passes with no errors.
 Verified by direct execution on this machine:
 - `tsc --noEmit` → exit 0 (no type errors).
 - `vitest run` → 6 files / 48 tests, all passing, exit 0.
-- Unit coverage of the Explore data model: dedupe by mint, RelayPad
+- Unit coverage of the Explore data model: dedupe by mint, FluxPad
   attribution stickiness, new-launch vs new-pool classification,
   movers require a verified 24h change, market-cap sort ranks missing values
   last, pagination bounds, FDV-vs-MC labelling via `applySolPrice`.
@@ -292,12 +292,12 @@ Not yet exercised in this session (requires a running server):
   the RPC is unreachable; that degradation path is unit-tested indirectly but
   the live fetch itself is environment-dependent.
 
-Manual verification (run from `relaypad/`, dev server must be stopped first):
+Manual verification (run from `fluxpad/`, dev server must be stopped first):
 ```
 npm run build
 npm start -- -p 3210
 curl "http://localhost:3210/api/discovery?tab=all&pageSize=5"
-curl "http://localhost:3210/api/discovery?tab=relaypad&relayRoute=pump&relayStatus=pending"
+curl "http://localhost:3210/api/discovery?tab=fluxpad&launchRoute=pump&launchStatus=pending"
 curl "http://localhost:3210/api/discovery?tab=pumpfun&sort=market-cap&q=sol"
 curl "http://localhost:3210/api/discovery?tab=new-pools"
 ```
@@ -343,7 +343,7 @@ Resumed and completed in this session. The Explore page (`/tokens`) renders
 | `pumpfun.pool` | PumpSwap AMM program (on-chain) | `getProgramAccounts` with documented pool size filter + data slice; vault balances/mint decimals batch-read | TTL cache 60s |
 | `launchlab.curve` | Raydium LaunchLab Mint API | `GET launch-mint-v1[-devnet].raydium.io/get/list?sort=new` (documented REST) | TTL cache 45s |
 | `raydium.cpmm` | Raydium API v3 | `GET api-v3[-devnet].raydium.io/pools/info/list?poolType=cpmm…` + `/mint/price` for SOL→USD | TTL cache 60s |
-| `relaypad` | Local registry (Prisma) | Only `status >= CONFIRMED` records with verified `mintAddress` + `signature` | always fresh |
+| `fluxpad` | Local registry (Prisma) | Only `status >= CONFIRMED` records with verified `mintAddress` + `signature` | always fresh |
 
 **Runtime (`src/lib/discovery/runtime.ts`):** bounded on-demand ingestion with
 per-source TTL caches, shared in-flight promises (no duplicate fetches), stale
@@ -361,25 +361,25 @@ record types; every row shows its data source, provenance and last-updated
 time; stale rows are flagged.
 
 **UI (`src/components/discovery/explore-panel.tsx`):** seven tabs (All /
-Movers / New Launches / New Pools / Pump.fun / LaunchLab / RelayPad Launches),
+Movers / New Launches / New Pools / Pump.fun / LaunchLab / FluxPad Launches),
 server-side search (350ms debounce), sort picker, filter pills, pagination
 (25/page), per-source freshness strip, degraded-provider banner, and honest
-empty states — the RelayPad tab's empty state links to `/create` and states
-that Pump/LaunchLab tokens are never attributed to RelayPad. RelayPad-tab
+empty states — the FluxPad tab's empty state links to `/create` and states
+that Pump/LaunchLab tokens are never attributed to FluxPad. FluxPad-tab
 sub-filters (route: Pump/LaunchLab, lifecycle: Pending/Graduated) run
-server-side (`relayRoute`/`relayStatus` query params) derived strictly from
-record identity (`source` / `relaypad-registry(...)` provenance).
+server-side (`launchRoute`/`launchStatus` query params) derived strictly from
+record identity (`source` / `fluxpad-registry(...)` provenance).
 
 **Graduation/lifecycle:** Pump curves carry the `complete` flag → `graduated`,
 and PumpSwap pool presence is verified on-chain separately; LaunchLab records
 map documented lifecycle states conservatively and CPMM destination pools are
-verified via Raydium API v3 pool records. RelayPad launch records preserve the
+verified via Raydium API v3 pool records. FluxPad launch records preserve the
 full lifecycle (`CONFIRMED → CURVE_TRADING → GRADUATION_DETECTED →
 POOL_VERIFIED`) and keep their identity when the same mint appears in provider
-feeds (sticky `relaypadLaunchId`, no double counting).
+feeds (sticky `fluxpadLaunchId`, no double counting).
 
 **Deduplication:** `mergeFeeds` keys records by mint, prefers the most
-informative record (pool > curve, RelayPad records win attribution), preserves
+informative record (pool > curve, FluxPad records win attribution), preserves
 earliest creation time and richer metadata. Unit-tested in
 `src/tests/discovery.test.ts`.
 
@@ -390,7 +390,7 @@ earliest creation time and richer metadata. Unit-tested in
 1. **End-to-end transaction execution on devnet for both routes.** Requires a
    funded devnet wallet and a reachable RPC. The Pump bonding-curve program
    and LaunchLab devnet deployment/config availability must be confirmed
-   against the live cluster at run time — RelayPad's `loadConfig` fails
+   against the live cluster at run time — FluxPad's `loadConfig` fails
    honestly with a typed `PROTOCOL` error when either is missing.
 2. **Vanity mints through real transactions.** The engine and signer wiring
    are implemented and unit-tested; an on-chain vanity launch on each route
@@ -447,10 +447,10 @@ fabricated curves.
 - Mainnet: disabled by default; never conduct unapproved real-money
   transactions during testing.
 
-## Official-$RELAY production readiness (Phase 1)
+## Official-token production readiness (Phase 1)
 
 Phase 1 hardening for the treasury system is documented in
-`docs/RELAY_OFFICIAL_PRODUCTION_READINESS.md`: public-API error sanitization,
+`docs/archive/RELAY_OFFICIAL_PRODUCTION_READINESS.md`: public-API error sanitization,
 raw invalid-env values stripped from responses, a DB-backed refresh gate on
 top of the per-process single-flight guard, expanded indexer/concurrency
 tests, and the verified launch creator-fee semantics (pump-sdk IDL).

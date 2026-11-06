@@ -1,7 +1,7 @@
 /**
  * Wallet connection lifecycle hardening.
  *
- * RelayPad is a Solana-only launchpad: the wallet stack is
+ * FluxPad is a Solana-only launchpad: the wallet stack is
  * @solana/wallet-adapter-(react|phantom|solflare). A wedged injected wallet
  * environment (browser wallet extensions inject providers into every page,
  * and several multi-chain extensions also expose `window.solana`) can make an

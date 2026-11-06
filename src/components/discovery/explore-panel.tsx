@@ -1,7 +1,7 @@
 "use client";
 /**
  * Explore Tokens panel — dense market discovery over /api/discovery.
- * Tabs (All / New Launches / New Pools / Pump.fun / LaunchLab / RelayPad
+ * Tabs (All / New Launches / New Pools / Pump.fun / LaunchLab / FluxPad
  * Launches), compact filters, search, sorting, pagination, honest N/A cells
  * and data-freshness indicators. No fabricated metrics.
  */
@@ -29,7 +29,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "trending", label: "Trending" },
   { key: "graduating", label: "Graduating" },
   { key: "graduated", label: "Graduated" },
-  { key: "relaypad", label: "FluxPad Launches" },
+  { key: "fluxpad", label: "FluxPad Launches" },
 ];
 
 const FILTERS = [
@@ -62,13 +62,13 @@ interface DiscoveryResponse {
   total: number;
 }
 
-function SourceBadge({ source, relaypadLaunchId }: { source: string; relaypadLaunchId: string | null }) {
+function SourceBadge({ source, fluxpadLaunchId }: { source: string; fluxpadLaunchId: string | null }) {
   const meta: Record<string, { label: string; tone: "mint" | "ice" | "neutral" }> = {
     "pumpfun.curve": { label: "Pump curve", tone: "mint" },
     "pumpfun.pool": { label: "PumpSwap", tone: "mint" },
     "launchlab.curve": { label: "LaunchLab", tone: "ice" },
     "raydium.cpmm": { label: "Raydium CPMM", tone: "ice" },
-    relaypad: { label: "FluxPad", tone: "mint" },
+    fluxpad: { label: "FluxPad", tone: "mint" },
   };
   const m = meta[source] ?? { label: source, tone: "neutral" as const };
   return (
@@ -84,7 +84,7 @@ function SourceBadge({ source, relaypadLaunchId }: { source: string; relaypadLau
       >
         {m.label}
       </span>
-      {relaypadLaunchId && (
+      {fluxpadLaunchId && (
         <span className="rounded border border-mint-500/30 bg-sky-50 px-1 py-0.5 text-2xs font-semibold text-mint-700" title="Launched via FluxPad">
           R
         </span>
@@ -129,7 +129,7 @@ const EMPTY_HINTS: Record<TabKey, string> = {
   trending: "Trending ranks tokens that have a verified 24h volume or change — tokens without metrics cannot trend.",
   graduating: "Graduating shows curve tokens at 80%+ bonding-curve progress.",
   graduated: "Graduated shows tokens that migrated to a destination pool.",
-  relaypad: "",
+  fluxpad: "",
 };
 
 function fmtPrice(n: number | null, sym: string): string {
@@ -205,7 +205,7 @@ function DiscoveryRow({ token: t }: { token: DiscoveredToken }) {
               {shortAddress(t.mint, 4)}
             </Link>
             <span className="shrink-0">{ageOf(t)}</span>
-            <SourceBadge source={t.source} relaypadLaunchId={t.relaypadLaunchId} />
+            <SourceBadge source={t.source} fluxpadLaunchId={t.fluxpadLaunchId} />
             <StatusBadge status={STATUS_OF[t.status] ?? t.status} />
             {t.poolAddress && (
               <span className="hidden font-mono sm:inline" title={`Verified pool address: ${t.poolAddress}`}>
@@ -256,8 +256,8 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
   const [q, setQ] = useState(initialSearch);
   const [query, setQuery] = useState(initialSearch); // debounced search
   const [page, setPage] = useState(1);
-  const [relayRoute, setRelayRoute] = useState<"all" | "pump" | "launchlab">("all");
-  const [relayStatus, setRelayStatus] = useState<"all" | "pending" | "graduated">("all");
+  const [launchRoute, setLaunchRoute] = useState<"all" | "pump" | "launchlab">("all");
+  const [launchStatus, setLaunchStatus] = useState<"all" | "pending" | "graduated">("all");
   // Live-scanner filters (Phase 7) — only real-provider-data filters.
   const [showScanner, setShowScanner] = useState(false);
   const [scanMinLiq, setScanMinLiq] = useState("");
@@ -297,7 +297,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
   // New view → back to page 1.
   useEffect(() => {
     setPage(1);
-  }, [effectiveTab, effectiveFilter, query, relayRoute, relayStatus, scanQueryString]);
+  }, [effectiveTab, effectiveFilter, query, launchRoute, launchStatus, scanQueryString]);
 
   // Filter choice implies a sensible sort; still overridable via the picker.
   useEffect(() => {
@@ -317,8 +317,8 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
         q: query,
         page: String(page),
         pageSize: String(PAGE_SIZE),
-        relayRoute,
-        relayStatus,
+        launchRoute,
+        launchStatus,
       });
       const res = await fetch(`/api/discovery?${params}${scannerActive ? `&${scanQueryString}` : ""}`, { signal: ctrl.signal });
       if (res.status === 400) throw new Error("Invalid discovery query.");
@@ -332,7 +332,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
     } finally {
       if (!ctrl.signal.aborted) setBusy(false);
     }
-  }, [effectiveTab, effectiveFilter, sort, query, page, relayRoute, relayStatus, scanQueryString, scannerActive]);
+  }, [effectiveTab, effectiveFilter, sort, query, page, launchRoute, launchStatus, scanQueryString, scannerActive]);
 
   useEffect(() => {
     void load();
@@ -483,18 +483,18 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
             </FilterPill>
           ))}
         </div>
-        {tab === "relaypad" && (
+        {tab === "fluxpad" && (
           <>
             <div className="flex items-center gap-0.5 rounded-lg bg-night-800/70 p-1">
               {([["all", "All routes"], ["pump", "Pump"], ["launchlab", "LaunchLab"]] as const).map(([k, l]) => (
-                <FilterPill key={k} active={relayRoute === k} onClick={() => setRelayRoute(k)}>
+                <FilterPill key={k} active={launchRoute === k} onClick={() => setLaunchRoute(k)}>
                   {l}
                 </FilterPill>
               ))}
             </div>
             <div className="flex items-center gap-0.5 rounded-lg bg-night-800/70 p-1">
               {([["all", "All lifecycle"], ["pending", "Pending"], ["graduated", "Graduated"]] as const).map(([k, l]) => (
-                <FilterPill key={k} active={relayStatus === k} onClick={() => setRelayStatus(k)}>
+                <FilterPill key={k} active={launchStatus === k} onClick={() => setLaunchStatus(k)}>
                   {l}
                 </FilterPill>
               ))}
@@ -509,7 +509,7 @@ export function ExplorePanel({ initialSearch = "" }: { initialSearch?: string })
       ) : data === null ? (
         <PanelSkeleton rows={8} />
       ) : tokens.length === 0 ? (
-        tab === "relaypad" ? (
+        tab === "fluxpad" ? (
           <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
             <p className="text-[13px] text-night-400">No verified FluxPad launches yet.</p>
             <p className="max-w-sm text-2xs text-night-500">

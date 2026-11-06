@@ -6,11 +6,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { TokenRow, type TokenRowData } from "@/components/dashboard/token-row";
 import { Panel, PanelSkeleton, PanelEmpty } from "@/components/dashboard/panel";
+import { watchlistStorageKey, migrateLegacyWatchlistKey } from "@/lib/watchlist-storage";
 
-const KEY = "relaypad:watchlist";
+const KEY = watchlistStorageKey;
 
 function readWatchlist(): string[] {
   try {
+    migrateLegacyWatchlistKey();
     const raw = window.localStorage.getItem(KEY);
     const parsed = raw ? (JSON.parse(raw) as unknown) : [];
     return Array.isArray(parsed) ? parsed.filter((x): x is string => typeof x === "string") : [];
